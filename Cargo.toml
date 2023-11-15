@@ -11,3 +11,6 @@ categories = ["API bindings"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+memmap = "0.7.0"
+libc = "0.2.148"
+page_size = "0.6.0"
