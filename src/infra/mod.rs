@@ -1,2 +1,2 @@
-mod option;
-mod result;
+pub mod option;
+pub mod result;
