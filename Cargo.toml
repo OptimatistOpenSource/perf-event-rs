@@ -7,8 +7,12 @@ license = "MIT"
 repository = "https://github.com/OptimatistOpenSource/perf-event-rs.git"
 keywords = ["binding", "event", "perf"]
 categories = ["API bindings"]
+build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+bindgen = "0.68.1"
 
 [dependencies]
 memmap = "0.7.0"
