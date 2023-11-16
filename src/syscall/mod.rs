@@ -6,3 +6,22 @@
 #[allow(non_upper_case_globals)]
 #[allow(non_snake_case)]
 mod bindings;
+
+use libc::{c_int, c_ulong, pid_t};
+
+pub unsafe fn perf_event_open(
+    attr: *const bindings::perf_event_attr,
+    pid: pid_t,
+    cpu: c_int,
+    group_fd: c_int,
+    flags: c_ulong,
+) -> c_int {
+    libc::syscall(
+        bindings::__NR_perf_event_open as libc::c_long,
+        attr,
+        pid,
+        cpu,
+        group_fd,
+        flags,
+    ) as c_int
+}
