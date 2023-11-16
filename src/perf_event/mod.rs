@@ -1,9 +1,113 @@
 use crate::infra::result::WrapResult;
-use crate::syscall::bindings::perf_event_attr;
+use crate::syscall;
+use crate::syscall::bindings::{perf_event_attr, perf_event_ioc_flags, perf_event_ioctls};
+use crate::syscall::ioctl;
+use libc::{c_int, c_ulong};
+use std::io;
 use thiserror::Error;
 
 pub struct PerfEvent {
     // TODO
+    raw_fd: usize,
+}
+
+impl PerfEvent {
+    fn perf_event_ioctl(&self, op: perf_event_ioctls) -> io::Result<()> {
+        let i32 = unsafe { ioctl(self.raw_fd as c_int, op as c_ulong, 0) };
+        match i32 {
+            -1 => Err(io::Error::last_os_error()),
+            _ => Ok(()),
+        }
+    }
+
+    fn perf_event_ioctl_with_arg<A>(&self, op: perf_event_ioctls, arg: A) -> io::Result<()> {
+        let i32 = unsafe { ioctl(self.raw_fd as c_int, op as c_ulong, arg) };
+        match i32 {
+            -1 => Err(io::Error::last_os_error()),
+            _ => Ok(()),
+        }
+    }
+
+    pub fn enable(&self) -> io::Result<()> {
+        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_ENABLE)
+    }
+
+    pub fn enable_group(&self) -> io::Result<()> {
+        self.perf_event_ioctl_with_arg(
+            syscall::bindings::perf_event_ioctls_ENABLE,
+            syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP,
+        )
+    }
+
+    pub fn disable(&self) -> io::Result<()> {
+        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_DISABLE)
+    }
+
+    pub fn disable_group(&self) -> io::Result<()> {
+        self.perf_event_ioctl_with_arg(
+            syscall::bindings::perf_event_ioctls_DISABLE,
+            syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP,
+        )
+    }
+
+    pub fn refresh(&self) -> io::Result<()> {
+        // TODO
+        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_REFRESH)
+    }
+
+    pub fn reset(&self) -> io::Result<()> {
+        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_RESET)
+    }
+
+    pub fn reset_group(&self) -> io::Result<()> {
+        self.perf_event_ioctl_with_arg(
+            syscall::bindings::perf_event_ioctls_RESET,
+            syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP,
+        )
+    }
+
+    pub fn period(&self) -> io::Result<()> {
+        // TODO
+        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_PERIOD)
+    }
+
+    pub fn set_output(&self) -> io::Result<()> {
+        // TODO
+        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_OUTPUT)
+    }
+
+    pub fn set_filter(&self) -> io::Result<()> {
+        // TODO
+        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_FILTER)
+    }
+
+    pub fn id(&self) -> io::Result<u64> {
+        let mut id = 0_u64;
+
+        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_ID, &mut id)?;
+
+        Ok(id)
+    }
+
+    pub fn set_bpf(&self) -> io::Result<()> {
+        // TODO
+        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_BPF)
+    }
+
+    pub fn pause_output(&self) -> io::Result<()> {
+        // TODO
+        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_PAUSE_OUTPUT)
+    }
+
+    pub fn query_bpf(&self) -> io::Result<()> {
+        // TODO
+        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_QUERY_BPF)
+    }
+
+    pub fn modify_attributes(&self) -> io::Result<()> {
+        // TODO
+        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_MODIFY_ATTRIBUTES)
+    }
 }
 
 #[derive(Error, Debug)]
