@@ -1,8 +1,12 @@
+use crate::syscall::bindings::perf_event_attr;
+
 pub struct PerfEvent {
     // TODO
 }
 
 pub struct Builder {
+    attr: perf_event_attr,
+
     /*
     pid == 0 and cpu == -1
            This measures the calling process/thread on any CPU.
@@ -29,13 +33,20 @@ pub struct Builder {
     */
     pid: i32,
     cpu: i32,
+
+    group_fd: i32,
+
+    flags: u64,
 }
 
 impl Builder {
     pub fn new() -> Self {
         Self {
+            attr: Default::default(),
             pid: -1,
             cpu: -1,
+            group_fd: -1,
+            flags: 0,
         }
     }
 
@@ -75,8 +86,10 @@ impl Builder {
 
     pub fn build(self) -> Result<PerfEvent, ()> {
         match self {
-            Builder { pid: -1, cpu: -1 } => Err(()),
-            _ => todo!()
+            Builder {
+                pid: -1, cpu: -1, ..
+            } => Err(()),
+            _ => todo!(),
         }
     }
 }
