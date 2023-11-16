@@ -5,16 +5,16 @@
 #[allow(non_camel_case_types)]
 #[allow(non_upper_case_globals)]
 #[allow(non_snake_case)]
-mod bindings;
+pub mod bindings;
 
 use libc::{c_int, c_ulong, pid_t};
 
 pub unsafe fn perf_event_open(
     attr: *const bindings::perf_event_attr,
     pid: pid_t,
-    cpu: c_int,
-    group_fd: c_int,
-    flags: c_ulong,
+    cpu: c_int,      //i32
+    group_fd: c_int, //i32
+    flags: c_ulong,  //u64
 ) -> c_int {
     libc::syscall(
         bindings::__NR_perf_event_open as libc::c_long,
