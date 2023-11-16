@@ -1,6 +1,6 @@
-use thiserror::Error;
 use crate::infra::result::WrapResult;
 use crate::syscall::bindings::perf_event_attr;
+use thiserror::Error;
 
 pub struct PerfEvent {
     // TODO
@@ -16,6 +16,12 @@ pub enum BuildError {
     InvalidCpu(String),
     #[error("PID and CPU are not set")]
     PidAndCpuNotSet,
+}
+
+impl Default for Builder {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 pub struct Builder {
@@ -70,7 +76,7 @@ impl Builder {
                 self.pid = Some(0);
                 Ok(self)
             }
-            _ => Err(BuildError::DuplicateSet)
+            _ => Err(BuildError::DuplicateSet),
         }
     }
 
@@ -80,7 +86,7 @@ impl Builder {
                 self.pid = Some(-1);
                 Ok(self)
             }
-            _ => Err(BuildError::DuplicateSet)
+            _ => Err(BuildError::DuplicateSet),
         }
     }
 
@@ -95,26 +101,32 @@ impl Builder {
                 }
             },
             _ => BuildError::DuplicateSet,
-        }.wrap_err()
+        }
+        .wrap_err()
     }
 
     pub fn with_cpu(mut self, cpu: u32) -> Result<Self, BuildError> {
         match self.cpu {
             None => match cpu {
-                _ if cpu > i32::MAX as u32 => BuildError::InvalidCpu(format!("CPU {} is too big", cpu)),
+                _ if cpu > i32::MAX as u32 => {
+                    BuildError::InvalidCpu(format!("CPU {} is too big", cpu))
+                }
                 _ => {
                     self.cpu = Some(cpu as i32);
                     return Ok(self);
                 }
             },
             _ => BuildError::DuplicateSet,
-        }.wrap_err()
+        }
+        .wrap_err()
     }
 
     pub fn build(self) -> Result<PerfEvent, BuildError> {
         match self {
             Builder {
-                pid: None, cpu: None, ..
+                pid: None,
+                cpu: None,
+                ..
             } => Err(BuildError::PidAndCpuNotSet),
             _ => todo!(),
         }
