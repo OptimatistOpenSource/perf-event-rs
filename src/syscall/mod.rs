@@ -7,7 +7,7 @@
 #[allow(non_snake_case)]
 pub mod bindings;
 
-use libc::{c_int, c_ulong, pid_t};
+use libc::{c_int, c_long, c_ulong, pid_t};
 
 pub unsafe fn perf_event_open(
     attr: *const bindings::perf_event_attr,
@@ -24,4 +24,12 @@ pub unsafe fn perf_event_open(
         group_fd,
         flags,
     ) as c_int
+}
+
+pub unsafe fn ioctl<A>(
+    fd: c_int,        //i32
+    request: c_ulong, //u64
+    arg: A,
+) -> c_int {
+    libc::ioctl(fd, request, arg)
 }
