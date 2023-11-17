@@ -1,6 +1,5 @@
 use crate::infra::result::WrapResult;
 use crate::perf_event::PerfEvent;
-use crate::PerfEventAttr;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -115,7 +114,8 @@ impl Builder {
         .wrap_err()
     }
 
-    pub fn build(self) -> Result<PerfEvent, BuildError> {
+    // TODO
+    pub fn build<M>(self) -> Result<PerfEvent<M>, BuildError> {
         match self {
             Builder {
                 pid: None,

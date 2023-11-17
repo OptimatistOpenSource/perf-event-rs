@@ -1,9 +1,9 @@
-use crate::EventScope;
 use crate::perf_event::counting::event::{Event, Inner};
 use crate::syscall::bindings::{
     __BindgenBitfieldUnit, perf_event_attr, perf_event_attr__bindgen_ty_1,
     perf_event_attr__bindgen_ty_2, perf_event_attr__bindgen_ty_3, perf_event_attr__bindgen_ty_4,
 };
+use crate::EventScope;
 
 type RawAttr = perf_event_attr;
 

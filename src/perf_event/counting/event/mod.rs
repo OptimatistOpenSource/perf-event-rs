@@ -1,7 +1,3 @@
-use crate::perf_event::counting::event::hw_event::HwEvent;
-use crate::perf_event::counting::event::raw_event::RawEvent;
-use crate::perf_event::counting::event::sw_event::SwEvent;
-
 mod hw_event;
 mod raw_event;
 mod sw_event;
