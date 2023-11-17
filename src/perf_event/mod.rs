@@ -1,4 +1,4 @@
-mod attr;
+mod counting_attr;
 mod builder;
 
 use crate::syscall;
@@ -8,7 +8,7 @@ use std::fs::File;
 use std::io;
 use std::os::fd::{AsRawFd, RawFd};
 
-pub use attr::*;
+pub use counting_attr::*;
 pub use builder::*;
 
 pub struct PerfEvent {
