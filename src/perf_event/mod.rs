@@ -88,9 +88,7 @@ impl PerfEvent {
 
     pub fn id(&self) -> io::Result<u64> {
         let mut id = 0_u64;
-
         self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_ID, &mut id)?;
-
         Ok(id)
     }
 
@@ -100,8 +98,10 @@ impl PerfEvent {
     }
 
     pub fn pause_output(&self) -> io::Result<()> {
-        // TODO
-        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_PAUSE_OUTPUT)
+        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PAUSE_OUTPUT, 1i32)
+    }
+    pub fn resume_output(&self) -> io::Result<()> {
+        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PAUSE_OUTPUT, 0i32)
     }
 
     pub fn query_bpf(&self) -> io::Result<()> {
