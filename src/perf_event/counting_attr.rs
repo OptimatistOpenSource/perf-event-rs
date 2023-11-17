@@ -1,7 +1,9 @@
 use crate::syscall::bindings::perf_event_attr;
 
+type RawAttr = perf_event_attr;
+
 pub struct PerfEventCountingAttr {
-    inner: perf_event_attr,
+    inner: RawAttr,
 }
 
 pub enum PerfEventCount {
@@ -17,9 +19,9 @@ pub enum PerfEventCount {
 
 impl Default for PerfEventCountingAttr {
     fn default() -> Self {
-        let mut attr = perf_event_attr::default();
+        let mut attr = RawAttr::default();
 
-        attr.size = std::mem::size_of_val(&attr) as libc::__u32;
+        attr.size = std::mem::size_of::<RawAttr>() as libc::__u32;
 
         attr.set_disabled(1);
         attr.set_inherit(1);
