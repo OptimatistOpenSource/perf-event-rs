@@ -1,5 +1,5 @@
-mod counting_attr;
 mod builder;
+mod counting_attr;
 
 use crate::syscall;
 use crate::syscall::bindings::perf_event_ioctls;
@@ -8,8 +8,8 @@ use std::fs::File;
 use std::io;
 use std::os::fd::{AsRawFd, RawFd};
 
-pub use counting_attr::*;
 pub use builder::*;
+pub use counting_attr::*;
 
 pub struct PerfEvent {
     // TODO
