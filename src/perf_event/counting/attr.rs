@@ -6,11 +6,11 @@ use crate::syscall::bindings::{
 
 type RawAttr = perf_event_attr;
 
-pub struct PerfEventCountingAttr {
+pub struct CountingAttr {
     raw_attr: RawAttr,
 }
 
-pub enum PerfEventScope {
+pub enum EventScope {
     User,
     Kernel,
     Hv,
@@ -21,7 +21,7 @@ pub enum PerfEventScope {
     CallchainUser,
 }
 
-impl Default for PerfEventCountingAttr {
+impl Default for CountingAttr {
     fn default() -> Self {
         let mut attr = RawAttr {
             type_: 0,
@@ -96,11 +96,12 @@ impl Default for PerfEventCountingAttr {
     }
 }
 
-impl PerfEventCountingAttr {
-    pub fn new(event: impl Into<Event>, scopes: impl Iterator<Item = PerfEventScope>) -> Self {
+impl CountingAttr {
+    // TODO: more options needed
+    pub fn new(event: impl Into<Event>, scopes: impl Iterator<Item = EventScope>) -> Self {
         let mut attr = Self::default();
 
-        use PerfEventScope::*;
+        use EventScope::*;
         let raw_attr = &mut attr.raw_attr;
         scopes.for_each(|scope| match scope {
             User => raw_attr.set_exclude_user(0),
@@ -133,7 +134,7 @@ impl PerfEventCountingAttr {
             }
         }
 
-        todo!()
+        attr
     }
 
     /// Construct from a raw `perf_event_attr` struct.
