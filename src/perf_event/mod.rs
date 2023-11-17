@@ -1,3 +1,4 @@
+mod attr;
 mod builder;
 mod counting;
 
@@ -8,8 +9,20 @@ use std::fs::File;
 use std::io;
 use std::os::fd::{AsRawFd, RawFd};
 
+pub use attr::*;
 pub use builder::*;
-pub use counting::attr::*;
+pub use counting::*;
+
+pub enum EventScope {
+    User,
+    Kernel,
+    Hv,
+    Idle,
+    Host,
+    Guest,
+    CallchainKernel,
+    CallchainUser,
+}
 
 pub struct PerfEvent {
     // TODO

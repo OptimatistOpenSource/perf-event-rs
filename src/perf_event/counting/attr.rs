@@ -1,3 +1,4 @@
+use crate::EventScope;
 use crate::perf_event::counting::event::{Event, Inner};
 use crate::syscall::bindings::{
     __BindgenBitfieldUnit, perf_event_attr, perf_event_attr__bindgen_ty_1,
@@ -8,17 +9,6 @@ type RawAttr = perf_event_attr;
 
 pub struct CountingAttr {
     raw_attr: RawAttr,
-}
-
-pub enum EventScope {
-    User,
-    Kernel,
-    Hv,
-    Idle,
-    Host,
-    Guest,
-    CallchainKernel,
-    CallchainUser,
 }
 
 impl Default for CountingAttr {
