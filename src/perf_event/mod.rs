@@ -53,15 +53,15 @@ impl PerfEvent {
     }
 
     pub fn refresh(&self) -> io::Result<()> {
-        // TODO
-        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_REFRESH)
+        //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_REFRESH)
+        todo!()
     }
 
-    pub fn reset(&self) -> io::Result<()> {
+    pub fn reset_count(&self) -> io::Result<()> {
         self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_RESET)
     }
 
-    pub fn reset_group(&self) -> io::Result<()> {
+    pub fn reset_count_group(&self) -> io::Result<()> {
         self.perf_event_ioctl_with_arg(
             syscall::bindings::perf_event_ioctls_RESET,
             syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP,
@@ -82,8 +82,8 @@ impl PerfEvent {
     }
 
     pub fn set_filter(&self) -> io::Result<()> {
-        // TODO
-        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_FILTER)
+        //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_FILTER)
+        todo!()
     }
 
     pub fn id(&self) -> io::Result<u64> {
@@ -93,25 +93,26 @@ impl PerfEvent {
     }
 
     pub fn set_bpf(&self) -> io::Result<()> {
-        // TODO
-        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_BPF)
+        //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_BPF)
+        todo!()
     }
 
     pub fn pause_output(&self) -> io::Result<()> {
         self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PAUSE_OUTPUT, 1i32)
     }
+
     pub fn resume_output(&self) -> io::Result<()> {
         self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PAUSE_OUTPUT, 0i32)
     }
 
     pub fn query_bpf(&self) -> io::Result<()> {
-        // TODO
-        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_QUERY_BPF)
+        //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_QUERY_BPF)
+        todo!()
     }
 
     pub fn modify_attributes(&self) -> io::Result<()> {
-        // TODO
-        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_MODIFY_ATTRIBUTES)
+        //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_MODIFY_ATTRIBUTES)
+        todo!()
     }
 }
 
