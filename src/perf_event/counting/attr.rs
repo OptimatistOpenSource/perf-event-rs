@@ -1,7 +1,7 @@
 use crate::perf_event::counting::event::{Event, Inner};
 use crate::syscall::bindings::{
-    perf_event_attr, perf_event_attr__bindgen_ty_1, perf_event_attr__bindgen_ty_2,
-    perf_event_attr__bindgen_ty_3, perf_event_attr__bindgen_ty_4,
+    __BindgenBitfieldUnit, perf_event_attr, perf_event_attr__bindgen_ty_1,
+    perf_event_attr__bindgen_ty_2, perf_event_attr__bindgen_ty_3, perf_event_attr__bindgen_ty_4,
 };
 
 type RawAttr = perf_event_attr;
@@ -23,15 +23,32 @@ pub enum PerfEventScope {
 
 impl Default for PerfEventCountingAttr {
     fn default() -> Self {
-        // TODO: satisfy clippy
-        let mut attr = RawAttr::default(); // Fields defaults to 0
-
-        attr.type_ = 0; // TODO
-        attr.size = std::mem::size_of::<RawAttr>() as libc::__u32;
-        attr.config = 0; // TODO
-        attr.__bindgen_anon_1 = perf_event_attr__bindgen_ty_1::default(); // not for counting mode
-        attr.sample_type = 0; // ditto
-        attr.read_format = 0; // TODO
+        let mut attr = RawAttr {
+            type_: 0,
+            size: std::mem::size_of::<RawAttr>() as libc::__u32,
+            config: 0,
+            __bindgen_anon_1: perf_event_attr__bindgen_ty_1::default(), // not use in counting mode
+            sample_type: 0,                                             // ditto
+            read_format: 0,                                             // TODO
+            _bitfield_align_1: [],
+            _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]), // set latter via attr.set_...
+            __bindgen_anon_2: perf_event_attr__bindgen_ty_2::default(), // not use in counting mode
+            bp_type: 0,                                             // ditto
+            __bindgen_anon_3: perf_event_attr__bindgen_ty_3::default(), // ditto
+            __bindgen_anon_4: perf_event_attr__bindgen_ty_4::default(), // ditto
+            branch_sample_type: 0,                                  // ditto
+            sample_regs_user: 0,                                    // ditto
+            sample_stack_user: 0,                                   // ditto
+            clockid: 0,                                             // ditto
+            sample_regs_intr: 0,                                    // ditto
+            aux_watermark: 0,                                       // ditto
+            sample_max_stack: 0,                                    // ditto
+            __reserved_2: 0,
+            aux_sample_size: 0, // not use in counting mode
+            __reserved_3: 0,
+            sig_data: 0, // not use in counting mode
+            config3: 0,  // TODO: miss doc in man
+        };
 
         attr.set_disabled(1); // TODO
         attr.set_inherit(1); // TODO
@@ -74,20 +91,6 @@ impl Default for PerfEventCountingAttr {
         attr.set_inherit_thread(0); // TODO
         attr.set_remove_on_exec(0); // TODO
         attr.set_sigtrap(0); // TODO
-
-        attr.__bindgen_anon_2 = perf_event_attr__bindgen_ty_2::default(); // not for counting mode
-        attr.bp_type = 0; // ditto
-        attr.__bindgen_anon_3 = perf_event_attr__bindgen_ty_3::default(); // ditto
-        attr.__bindgen_anon_4 = perf_event_attr__bindgen_ty_4::default(); // ditto
-        attr.branch_sample_type = 0; // ditto
-        attr.sample_regs_user = 0; // ditto
-        attr.sample_stack_user = 0; // ditto
-        attr.clockid = 0; // ditto
-        attr.sample_regs_intr = 0; // ditto
-        attr.aux_watermark = 0; // ditto
-        attr.sample_max_stack = 0; // ditto
-        attr.aux_sample_size = 0; // ditto
-        attr.sig_data = 0; // ditto
 
         Self { raw_attr: attr }
     }
