@@ -10,8 +10,6 @@ use std::os::fd::{AsRawFd, RawFd};
 
 pub use builder::*;
 pub use counting::attr::*;
-pub use counting::hw_event::*;
-pub use counting::sw_event::*;
 
 pub struct PerfEvent {
     // TODO

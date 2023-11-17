@@ -93,18 +93,18 @@ impl HwEvent {
             ),
             CacheItlb(op, op_result) => calc_cache_config(
                 perf_hw_cache_id_PERF_COUNT_HW_CACHE_ITLB as u64,
-                op.into(),
-                op_result.into(),
+                op.into_u64(),
+                op_result.into_u64(),
             ),
             CacheBpu(op, op_result) => calc_cache_config(
                 perf_hw_cache_id_PERF_COUNT_HW_CACHE_BPU as u64,
-                op.into(),
-                op_result.into(),
+                op.into_u64(),
+                op_result.into_u64(),
             ),
             CacheNode(op, op_result) => calc_cache_config(
                 perf_hw_cache_id_PERF_COUNT_HW_CACHE_NODE as u64,
-                op.into(),
-                op_result.into(),
+                op.into_u64(),
+                op_result.into_u64(),
             ),
         }
     }
