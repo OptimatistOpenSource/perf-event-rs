@@ -1,3 +1,5 @@
 mod infra;
-pub mod perf_event;
+mod perf_event;
 mod syscall;
+
+pub use perf_event::*;
