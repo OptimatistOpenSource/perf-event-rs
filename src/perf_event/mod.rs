@@ -1,7 +1,6 @@
 mod attr;
 mod builder;
 
-use crate::infra::result::WrapResult;
 use crate::syscall;
 use crate::syscall::bindings::perf_event_ioctls;
 use crate::syscall::ioctl;

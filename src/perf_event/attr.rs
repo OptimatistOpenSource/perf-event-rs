@@ -15,8 +15,8 @@ pub enum PerfEventCount {
     CallchainUser,
 }
 
-impl PerfEventAttr {
-    pub fn new() -> Self {
+impl Default for PerfEventAttr {
+    fn default() -> Self {
         let mut attr = perf_event_attr::default();
         attr.size = std::mem::size_of_val(&attr) as libc::__u32;
         attr.set_exclude_user(1);
@@ -28,6 +28,12 @@ impl PerfEventAttr {
         attr.set_exclude_callchain_kernel(1);
         attr.set_exclude_callchain_user(1);
         Self { inner: attr }
+    }
+}
+
+impl PerfEventAttr {
+    pub fn new() -> Self {
+        Self::default()
     }
     pub fn include_count(&mut self, count: PerfEventCount) {
         use PerfEventCount::*;
