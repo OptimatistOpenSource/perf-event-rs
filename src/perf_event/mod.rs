@@ -66,9 +66,8 @@ impl PerfEvent {
         )
     }
 
-    pub fn period(&self) -> io::Result<()> {
-        // TODO
-        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_PERIOD)
+    pub fn update_period(&self, new_period: u64) -> io::Result<()> {
+        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PERIOD, &new_period)
     }
 
     pub fn set_output(&self) -> io::Result<()> {
