@@ -1,3 +1,4 @@
+use crate::perf_event::counting::event::{Event, Inner};
 use crate::syscall::bindings::{
     perf_event_attr, perf_event_attr__bindgen_ty_1, perf_event_attr__bindgen_ty_2,
     perf_event_attr__bindgen_ty_3, perf_event_attr__bindgen_ty_4,
@@ -6,10 +7,10 @@ use crate::syscall::bindings::{
 type RawAttr = perf_event_attr;
 
 pub struct PerfEventCountingAttr {
-    inner: RawAttr,
+    raw_attr: RawAttr,
 }
 
-pub enum PerfEventCount {
+pub enum PerfEventScope {
     User,
     Kernel,
     Hv,
@@ -88,30 +89,59 @@ impl Default for PerfEventCountingAttr {
         attr.aux_sample_size = 0; // ditto
         attr.sig_data = 0; // ditto
 
-        Self { inner: attr }
+        Self { raw_attr: attr }
     }
 }
 
 impl PerfEventCountingAttr {
-    pub fn new() -> Self {
-        Self::default()
-    }
-    pub fn include_count(&mut self, count: PerfEventCount) {
-        use PerfEventCount::*;
+    pub fn new(event: impl Into<Event>, scopes: impl Iterator<Item = PerfEventScope>) -> Self {
+        let mut attr = Self::default();
 
-        let inner = &mut self.inner;
-        match count {
-            User => inner.set_exclude_user(0),
-            Kernel => inner.set_exclude_kernel(0),
-            Hv => inner.set_exclude_hv(0),
-            Idle => inner.set_exclude_idle(0),
-            Host => inner.set_exclude_host(0),
-            Guest => inner.set_exclude_guest(0),
-            CallchainKernel => inner.set_exclude_callchain_kernel(0),
-            CallchainUser => inner.set_exclude_callchain_user(0),
+        use PerfEventScope::*;
+        let raw_attr = &mut attr.raw_attr;
+        scopes.for_each(|scope| match scope {
+            User => raw_attr.set_exclude_user(0),
+            Kernel => raw_attr.set_exclude_kernel(0),
+            Hv => raw_attr.set_exclude_hv(0),
+            Idle => raw_attr.set_exclude_idle(0),
+            Host => raw_attr.set_exclude_host(0),
+            Guest => raw_attr.set_exclude_guest(0),
+            CallchainKernel => raw_attr.set_exclude_callchain_kernel(0),
+            CallchainUser => raw_attr.set_exclude_callchain_user(0),
+        });
+
+        use crate::syscall::bindings::*;
+        match event.into().into_inner() {
+            Inner::Hw(ev) if ev.is_cache_event() => {
+                raw_attr.type_ = perf_type_id_PERF_TYPE_HW_CACHE;
+                raw_attr.config = ev.into_u64();
+            }
+            Inner::Hw(ev) => {
+                raw_attr.type_ = perf_type_id_PERF_TYPE_HARDWARE;
+                raw_attr.config = ev.into_u64();
+            }
+            Inner::Sw(ev) => {
+                raw_attr.type_ = perf_type_id_PERF_TYPE_SOFTWARE;
+                raw_attr.config = ev.into_u64();
+            }
+            Inner::Raw(ev) => {
+                raw_attr.type_ = perf_type_id_PERF_TYPE_RAW;
+                raw_attr.config = ev.into_u64();
+            }
         }
+
+        todo!()
     }
-    pub fn include_counts(&mut self, includes: impl Iterator<Item = PerfEventCount>) {
-        includes.for_each(|include| self.include_count(include));
+
+    /// Construct from a raw `perf_event_attr` struct.
+    /// # Safety
+    /// The `raw_attr` argument must be a properly initialized
+    /// `perf_event_attr` struct for counting mode.
+    pub unsafe fn from_raw(raw_attr: RawAttr) -> Self {
+        Self { raw_attr }
+    }
+
+    pub fn into_raw(self) -> RawAttr {
+        self.raw_attr
     }
 }

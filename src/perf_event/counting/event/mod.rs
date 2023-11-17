@@ -10,13 +10,19 @@ pub use hw_event::*;
 pub use raw_event::*;
 pub use sw_event::*;
 
-enum Inner {
+pub(crate) enum Inner {
     Hw(HwEvent),
     Sw(SwEvent),
     Raw(RawEvent),
 }
 
 pub struct Event(Inner);
+
+impl Event {
+    pub(crate) fn into_inner(self) -> Inner {
+        self.0
+    }
+}
 
 impl From<HwEvent> for Event {
     fn from(value: HwEvent) -> Self {

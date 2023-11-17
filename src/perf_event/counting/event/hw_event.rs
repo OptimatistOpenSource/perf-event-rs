@@ -55,7 +55,20 @@ pub enum HwEvent {
 }
 
 impl HwEvent {
-    fn into_u64(self) -> u64 {
+    pub(crate) fn is_cache_event(&self) -> bool {
+        use HwEvent::*;
+        matches!(
+            self,
+            CacheL1d(..)
+                | CacheL1i(..)
+                | CacheLl(..)
+                | CacheDtlb(..)
+                | CacheItlb(..)
+                | CacheBpu(..)
+                | CacheNode(..)
+        )
+    }
+    pub(crate) fn into_u64(self) -> u64 {
         use HwEvent::*;
         fn calc_cache_config(id: u64, op: u64, op_result: u64) -> u64 {
             id | (op << 8) | (op_result << 16)
