@@ -2,11 +2,59 @@ use crate::infra::result::WrapResult;
 use crate::syscall;
 use crate::syscall::bindings::{perf_event_attr, perf_event_ioctls};
 use crate::syscall::ioctl;
-use libc::{c_int, c_ulong};
 use std::fs::File;
 use std::io;
 use std::os::fd::{AsRawFd, RawFd};
 use thiserror::Error;
+
+pub struct PerfEventAttr {
+    inner: perf_event_attr,
+}
+
+pub enum PerfEventCount {
+    User,
+    Kernel,
+    Hv,
+    Idle,
+    Host,
+    Guest,
+    CallchainKernel,
+    CallchainUser,
+}
+
+impl PerfEventAttr {
+    pub fn new() -> Self {
+        let mut attr = perf_event_attr::default();
+        attr.size = std::mem::size_of_val(&attr) as libc::__u32;
+        attr.set_exclude_user(1);
+        attr.set_exclude_kernel(1);
+        attr.set_exclude_hv(1);
+        attr.set_exclude_idle(1);
+        attr.set_exclude_host(1);
+        attr.set_exclude_guest(1);
+        attr.set_exclude_callchain_kernel(1);
+        attr.set_exclude_callchain_user(1);
+        Self { inner: attr }
+    }
+    pub fn include_count(&mut self, count: PerfEventCount) {
+        use PerfEventCount::*;
+
+        let inner = &mut self.inner;
+        match count {
+            User => inner.set_exclude_user(0),
+            Kernel => inner.set_exclude_kernel(0),
+            Hv => inner.set_exclude_hv(0),
+            Idle => inner.set_exclude_idle(0),
+            Host => inner.set_exclude_host(0),
+            Guest => inner.set_exclude_guest(0),
+            CallchainKernel => inner.set_exclude_callchain_kernel(0),
+            CallchainUser => inner.set_exclude_callchain_user(0),
+        }
+    }
+    pub fn include_counts(&mut self, includes: impl Iterator<Item = PerfEventCount>) {
+        includes.for_each(|include| self.include_count(include));
+    }
+}
 
 pub struct PerfEvent {
     // TODO
@@ -15,7 +63,7 @@ pub struct PerfEvent {
 
 impl PerfEvent {
     fn perf_event_ioctl(&self, op: perf_event_ioctls) -> io::Result<()> {
-        let i32 = unsafe { ioctl(self.raw_fd as c_int, op as c_ulong, 0) };
+        let i32 = unsafe { ioctl(self.raw_fd as libc::c_int, op as libc::c_ulong, 0) };
         match i32 {
             -1 => Err(io::Error::last_os_error()),
             _ => Ok(()),
@@ -23,7 +71,7 @@ impl PerfEvent {
     }
 
     fn perf_event_ioctl_with_arg<A>(&self, op: perf_event_ioctls, arg: A) -> io::Result<()> {
-        let i32 = unsafe { ioctl(self.raw_fd as c_int, op as c_ulong, arg) };
+        let i32 = unsafe { ioctl(self.raw_fd as libc::c_int, op as libc::c_ulong, arg) };
         match i32 {
             -1 => Err(io::Error::last_os_error()),
             _ => Ok(()),
