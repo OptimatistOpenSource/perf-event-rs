@@ -68,6 +68,7 @@ impl PerfEvent {
         )
     }
 
+    // TODO
     pub fn refresh(&self) -> io::Result<()> {
         //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_REFRESH)
         todo!()
@@ -97,6 +98,7 @@ impl PerfEvent {
         self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_SET_OUTPUT, -1i64)
     }
 
+    // TODO
     pub fn set_filter(&self) -> io::Result<()> {
         //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_FILTER)
         todo!()
@@ -108,24 +110,29 @@ impl PerfEvent {
         Ok(id)
     }
 
+    // TODO
     pub fn set_bpf(&self) -> io::Result<()> {
         //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_BPF)
         todo!()
     }
 
+    // TODO: sampling mode only
     pub fn pause_output(&self) -> io::Result<()> {
         self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PAUSE_OUTPUT, 1i32)
     }
 
+    // TODO: sampling mode only
     pub fn resume_output(&self) -> io::Result<()> {
         self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PAUSE_OUTPUT, 0i32)
     }
 
+    // TODO
     pub fn query_bpf(&self) -> io::Result<()> {
         //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_QUERY_BPF)
         todo!()
     }
 
+    // TODO
     pub fn modify_attributes(&self) -> io::Result<()> {
         //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_MODIFY_ATTRIBUTES)
         todo!()
