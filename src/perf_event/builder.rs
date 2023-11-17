@@ -1,6 +1,6 @@
 use crate::infra::result::WrapResult;
 use crate::perf_event::PerfEvent;
-use crate::syscall::bindings::perf_event_attr;
+use crate::PerfEventAttr;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -22,8 +22,6 @@ impl Default for Builder {
 }
 
 pub struct Builder {
-    attr: perf_event_attr,
-
     /*
     pid == 0 and cpu == -1
            This measures the calling process/thread on any CPU.
@@ -51,15 +49,14 @@ pub struct Builder {
     pid: Option<i32>,
     cpu: Option<i32>,
 
-    group_fd: Option<i32>,
+    group_fd: Option<i32>, // TODO
 
-    flags: Option<u64>,
+    flags: Option<u64>, // TODO
 }
 
 impl Builder {
     pub fn new() -> Self {
         Self {
-            attr: Default::default(),
             pid: None,
             cpu: None,
             group_fd: None,
@@ -87,7 +84,7 @@ impl Builder {
         }
     }
 
-    pub fn with_pid(mut self, pid: u32) -> Result<Self, BuildError> {
+    pub fn on_pid(mut self, pid: u32) -> Result<Self, BuildError> {
         match self.pid {
             None => match pid {
                 0 => BuildError::InvalidPid("PID is 0".to_string()),
@@ -102,7 +99,7 @@ impl Builder {
         .wrap_err()
     }
 
-    pub fn with_cpu(mut self, cpu: u32) -> Result<Self, BuildError> {
+    pub fn on_cpu(mut self, cpu: u32) -> Result<Self, BuildError> {
         match self.cpu {
             None => match cpu {
                 _ if cpu > i32::MAX as u32 => {
