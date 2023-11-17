@@ -1,6 +1,6 @@
 use crate::syscall::bindings::*;
 
-pub enum SwCountingEvent {
+pub enum SwEvent {
     CpuClock,
     TaskClock,
     PageFaults,
@@ -15,10 +15,10 @@ pub enum SwCountingEvent {
     CgroupSwitches,
 }
 
-impl From<SwCountingEvent> for perf_sw_ids {
-    fn from(value: SwCountingEvent) -> Self {
-        use SwCountingEvent::*;
-        match value {
+impl From<SwEvent> for u64 {
+    fn from(value: SwEvent) -> Self {
+        use SwEvent::*;
+        let config = match value {
             CpuClock => perf_sw_ids_PERF_COUNT_SW_CPU_CLOCK,
             TaskClock => perf_sw_ids_PERF_COUNT_SW_TASK_CLOCK,
             PageFaults => perf_sw_ids_PERF_COUNT_SW_PAGE_FAULTS,
@@ -31,6 +31,7 @@ impl From<SwCountingEvent> for perf_sw_ids {
             Dummy => perf_sw_ids_PERF_COUNT_SW_DUMMY,
             BpfOutput => perf_sw_ids_PERF_COUNT_SW_BPF_OUTPUT,
             CgroupSwitches => perf_sw_ids_PERF_COUNT_SW_CGROUP_SWITCHES,
-        }
+        };
+        config as u64
     }
 }

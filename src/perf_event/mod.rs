@@ -1,7 +1,5 @@
 mod builder;
-mod counting_attr;
-mod hw_event;
-mod sw_event;
+mod counting;
 
 use crate::syscall;
 use crate::syscall::bindings::perf_event_ioctls;
@@ -11,9 +9,9 @@ use std::io;
 use std::os::fd::{AsRawFd, RawFd};
 
 pub use builder::*;
-pub use counting_attr::*;
-pub use hw_event::*;
-pub use sw_event::*;
+pub use counting::attr::*;
+pub use counting::hw_event::*;
+pub use counting::sw_event::*;
 
 pub struct PerfEvent {
     // TODO
