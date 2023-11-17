@@ -5,12 +5,12 @@ use crate::syscall::ioctl;
 use libc::{c_int, c_ulong};
 use std::fs::File;
 use std::io;
-use std::os::fd::AsRawFd;
+use std::os::fd::{AsRawFd, RawFd};
 use thiserror::Error;
 
 pub struct PerfEvent {
     // TODO
-    raw_fd: usize,
+    raw_fd: RawFd,
 }
 
 impl PerfEvent {
@@ -119,7 +119,7 @@ impl PerfEvent {
 #[derive(Error, Debug)]
 pub enum BuildError {
     #[error("This option has been set")]
-    DuplicateSet,
+    AlreadySet,
     #[error("PID is invalid: {0}")]
     InvalidPid(String),
     #[error("CPU is invalid: {0}")]
@@ -186,7 +186,7 @@ impl Builder {
                 self.pid = Some(0);
                 Ok(self)
             }
-            _ => Err(BuildError::DuplicateSet),
+            _ => Err(BuildError::AlreadySet),
         }
     }
 
@@ -196,7 +196,7 @@ impl Builder {
                 self.pid = Some(-1);
                 Ok(self)
             }
-            _ => Err(BuildError::DuplicateSet),
+            _ => Err(BuildError::AlreadySet),
         }
     }
 
@@ -210,7 +210,7 @@ impl Builder {
                     return Ok(self);
                 }
             },
-            _ => BuildError::DuplicateSet,
+            _ => BuildError::AlreadySet,
         }
         .wrap_err()
     }
@@ -226,7 +226,7 @@ impl Builder {
                     return Ok(self);
                 }
             },
-            _ => BuildError::DuplicateSet,
+            _ => BuildError::AlreadySet,
         }
         .wrap_err()
     }
