@@ -15,10 +15,10 @@ pub enum SwEvent {
     CgroupSwitches,
 }
 
-impl From<SwEvent> for u64 {
-    fn from(value: SwEvent) -> Self {
+impl SwEvent {
+    fn into_u64(self) -> u64 {
         use SwEvent::*;
-        let config = match value {
+        let config = match self {
             CpuClock => perf_sw_ids_PERF_COUNT_SW_CPU_CLOCK,
             TaskClock => perf_sw_ids_PERF_COUNT_SW_TASK_CLOCK,
             PageFaults => perf_sw_ids_PERF_COUNT_SW_PAGE_FAULTS,

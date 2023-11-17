@@ -1,5 +1,39 @@
 use crate::syscall::bindings::*;
 
+pub enum CacheOp {
+    Read,
+    Write,
+    Prefetch,
+}
+
+impl CacheOp {
+    fn into_u64(self) -> u64 {
+        use CacheOp::*;
+        let id = match self {
+            Read => perf_hw_cache_op_id_PERF_COUNT_HW_CACHE_OP_READ,
+            Write => perf_hw_cache_op_id_PERF_COUNT_HW_CACHE_OP_WRITE,
+            Prefetch => perf_hw_cache_op_id_PERF_COUNT_HW_CACHE_OP_WRITE,
+        };
+        id as u64
+    }
+}
+
+pub enum CacheOpResult {
+    Access,
+    Miss,
+}
+
+impl CacheOpResult {
+    fn into_u64(self) -> u64 {
+        use CacheOpResult::*;
+        let id = match self {
+            Access => perf_hw_cache_op_result_id_PERF_COUNT_HW_CACHE_RESULT_ACCESS,
+            Miss => perf_hw_cache_op_result_id_PERF_COUNT_HW_CACHE_RESULT_MISS,
+        };
+        id as u64
+    }
+}
+
 pub enum HwEvent {
     CpuCycles,
     Instructions,
@@ -20,47 +54,13 @@ pub enum HwEvent {
     CacheNode(CacheOp, CacheOpResult),
 }
 
-pub enum CacheOp {
-    Read,
-    Write,
-    Prefetch,
-}
-
-impl From<CacheOp> for u64 {
-    fn from(value: CacheOp) -> Self {
-        use CacheOp::*;
-        let id = match value {
-            Read => perf_hw_cache_op_id_PERF_COUNT_HW_CACHE_OP_READ,
-            Write => perf_hw_cache_op_id_PERF_COUNT_HW_CACHE_OP_WRITE,
-            Prefetch => perf_hw_cache_op_id_PERF_COUNT_HW_CACHE_OP_WRITE,
-        };
-        id as u64
-    }
-}
-
-pub enum CacheOpResult {
-    Access,
-    Miss,
-}
-
-impl From<CacheOpResult> for u64 {
-    fn from(value: CacheOpResult) -> Self {
-        use CacheOpResult::*;
-        let id = match value {
-            Access => perf_hw_cache_op_result_id_PERF_COUNT_HW_CACHE_RESULT_ACCESS,
-            Miss => perf_hw_cache_op_result_id_PERF_COUNT_HW_CACHE_RESULT_MISS,
-        };
-        id as u64
-    }
-}
-
-impl From<HwEvent> for u64 {
-    fn from(value: HwEvent) -> Self {
+impl HwEvent {
+    fn into_u64(self) -> u64 {
         use HwEvent::*;
         fn calc_cache_config(id: u64, op: u64, op_result: u64) -> u64 {
             id | (op << 8) | (op_result << 16)
         }
-        match value {
+        match self {
             CpuCycles => perf_hw_id_PERF_COUNT_HW_CPU_CYCLES as u64,
             Instructions => perf_hw_id_PERF_COUNT_HW_INSTRUCTIONS as u64,
             CacheReferences => perf_hw_id_PERF_COUNT_HW_CACHE_REFERENCES as u64,
@@ -73,23 +73,23 @@ impl From<HwEvent> for u64 {
             RefCpuCycles => perf_hw_id_PERF_COUNT_HW_REF_CPU_CYCLES as u64,
             CacheL1d(op, op_result) => calc_cache_config(
                 perf_hw_cache_id_PERF_COUNT_HW_CACHE_L1D as u64,
-                op.into(),
-                op_result.into(),
+                op.into_u64(),
+                op_result.into_u64(),
             ),
             CacheL1i(op, op_result) => calc_cache_config(
                 perf_hw_cache_id_PERF_COUNT_HW_CACHE_L1I as u64,
-                op.into(),
-                op_result.into(),
+                op.into_u64(),
+                op_result.into_u64(),
             ),
             CacheLl(op, op_result) => calc_cache_config(
                 perf_hw_cache_id_PERF_COUNT_HW_CACHE_LL as u64,
-                op.into(),
-                op_result.into(),
+                op.into_u64(),
+                op_result.into_u64(),
             ),
             CacheDtlb(op, op_result) => calc_cache_config(
                 perf_hw_cache_id_PERF_COUNT_HW_CACHE_DTLB as u64,
-                op.into(),
-                op_result.into(),
+                op.into_u64(),
+                op_result.into_u64(),
             ),
             CacheItlb(op, op_result) => calc_cache_config(
                 perf_hw_cache_id_PERF_COUNT_HW_CACHE_ITLB as u64,
