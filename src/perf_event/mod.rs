@@ -1,9 +1,11 @@
 use crate::infra::result::WrapResult;
 use crate::syscall;
-use crate::syscall::bindings::{perf_event_attr, perf_event_ioc_flags, perf_event_ioctls};
+use crate::syscall::bindings::{perf_event_attr, perf_event_ioctls};
 use crate::syscall::ioctl;
 use libc::{c_int, c_ulong};
+use std::fs::File;
 use std::io;
+use std::os::fd::AsRawFd;
 use thiserror::Error;
 
 pub struct PerfEvent {
@@ -66,13 +68,17 @@ impl PerfEvent {
         )
     }
 
-    pub fn update_period(&self, new_period: u64) -> io::Result<()> {
-        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PERIOD, &new_period)
+    pub fn update_period(&self, new: u64) -> io::Result<()> {
+        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PERIOD, &new)
     }
 
-    pub fn set_output(&self) -> io::Result<()> {
-        // TODO
-        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_OUTPUT)
+    pub fn set_output(&self, new: File) -> io::Result<()> {
+        let raw_fd = new.as_raw_fd() as i64;
+        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_SET_OUTPUT, raw_fd)
+    }
+
+    pub fn ignore_output(&self) -> io::Result<()> {
+        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_SET_OUTPUT, -1i64)
     }
 
     pub fn set_filter(&self) -> io::Result<()> {
