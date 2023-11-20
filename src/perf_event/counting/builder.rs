@@ -13,10 +13,8 @@ impl Builder {
             Builder {
                 pid: Some(pid),
                 cpu: Some(cpu),
-                group_fd: Some(group_fd),
-                flags: Some(flags),
-            } => unsafe { Counting::new(attr, pid, cpu, group_fd, flags) }
-                .map_err(BuildError::SyscallFailed),
+                ..
+            } => unsafe { Counting::new(attr, pid, cpu, -1, 0) }.map_err(BuildError::SyscallFailed),
             _ => todo!(),
         }
     }
