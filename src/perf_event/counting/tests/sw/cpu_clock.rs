@@ -13,7 +13,7 @@ fn test() {
     let attr = {
         let event = SwEvent::CpuClock;
         let scopes = [EventScope::User, EventScope::Host];
-        Attr::new(event, scopes)
+        Attr::new(event, scopes, Default::default())
     };
     let mut counting = builder.build_counting(attr).unwrap();
 

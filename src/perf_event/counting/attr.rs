@@ -13,7 +13,7 @@ pub struct Attr {
 }
 
 impl Debug for Attr {
-    // TODO
+    // TODO: more messages needed
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.write_char('\n')?;
 
@@ -24,10 +24,10 @@ impl Debug for Attr {
             }};
         }
 
-        show!(disabled); // TODO
-        show!(inherit); // TODO
-        show!(pinned); // TODO
-        show!(exclusive); // TODO
+        show!(disabled);
+        show!(inherit);
+        show!(pinned);
+        show!(exclusive);
 
         show!(exclude_user);
         show!(exclude_kernel);
@@ -37,11 +37,11 @@ impl Debug for Attr {
         show!(mmap); // not for counting mode
         show!(comm); // ditto
         show!(freq); // ditto
-        show!(inherit_stat); // TODO
-        show!(enable_on_exec); // TODO
+        show!(inherit_stat);
+        show!(enable_on_exec);
         show!(task); // not for counting mode
         show!(watermark); // ditto
-        show!(precise_ip); // TODO
+        show!(precise_ip);
         show!(mmap_data); // not for counting mode
         show!(sample_id_all); // ditto
 
@@ -62,18 +62,52 @@ impl Debug for Attr {
         show!(cgroup); // ditto
         show!(text_poke); // ditto
         show!(build_id); // ditto
-        show!(inherit_thread); // TODO
-        show!(remove_on_exec); // TODO
-        show!(sigtrap); // TODO
+        show!(inherit_thread);
+        show!(remove_on_exec);
+        show!(sigtrap);
 
         Ok(())
+    }
+}
+
+pub struct AttrOtherConfig {
+    pub inherit: bool,
+    pub pinned: bool,
+    pub exclusive: bool,
+
+    pub inherit_stat: bool,
+    pub enable_on_exec: bool,
+
+    pub inherit_thread: bool,
+    pub remove_on_exec: bool,
+    pub sigtrap: bool,
+}
+
+impl Default for AttrOtherConfig {
+    fn default() -> Self {
+        Self {
+            inherit: true,
+            pinned: false,
+            exclusive: false,
+
+            inherit_stat: true,
+            enable_on_exec: false,
+
+            inherit_thread: false,
+            remove_on_exec: false,
+            sigtrap: false,
+        }
     }
 }
 
 impl Attr {
     // TODO: more options needed
     #[allow(private_bounds)]
-    pub fn new(event: impl Into<Event>, scopes: impl IntoIterator<Item = EventScope>) -> Self {
+    pub fn new(
+        event: impl Into<Event>,
+        scopes: impl IntoIterator<Item = EventScope>,
+        other_config: AttrOtherConfig,
+    ) -> Self {
         let mut raw_attr = RawAttr {
             type_: 0,
             size: std::mem::size_of::<RawAttr>() as libc::__u32,
@@ -101,10 +135,10 @@ impl Attr {
             config3: 0,  // TODO: miss doc in man
         };
 
-        raw_attr.set_disabled(1); // TODO
-        raw_attr.set_inherit(1); // TODO
-        raw_attr.set_pinned(0); // TODO
-        raw_attr.set_exclusive(0); // TODO
+        raw_attr.set_disabled(1);
+        raw_attr.set_inherit(other_config.inherit as _);
+        raw_attr.set_pinned(other_config.pinned as _);
+        raw_attr.set_exclusive(other_config.exclusive as _);
 
         raw_attr.set_exclude_user(1);
         raw_attr.set_exclude_kernel(1);
@@ -114,12 +148,12 @@ impl Attr {
         raw_attr.set_mmap(0); // not for counting mode
         raw_attr.set_comm(0); // ditto
         raw_attr.set_freq(0); // ditto
-        raw_attr.set_inherit_stat(1); // TODO
-        raw_attr.set_enable_on_exec(0); // TODO
+        raw_attr.set_inherit_stat(other_config.inherit_stat as _);
+        raw_attr.set_enable_on_exec(other_config.enable_on_exec as _);
         raw_attr.set_task(0); // not for counting mode
         raw_attr.set_watermark(0); // ditto
-        raw_attr.set_precise_ip(0); // TODO
-        raw_attr.set_mmap_data(0); // not for counting mode
+        raw_attr.set_precise_ip(0); // ditto
+        raw_attr.set_mmap_data(0); // ditto
         raw_attr.set_sample_id_all(0); // ditto
 
         raw_attr.set_exclude_host(1);
@@ -139,9 +173,9 @@ impl Attr {
         raw_attr.set_cgroup(0); // ditto
         raw_attr.set_text_poke(0); // ditto
         raw_attr.set_build_id(0); // ditto
-        raw_attr.set_inherit_thread(0); // TODO
-        raw_attr.set_remove_on_exec(0); // TODO
-        raw_attr.set_sigtrap(0); // TODO
+        raw_attr.set_inherit_thread(other_config.inherit_thread as _);
+        raw_attr.set_remove_on_exec(other_config.remove_on_exec as _);
+        raw_attr.set_sigtrap(other_config.sigtrap as _);
 
         use EventScope::*;
         scopes.into_iter().for_each(|scope| match scope {
