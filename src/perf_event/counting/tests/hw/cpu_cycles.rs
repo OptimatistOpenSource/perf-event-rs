@@ -1,4 +1,4 @@
-use crate::counting::{Attr, HwEvent, SwEvent};
+use crate::counting::{Attr, HwEvent};
 use crate::{Builder, EventScope};
 
 fn workload() {

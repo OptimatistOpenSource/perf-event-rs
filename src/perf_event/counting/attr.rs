@@ -1,8 +1,5 @@
 use crate::perf_event::counting::event::Event;
-use crate::syscall::bindings::{
-    __BindgenBitfieldUnit, perf_event_attr, perf_event_attr__bindgen_ty_1,
-    perf_event_attr__bindgen_ty_2, perf_event_attr__bindgen_ty_3, perf_event_attr__bindgen_ty_4,
-};
+use crate::syscall::bindings::perf_event_attr;
 use crate::EventScope;
 use std::fmt::{Debug, Formatter, Write};
 
@@ -20,7 +17,7 @@ impl Debug for Attr {
         macro_rules! show {
             ($getter:ident) => {{
                 let val = self.raw_attr.$getter();
-                f.write_fmt(format_args!("{}: {}\n", stringify!($getter), val));
+                f.write_fmt(format_args!("{}: {}\n", stringify!($getter), val))?;
             }};
         }
 
@@ -114,7 +111,7 @@ impl Attr {
             config: 0,
             __bindgen_anon_1: perf_event_attr__bindgen_ty_1::default(), // not use in counting mode
             sample_type: 0,                                             // ditto
-            read_format: 0,                                             // TODO
+            read_format: 0,
             _bitfield_align_1: [],
             _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]), // set latter via attr.set_...
             __bindgen_anon_2: perf_event_attr__bindgen_ty_2::default(), // not use in counting mode

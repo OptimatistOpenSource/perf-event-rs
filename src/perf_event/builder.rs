@@ -49,7 +49,9 @@ pub struct Builder {
     pub(crate) pid: Option<i32>,
     pub(crate) cpu: Option<i32>,
 
+    #[allow(dead_code)]
     pub(crate) group_fd: Option<i32>, // TODO
+    #[allow(dead_code)]
     pub(crate) flags: Option<u64>,    // TODO
 }
 

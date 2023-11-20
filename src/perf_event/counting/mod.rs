@@ -21,6 +21,7 @@ pub use event::*;
 
 pub struct Counting {
     // TODO
+    #[allow(dead_code)]
     raw_attr: Box<perf_event_attr>,
     file: File,
 }
