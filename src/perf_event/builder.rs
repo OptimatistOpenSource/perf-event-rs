@@ -96,7 +96,7 @@ impl Builder {
     }
 
     pub fn any_cpu(mut self) -> Self {
-        self.pid = Some(-1);
+        self.cpu = Some(-1);
         self
     }
 }
