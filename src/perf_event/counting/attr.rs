@@ -70,8 +70,10 @@ impl Debug for CountingAttr {
     }
 }
 
-impl Default for CountingAttr {
-    fn default() -> Self {
+impl CountingAttr {
+    // TODO: more options needed
+    #[allow(private_bounds)]
+    pub fn new(event: impl Into<Event>, scopes: impl IntoIterator<Item = EventScope>) -> Self {
         let mut raw_attr = RawAttr {
             type_: 0,
             size: std::mem::size_of::<RawAttr>() as libc::__u32,
@@ -141,18 +143,7 @@ impl Default for CountingAttr {
         raw_attr.set_remove_on_exec(0); // TODO
         raw_attr.set_sigtrap(0); // TODO
 
-        Self { raw_attr }
-    }
-}
-
-impl CountingAttr {
-    // TODO: more options needed
-    #[allow(private_bounds)]
-    pub fn new(event: impl Into<Event>, scopes: impl IntoIterator<Item = EventScope>) -> Self {
-        let mut attr = Self::default();
-
         use EventScope::*;
-        let raw_attr = &mut attr.raw_attr;
         scopes.into_iter().for_each(|scope| match scope {
             User => raw_attr.set_exclude_user(0),
             Kernel => raw_attr.set_exclude_kernel(0),
@@ -184,7 +175,7 @@ impl CountingAttr {
             }
         }
 
-        attr
+        Self { raw_attr }
     }
 
     /// Construct from a raw `perf_event_attr` struct.
