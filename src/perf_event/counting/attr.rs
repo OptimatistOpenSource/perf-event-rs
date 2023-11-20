@@ -111,7 +111,12 @@ impl Attr {
             config: 0,
             __bindgen_anon_1: perf_event_attr__bindgen_ty_1::default(), // not use in counting mode
             sample_type: 0,                                             // ditto
-            read_format: 0,
+            read_format: {
+                perf_event_read_format_PERF_FORMAT_TOTAL_TIME_ENABLED
+                    | perf_event_read_format_PERF_FORMAT_TOTAL_TIME_RUNNING
+                    | perf_event_read_format_PERF_FORMAT_ID
+                    | perf_event_read_format_PERF_FORMAT_LOST
+            } as _,
             _bitfield_align_1: [],
             _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]), // set latter via attr.set_...
             __bindgen_anon_2: perf_event_attr__bindgen_ty_2::default(), // not use in counting mode

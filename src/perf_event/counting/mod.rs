@@ -3,7 +3,7 @@ use crate::syscall::bindings::{perf_event_attr, perf_event_ioctls};
 use crate::syscall::{ioctl, perf_event_open};
 use std::fs::File;
 use std::io;
-use std::io::{Error, Read};
+use std::io::Read;
 use std::os::fd::{AsRawFd, FromRawFd};
 
 mod attr;
@@ -26,14 +26,18 @@ pub struct Counting {
     file: File,
 }
 
+#[repr(C)]
+#[derive(Debug)]
+pub struct CountingResult {
+    pub event_count: u64,
+    pub time_enabled: u64,
+    pub time_running: u64,
+    pub event_id: u64,
+    pub event_lost: u64,
+}
+
 impl Counting {
-    unsafe fn new(
-        attr: Attr,
-        pid: i32,
-        cpu: i32,
-        group_fd: i32,
-        flags: u64,
-    ) -> Result<Self, Error> {
+    unsafe fn new(attr: Attr, pid: i32, cpu: i32, group_fd: i32, flags: u64) -> io::Result<Self> {
         let raw_attr = Box::new(attr.into_raw());
         let i32 = unsafe { perf_event_open(&*raw_attr as *const _, pid, cpu, group_fd, flags) };
         match i32 {
@@ -46,11 +50,14 @@ impl Counting {
         }
     }
 
-    pub fn get_count(&mut self) -> io::Result<usize> {
-        let mut buf = [0_u8; std::mem::size_of::<usize>()];
+    pub fn get_result(&mut self) -> io::Result<CountingResult> {
+        let mut buf = [0_u8; std::mem::size_of::<CountingResult>()];
 
         match self.file.read_exact(&mut buf) {
-            Ok(()) => usize::from_le_bytes(buf).wrap_ok(),
+            Ok(()) => {
+                let read_format_ptr = buf.as_ptr() as *const CountingResult;
+                unsafe { read_format_ptr.read() }.wrap_ok()
+            }
             Err(e) => Err(e),
         }
     }
