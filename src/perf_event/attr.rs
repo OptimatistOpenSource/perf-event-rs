@@ -1,13 +1,13 @@
-use crate::perf_event::counting::attr::CountingAttr;
+use crate::perf_event::counting::attr::Attr;
 
 pub(crate) enum Inner {
-    CountingMode(CountingAttr),
+    CountingMode(Attr),
 }
 
 pub struct PerfEventAttr(Inner);
 
-impl From<CountingAttr> for PerfEventAttr {
-    fn from(value: CountingAttr) -> Self {
+impl From<Attr> for PerfEventAttr {
+    fn from(value: Attr) -> Self {
         Self(Inner::CountingMode(value))
     }
 }

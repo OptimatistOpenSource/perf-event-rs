@@ -27,7 +27,7 @@ pub struct Counting {
 
 impl Counting {
     unsafe fn new(
-        attr: CountingAttr,
+        attr: Attr,
         pid: i32,
         cpu: i32,
         group_fd: i32,

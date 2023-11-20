@@ -8,11 +8,11 @@ use std::fmt::{Debug, Formatter, Write};
 
 type RawAttr = perf_event_attr;
 
-pub struct CountingAttr {
+pub struct Attr {
     raw_attr: RawAttr,
 }
 
-impl Debug for CountingAttr {
+impl Debug for Attr {
     // TODO
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.write_char('\n')?;
@@ -70,7 +70,7 @@ impl Debug for CountingAttr {
     }
 }
 
-impl CountingAttr {
+impl Attr {
     // TODO: more options needed
     #[allow(private_bounds)]
     pub fn new(event: impl Into<Event>, scopes: impl IntoIterator<Item = EventScope>) -> Self {
