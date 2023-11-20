@@ -1,4 +1,4 @@
-use crate::event::{Event, Inner};
+use crate::perf_event::counting::{Event, Inner};
 use crate::syscall::bindings::*;
 
 pub enum CacheOp {

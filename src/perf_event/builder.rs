@@ -1,5 +1,5 @@
 use crate::infra::result::WrapResult;
-use crate::perf_event::PerfEvent;
+use std::io;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -12,6 +12,8 @@ pub enum BuildError {
     InvalidCpu(String),
     #[error("PID and CPU are not set")]
     PidAndCpuNotSet,
+    #[error("Failed to perform perf_event_open: {0}")]
+    SyscallFailed(io::Error),
 }
 
 impl Default for Builder {
@@ -45,12 +47,12 @@ pub struct Builder {
     pid == -1 and cpu == -1
            This setting is invalid and will return an error.
     */
-    pid: Option<i32>,
-    cpu: Option<i32>,
+    pub(crate) pid: Option<i32>,
+    pub(crate) cpu: Option<i32>,
 
-    group_fd: Option<i32>, // TODO
+    pub(crate) group_fd: Option<i32>, // TODO
 
-    flags: Option<u64>, // TODO
+    pub(crate) flags: Option<u64>, // TODO
 }
 
 impl Builder {
@@ -112,17 +114,5 @@ impl Builder {
             _ => BuildError::AlreadySet,
         }
         .wrap_err()
-    }
-
-    // TODO
-    pub fn build<M>(self) -> Result<PerfEvent<M>, BuildError> {
-        match self {
-            Builder {
-                pid: None,
-                cpu: None,
-                ..
-            } => Err(BuildError::PidAndCpuNotSet),
-            _ => todo!(),
-        }
     }
 }

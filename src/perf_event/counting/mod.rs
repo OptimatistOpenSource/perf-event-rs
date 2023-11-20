@@ -1,17 +1,67 @@
-use crate::perf_event::mode;
-use crate::syscall::bindings::perf_event_ioctls;
-use crate::syscall::ioctl;
-use crate::{syscall, PerfEvent};
+use crate::syscall::bindings::{perf_event_attr, perf_event_ioctls};
+use crate::syscall::{ioctl, perf_event_open};
+use crate::{syscall, BuildError, Builder};
 use std::fs::File;
 use std::io;
-use std::os::fd::AsRawFd;
+use std::io::Error;
+use std::os::fd::{AsRawFd, FromRawFd};
 
-pub mod attr;
-pub mod event;
+mod attr;
+mod event;
 
-impl PerfEvent<mode::Counting> {
+use crate::infra::result::WrapResult;
+pub use attr::*;
+pub use event::*;
+
+pub struct Counting {
+    // TODO
+    raw_attr: Box<perf_event_attr>,
+    file: File,
+}
+
+impl Builder {
+    // TODO
+    pub fn build_counting(self, attr: CountingAttr) -> Result<Counting, BuildError> {
+        match self {
+            Builder {
+                pid: None,
+                cpu: None,
+                ..
+            } => Err(BuildError::PidAndCpuNotSet),
+            Builder {
+                pid: Some(pid),
+                cpu: Some(cpu),
+                group_fd: Some(group_fd),
+                flags: Some(flags),
+            } => unsafe { Counting::new(attr, pid, cpu, group_fd, flags) }
+                .map_err(BuildError::SyscallFailed),
+            _ => todo!(),
+        }
+    }
+}
+
+impl Counting {
+    unsafe fn new(
+        attr: CountingAttr,
+        pid: i32,
+        cpu: i32,
+        group_fd: i32,
+        flags: u64,
+    ) -> Result<Self, Error> {
+        let raw_attr = Box::new(attr.into_raw());
+        let i32 = unsafe { perf_event_open(&*raw_attr as *const _, pid, cpu, group_fd, flags) };
+        match i32 {
+            -1 => Err(io::Error::last_os_error()),
+            fd => Self {
+                raw_attr,
+                file: File::from_raw_fd(fd),
+            }
+            .wrap_ok(),
+        }
+    }
+
     fn perf_event_ioctl(&self, op: perf_event_ioctls) -> io::Result<()> {
-        let i32 = unsafe { ioctl(self.raw_fd as libc::c_int, op as libc::c_ulong, 0) };
+        let i32 = unsafe { ioctl(self.file.as_raw_fd() as libc::c_int, op as libc::c_ulong, 0) };
         match i32 {
             -1 => Err(io::Error::last_os_error()),
             _ => Ok(()),
@@ -19,7 +69,13 @@ impl PerfEvent<mode::Counting> {
     }
 
     fn perf_event_ioctl_with_arg<A>(&self, op: perf_event_ioctls, arg: A) -> io::Result<()> {
-        let i32 = unsafe { ioctl(self.raw_fd as libc::c_int, op as libc::c_ulong, arg) };
+        let i32 = unsafe {
+            ioctl(
+                self.file.as_raw_fd() as libc::c_int,
+                op as libc::c_ulong,
+                arg,
+            )
+        };
         match i32 {
             -1 => Err(io::Error::last_os_error()),
             _ => Ok(()),
