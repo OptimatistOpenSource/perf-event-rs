@@ -52,7 +52,7 @@ pub struct Builder {
     #[allow(dead_code)]
     pub(crate) group_fd: Option<i32>, // TODO
     #[allow(dead_code)]
-    pub(crate) flags: Option<u64>,    // TODO
+    pub(crate) flags: Option<u64>, // TODO
 }
 
 impl Builder {

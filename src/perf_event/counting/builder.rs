@@ -1,4 +1,4 @@
-use crate::counting::{Counting, Attr};
+use crate::counting::{Attr, Counting};
 use crate::{BuildError, Builder};
 
 impl Builder {
