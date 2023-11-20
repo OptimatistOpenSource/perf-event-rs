@@ -1,43 +1,24 @@
+use crate::syscall;
 use crate::syscall::bindings::{perf_event_attr, perf_event_ioctls};
 use crate::syscall::{ioctl, perf_event_open};
-use crate::{syscall, BuildError, Builder};
 use std::fs::File;
 use std::io;
 use std::io::Error;
 use std::os::fd::{AsRawFd, FromRawFd};
 
 mod attr;
+mod builder;
 mod event;
 
 use crate::infra::result::WrapResult;
 pub use attr::*;
+pub use builder::*;
 pub use event::*;
 
 pub struct Counting {
     // TODO
     raw_attr: Box<perf_event_attr>,
     file: File,
-}
-
-impl Builder {
-    // TODO
-    pub fn build_counting(self, attr: CountingAttr) -> Result<Counting, BuildError> {
-        match self {
-            Builder {
-                pid: None,
-                cpu: None,
-                ..
-            } => Err(BuildError::PidAndCpuNotSet),
-            Builder {
-                pid: Some(pid),
-                cpu: Some(cpu),
-                group_fd: Some(group_fd),
-                flags: Some(flags),
-            } => unsafe { Counting::new(attr, pid, cpu, group_fd, flags) }
-                .map_err(BuildError::SyscallFailed),
-            _ => todo!(),
-        }
-    }
 }
 
 impl Counting {
