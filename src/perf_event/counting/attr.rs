@@ -12,6 +12,64 @@ pub struct CountingAttr {
     raw_attr: RawAttr,
 }
 
+impl Debug for CountingAttr {
+    // TODO
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_char('\n')?;
+
+        macro_rules! show {
+            ($getter:ident) => {{
+                let val = self.raw_attr.$getter();
+                f.write_fmt(format_args!("{}: {}\n", stringify!($getter), val));
+            }};
+        }
+
+        show!(disabled); // TODO
+        show!(inherit); // TODO
+        show!(pinned); // TODO
+        show!(exclusive); // TODO
+
+        show!(exclude_user);
+        show!(exclude_kernel);
+        show!(exclude_hv);
+        show!(exclude_idle);
+
+        show!(mmap); // not for counting mode
+        show!(comm); // ditto
+        show!(freq); // ditto
+        show!(inherit_stat); // TODO
+        show!(enable_on_exec); // TODO
+        show!(task); // not for counting mode
+        show!(watermark); // ditto
+        show!(precise_ip); // TODO
+        show!(mmap_data); // not for counting mode
+        show!(sample_id_all); // ditto
+
+        show!(exclude_host);
+        show!(exclude_guest);
+        show!(exclude_callchain_kernel);
+        show!(exclude_callchain_user);
+
+        show!(mmap2); // not for counting mode
+        show!(comm_exec); // ditto
+        show!(use_clockid); // ditto
+        show!(context_switch); // ditto
+        show!(write_backward); // ditto
+        show!(namespaces); // ditto
+        show!(ksymbol); // ditto
+        show!(bpf_event); // ditto
+        show!(aux_output); // ditto
+        show!(cgroup); // ditto
+        show!(text_poke); // ditto
+        show!(build_id); // ditto
+        show!(inherit_thread); // TODO
+        show!(remove_on_exec); // TODO
+        show!(sigtrap); // TODO
+
+        Ok(())
+    }
+}
+
 impl Default for CountingAttr {
     fn default() -> Self {
         let mut raw_attr = RawAttr {
