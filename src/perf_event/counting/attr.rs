@@ -1,9 +1,10 @@
-use crate::perf_event::counting::event::{Event, Inner};
+use crate::perf_event::counting::event::Event;
 use crate::syscall::bindings::{
     __BindgenBitfieldUnit, perf_event_attr, perf_event_attr__bindgen_ty_1,
     perf_event_attr__bindgen_ty_2, perf_event_attr__bindgen_ty_3, perf_event_attr__bindgen_ty_4,
 };
 use crate::EventScope;
+use std::fmt::{Debug, Formatter, Write};
 
 type RawAttr = perf_event_attr;
 
@@ -13,7 +14,7 @@ pub struct CountingAttr {
 
 impl Default for CountingAttr {
     fn default() -> Self {
-        let mut attr = RawAttr {
+        let mut raw_attr = RawAttr {
             type_: 0,
             size: std::mem::size_of::<RawAttr>() as libc::__u32,
             config: 0,
@@ -40,54 +41,55 @@ impl Default for CountingAttr {
             config3: 0,  // TODO: miss doc in man
         };
 
-        attr.set_disabled(1); // TODO
-        attr.set_inherit(1); // TODO
-        attr.set_pinned(0); // TODO
-        attr.set_exclusive(0); // TODO
+        raw_attr.set_disabled(1); // TODO
+        raw_attr.set_inherit(1); // TODO
+        raw_attr.set_pinned(0); // TODO
+        raw_attr.set_exclusive(0); // TODO
 
-        attr.set_exclude_user(1);
-        attr.set_exclude_kernel(1);
-        attr.set_exclude_hv(1);
-        attr.set_exclude_idle(1);
+        raw_attr.set_exclude_user(1);
+        raw_attr.set_exclude_kernel(1);
+        raw_attr.set_exclude_hv(1);
+        raw_attr.set_exclude_idle(1);
 
-        attr.set_mmap(0); // not for counting mode
-        attr.set_comm(0); // ditto
-        attr.set_freq(0); // ditto
-        attr.set_inherit_stat(1); // TODO
-        attr.set_enable_on_exec(0); // TODO
-        attr.set_task(0); // not for counting mode
-        attr.set_watermark(0); // ditto
-        attr.set_precise_ip(0); // TODO
-        attr.set_mmap_data(0); // not for counting mode
-        attr.set_sample_id_all(0); // ditto
+        raw_attr.set_mmap(0); // not for counting mode
+        raw_attr.set_comm(0); // ditto
+        raw_attr.set_freq(0); // ditto
+        raw_attr.set_inherit_stat(1); // TODO
+        raw_attr.set_enable_on_exec(0); // TODO
+        raw_attr.set_task(0); // not for counting mode
+        raw_attr.set_watermark(0); // ditto
+        raw_attr.set_precise_ip(0); // TODO
+        raw_attr.set_mmap_data(0); // not for counting mode
+        raw_attr.set_sample_id_all(0); // ditto
 
-        attr.set_exclude_host(1);
-        attr.set_exclude_guest(1);
-        attr.set_exclude_callchain_kernel(1);
-        attr.set_exclude_callchain_user(1);
+        raw_attr.set_exclude_host(1);
+        raw_attr.set_exclude_guest(1);
+        raw_attr.set_exclude_callchain_kernel(1);
+        raw_attr.set_exclude_callchain_user(1);
 
-        attr.set_mmap2(0); // not for counting mode
-        attr.set_comm_exec(0); // ditto
-        attr.set_use_clockid(0); // ditto
-        attr.set_context_switch(0); // ditto
-        attr.set_write_backward(0); // ditto
-        attr.set_namespaces(0); // ditto
-        attr.set_ksymbol(0); // ditto
-        attr.set_bpf_event(0); // ditto
-        attr.set_aux_output(0); // ditto
-        attr.set_cgroup(0); // ditto
-        attr.set_text_poke(0); // ditto
-        attr.set_build_id(0); // ditto
-        attr.set_inherit_thread(0); // TODO
-        attr.set_remove_on_exec(0); // TODO
-        attr.set_sigtrap(0); // TODO
+        raw_attr.set_mmap2(0); // not for counting mode
+        raw_attr.set_comm_exec(0); // ditto
+        raw_attr.set_use_clockid(0); // ditto
+        raw_attr.set_context_switch(0); // ditto
+        raw_attr.set_write_backward(0); // ditto
+        raw_attr.set_namespaces(0); // ditto
+        raw_attr.set_ksymbol(0); // ditto
+        raw_attr.set_bpf_event(0); // ditto
+        raw_attr.set_aux_output(0); // ditto
+        raw_attr.set_cgroup(0); // ditto
+        raw_attr.set_text_poke(0); // ditto
+        raw_attr.set_build_id(0); // ditto
+        raw_attr.set_inherit_thread(0); // TODO
+        raw_attr.set_remove_on_exec(0); // TODO
+        raw_attr.set_sigtrap(0); // TODO
 
-        Self { raw_attr: attr }
+        Self { raw_attr }
     }
 }
 
 impl CountingAttr {
     // TODO: more options needed
+    #[allow(private_bounds)]
     pub fn new(event: impl Into<Event>, scopes: impl IntoIterator<Item = EventScope>) -> Self {
         let mut attr = Self::default();
 
@@ -105,20 +107,20 @@ impl CountingAttr {
         });
 
         use crate::syscall::bindings::*;
-        match event.into().into_inner() {
-            Inner::Hw(ev) if ev.is_cache_event() => {
+        match event.into() {
+            Event::Hw(ev) if ev.is_cache_event() => {
                 raw_attr.type_ = perf_type_id_PERF_TYPE_HW_CACHE;
                 raw_attr.config = ev.into_u64();
             }
-            Inner::Hw(ev) => {
+            Event::Hw(ev) => {
                 raw_attr.type_ = perf_type_id_PERF_TYPE_HARDWARE;
                 raw_attr.config = ev.into_u64();
             }
-            Inner::Sw(ev) => {
+            Event::Sw(ev) => {
                 raw_attr.type_ = perf_type_id_PERF_TYPE_SOFTWARE;
                 raw_attr.config = ev.into_u64();
             }
-            Inner::Raw(ev) => {
+            Event::Raw(ev) => {
                 raw_attr.type_ = perf_type_id_PERF_TYPE_RAW;
                 raw_attr.config = ev.into_u64();
             }

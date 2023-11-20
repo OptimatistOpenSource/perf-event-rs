@@ -1,4 +1,4 @@
-use crate::perf_event::counting::{Event, Inner};
+use crate::perf_event::counting::{Event };
 use crate::syscall::bindings::*;
 
 pub enum CacheOp {
@@ -126,6 +126,6 @@ impl HwEvent {
 
 impl From<HwEvent> for Event {
     fn from(value: HwEvent) -> Self {
-        Self(Inner::Hw(value))
+        Self::Hw(value)
     }
 }

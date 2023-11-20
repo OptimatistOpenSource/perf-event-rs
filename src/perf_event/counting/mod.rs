@@ -12,6 +12,7 @@ mod event;
 
 use crate::infra::result::WrapResult;
 pub use attr::*;
+#[allow(unused_imports)]
 pub use builder::*;
 pub use event::*;
 

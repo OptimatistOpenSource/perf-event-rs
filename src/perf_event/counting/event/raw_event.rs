@@ -1,4 +1,4 @@
-use crate::perf_event::counting::{Event, Inner};
+use crate::perf_event::counting::{Event };
 
 pub struct RawEvent {
     config: u64,
@@ -18,6 +18,6 @@ impl RawEvent {
 
 impl From<RawEvent> for Event {
     fn from(value: RawEvent) -> Self {
-        Self(Inner::Raw(value))
+        Self::Raw(value)
     }
 }

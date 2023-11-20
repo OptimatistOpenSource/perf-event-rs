@@ -1,4 +1,4 @@
-use crate::perf_event::counting::{Event, Inner};
+use crate::perf_event::counting::{Event };
 use crate::syscall::bindings::*;
 
 pub enum SwEvent {
@@ -39,6 +39,6 @@ impl SwEvent {
 
 impl From<SwEvent> for Event {
     fn from(value: SwEvent) -> Self {
-        Self(Inner::Sw(value))
+        Self::Sw(value)
     }
 }
