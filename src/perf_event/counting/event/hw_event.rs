@@ -1,3 +1,4 @@
+use crate::event::{Event, Inner};
 use crate::syscall::bindings::*;
 
 pub enum CacheOp {
@@ -120,5 +121,11 @@ impl HwEvent {
                 op_result.into_u64(),
             ),
         }
+    }
+}
+
+impl From<HwEvent> for Event {
+    fn from(value: HwEvent) -> Self {
+        Self(Inner::Hw(value))
     }
 }

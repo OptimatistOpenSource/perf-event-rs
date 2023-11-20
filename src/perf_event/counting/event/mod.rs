@@ -19,21 +19,3 @@ impl Event {
         self.0
     }
 }
-
-impl From<HwEvent> for Event {
-    fn from(value: HwEvent) -> Self {
-        Self(Inner::Hw(value))
-    }
-}
-
-impl From<SwEvent> for Event {
-    fn from(value: SwEvent) -> Self {
-        Self(Inner::Sw(value))
-    }
-}
-
-impl From<RawEvent> for Event {
-    fn from(value: RawEvent) -> Self {
-        Self(Inner::Raw(value))
-    }
-}

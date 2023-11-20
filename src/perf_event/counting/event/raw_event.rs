@@ -1,3 +1,5 @@
+use crate::event::{Event, Inner};
+
 pub struct RawEvent {
     config: u64,
 }
@@ -11,5 +13,11 @@ impl RawEvent {
 
     pub fn into_u64(self) -> u64 {
         self.config
+    }
+}
+
+impl From<RawEvent> for Event {
+    fn from(value: RawEvent) -> Self {
+        Self(Inner::Raw(value))
     }
 }

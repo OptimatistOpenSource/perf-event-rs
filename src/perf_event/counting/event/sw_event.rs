@@ -1,3 +1,4 @@
+use crate::event::{Event, Inner};
 use crate::syscall::bindings::*;
 
 pub enum SwEvent {
@@ -33,5 +34,11 @@ impl SwEvent {
             CgroupSwitches => perf_sw_ids_PERF_COUNT_SW_CGROUP_SWITCHES,
         };
         config as u64
+    }
+}
+
+impl From<SwEvent> for Event {
+    fn from(value: SwEvent) -> Self {
+        Self(Inner::Sw(value))
     }
 }
