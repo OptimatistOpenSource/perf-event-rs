@@ -3,7 +3,7 @@ use crate::syscall::bindings::{perf_event_attr, perf_event_ioctls};
 use crate::syscall::{ioctl, perf_event_open};
 use std::fs::File;
 use std::io;
-use std::io::Error;
+use std::io::{Error, Read};
 use std::os::fd::{AsRawFd, FromRawFd};
 
 mod attr;
@@ -38,6 +38,15 @@ impl Counting {
                 file: File::from_raw_fd(fd),
             }
             .wrap_ok(),
+        }
+    }
+
+    pub fn get_count(&mut self) -> io::Result<usize> {
+        let mut buf = [0_u8; std::mem::size_of::<usize>()];
+
+        match self.file.read_exact(&mut buf) {
+            Ok(()) => usize::from_le_bytes(buf).wrap_ok(),
+            Err(e) => Err(e),
         }
     }
 
