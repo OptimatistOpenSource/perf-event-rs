@@ -88,12 +88,12 @@ impl Default for CountingAttr {
 
 impl CountingAttr {
     // TODO: more options needed
-    pub fn new(event: impl Into<Event>, scopes: impl Iterator<Item = EventScope>) -> Self {
+    pub fn new(event: impl Into<Event>, scopes: impl IntoIterator<Item = EventScope>) -> Self {
         let mut attr = Self::default();
 
         use EventScope::*;
         let raw_attr = &mut attr.raw_attr;
-        scopes.for_each(|scope| match scope {
+        scopes.into_iter().for_each(|scope| match scope {
             User => raw_attr.set_exclude_user(0),
             Kernel => raw_attr.set_exclude_kernel(0),
             Hv => raw_attr.set_exclude_hv(0),
