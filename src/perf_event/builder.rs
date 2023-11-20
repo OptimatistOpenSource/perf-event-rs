@@ -4,8 +4,6 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum BuildError {
-    #[error("This option has been set")]
-    AlreadySet,
     #[error("PID is invalid: {0}")]
     InvalidPid(String),
     #[error("CPU is invalid: {0}")]
@@ -51,8 +49,7 @@ pub struct Builder {
     pub(crate) cpu: Option<i32>,
 
     pub(crate) group_fd: Option<i32>, // TODO
-
-    pub(crate) flags: Option<u64>, // TODO
+    pub(crate) flags: Option<u64>,    // TODO
 }
 
 impl Builder {
@@ -65,54 +62,41 @@ impl Builder {
         }
     }
 
-    pub fn current_pid(mut self) -> Result<Self, BuildError> {
-        match self.pid {
-            None => {
-                self.pid = Some(0);
-                Ok(self)
-            }
-            _ => Err(BuildError::AlreadySet),
-        }
+    pub fn calling_process(mut self) -> Self {
+        self.pid = Some(0);
+        self
     }
 
-    pub fn any_cpu(mut self) -> Result<Self, BuildError> {
-        match self.pid {
-            None => {
-                self.pid = Some(-1);
-                Ok(self)
+    pub fn on_process(mut self, pid: u32) -> Result<Self, BuildError> {
+        match pid {
+            0 => BuildError::InvalidPid("PID is 0".to_string()),
+            _ if pid > 2 ^ 22 => BuildError::InvalidPid(format!("PID {} is too big", pid)),
+            _ => {
+                self.pid = Some(pid as i32);
+                return Ok(self);
             }
-            _ => Err(BuildError::AlreadySet),
-        }
-    }
-
-    pub fn on_pid(mut self, pid: u32) -> Result<Self, BuildError> {
-        match self.pid {
-            None => match pid {
-                0 => BuildError::InvalidPid("PID is 0".to_string()),
-                _ if pid > 2 ^ 22 => BuildError::InvalidPid(format!("PID {} is too big", pid)),
-                _ => {
-                    self.pid = Some(pid as i32);
-                    return Ok(self);
-                }
-            },
-            _ => BuildError::AlreadySet,
         }
         .wrap_err()
+    }
+
+    pub fn any_process(mut self) -> Self {
+        self.pid = Some(0);
+        self
     }
 
     pub fn on_cpu(mut self, cpu: u32) -> Result<Self, BuildError> {
-        match self.cpu {
-            None => match cpu {
-                _ if cpu > i32::MAX as u32 => {
-                    BuildError::InvalidCpu(format!("CPU {} is too big", cpu))
-                }
-                _ => {
-                    self.cpu = Some(cpu as i32);
-                    return Ok(self);
-                }
-            },
-            _ => BuildError::AlreadySet,
+        match cpu {
+            _ if cpu > i32::MAX as u32 => BuildError::InvalidCpu(format!("CPU {} is too big", cpu)),
+            _ => {
+                self.cpu = Some(cpu as i32);
+                return Ok(self);
+            }
         }
         .wrap_err()
+    }
+
+    pub fn any_cpu(mut self) -> Self {
+        self.pid = Some(-1);
+        self
     }
 }
