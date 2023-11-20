@@ -10,6 +10,9 @@ mod attr;
 mod builder;
 mod event;
 
+#[cfg(test)]
+mod tests;
+
 use crate::infra::result::WrapResult;
 pub use attr::*;
 #[allow(unused_imports)]
