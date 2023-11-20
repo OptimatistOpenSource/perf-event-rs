@@ -1,5 +1,5 @@
 mod builder;
-mod counting;
+pub mod counting;
 
 pub use builder::*;
 
