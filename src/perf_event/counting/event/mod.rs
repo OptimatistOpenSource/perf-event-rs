@@ -6,7 +6,7 @@ pub use hw_event::*;
 pub use raw_event::*;
 pub use sw_event::*;
 
-pub(crate) enum Event {
+pub enum Event {
     Hw(HwEvent),
     Sw(SwEvent),
     Raw(RawEvent),

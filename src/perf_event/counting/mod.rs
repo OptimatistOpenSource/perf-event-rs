@@ -33,6 +33,7 @@ pub struct CountingResult {
     pub time_enabled: u64,
     pub time_running: u64,
     pub event_id: u64,
+    #[cfg(feature = "kernel-6.0")]
     pub event_lost: u64,
 }
 

@@ -99,7 +99,6 @@ impl Default for AttrOtherConfig {
 
 impl Attr {
     // TODO: more options needed
-    #[allow(private_bounds)]
     pub fn new(
         event: impl Into<Event>,
         scopes: impl IntoIterator<Item = EventScope>,
@@ -112,10 +111,17 @@ impl Attr {
             __bindgen_anon_1: perf_event_attr__bindgen_ty_1::default(), // not use in counting mode
             sample_type: 0,                                             // ditto
             read_format: {
-                perf_event_read_format_PERF_FORMAT_TOTAL_TIME_ENABLED
+                #[allow(unused_mut)]
+                let mut read_format = perf_event_read_format_PERF_FORMAT_TOTAL_TIME_ENABLED
                     | perf_event_read_format_PERF_FORMAT_TOTAL_TIME_RUNNING
-                    | perf_event_read_format_PERF_FORMAT_ID
-                    | perf_event_read_format_PERF_FORMAT_LOST
+                    | perf_event_read_format_PERF_FORMAT_ID;
+
+                #[cfg(feature = "kernel-6.0")]
+                {
+                    read_format |= perf_event_read_format_PERF_FORMAT_LOST;
+                }
+
+                read_format
             } as _,
             _bitfield_align_1: [],
             _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]), // set latter via attr.set_...
@@ -134,7 +140,8 @@ impl Attr {
             aux_sample_size: 0, // not use in counting mode
             __reserved_3: 0,
             sig_data: 0, // not use in counting mode
-            config3: 0,  // TODO: miss doc in man
+            #[cfg(feature = "kernel-6.2")]
+            config3: 0, // TODO: miss doc in man
         };
 
         raw_attr.set_disabled(1);
