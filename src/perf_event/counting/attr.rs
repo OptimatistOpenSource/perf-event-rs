@@ -55,12 +55,19 @@ impl Debug for Attr {
         show!(namespaces); // ditto
         show!(ksymbol); // ditto
         show!(bpf_event); // ditto
+        #[cfg(feature = "kernel-5.4")]
         show!(aux_output); // ditto
+        #[cfg(feature = "kernel-5.7")]
         show!(cgroup); // ditto
+        #[cfg(feature = "kernel-5.8")]
         show!(text_poke); // ditto
+        #[cfg(feature = "kernel-5.12")]
         show!(build_id); // ditto
+        #[cfg(feature = "kernel-5.13")]
         show!(inherit_thread);
+        #[cfg(feature = "kernel-5.13")]
         show!(remove_on_exec);
+        #[cfg(feature = "kernel-5.13")]
         show!(sigtrap);
 
         Ok(())
@@ -137,8 +144,10 @@ impl Attr {
             aux_watermark: 0,                                       // ditto
             sample_max_stack: 0,                                    // ditto
             __reserved_2: 0,
+            #[cfg(feature = "kernel-5.5")]
             aux_sample_size: 0, // not use in counting mode
             __reserved_3: 0,
+            #[cfg(feature = "kernel-5.13")]
             sig_data: 0, // not use in counting mode
             #[cfg(feature = "kernel-6.2")]
             config3: 0, // TODO: miss doc in man
@@ -178,12 +187,19 @@ impl Attr {
         raw_attr.set_namespaces(0); // ditto
         raw_attr.set_ksymbol(0); // ditto
         raw_attr.set_bpf_event(0); // ditto
+        #[cfg(feature = "kernel-5.4")]
         raw_attr.set_aux_output(0); // ditto
+        #[cfg(feature = "kernel-5.7")]
         raw_attr.set_cgroup(0); // ditto
+        #[cfg(feature = "kernel-5.8")]
         raw_attr.set_text_poke(0); // ditto
+        #[cfg(feature = "kernel-5.12")]
         raw_attr.set_build_id(0); // ditto
+        #[cfg(feature = "kernel-5.13")]
         raw_attr.set_inherit_thread(other_config.inherit_thread as _);
+        #[cfg(feature = "kernel-5.13")]
         raw_attr.set_remove_on_exec(other_config.remove_on_exec as _);
+        #[cfg(feature = "kernel-5.13")]
         raw_attr.set_sigtrap(other_config.sigtrap as _);
 
         use EventScope::*;
