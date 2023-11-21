@@ -74,6 +74,10 @@ impl Counting {
         }
     }
 
+    pub fn into_group(self) -> CountingGroup {
+        CountingGroup { leader: self }
+    }
+
     pub fn enable(&self) -> io::Result<()> {
         ioctl_wrapped::<()>(
             &self.file,
@@ -136,7 +140,6 @@ impl Counting {
         )?;
         Ok(id)
     }
-
 }
 
 pub struct CountingGroup {
