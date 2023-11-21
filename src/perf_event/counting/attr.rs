@@ -119,9 +119,12 @@ impl Attr {
             sample_type: 0,                                             // ditto
             read_format: {
                 #[allow(unused_mut)]
-                let mut read_format = perf_event_read_format_PERF_FORMAT_TOTAL_TIME_ENABLED
+                #[allow(clippy::identity_op)] // for readable
+                let mut read_format = 0
+                    | perf_event_read_format_PERF_FORMAT_TOTAL_TIME_ENABLED
                     | perf_event_read_format_PERF_FORMAT_TOTAL_TIME_RUNNING
-                    | perf_event_read_format_PERF_FORMAT_ID;
+                    | perf_event_read_format_PERF_FORMAT_ID
+                    | perf_event_read_format_PERF_FORMAT_GROUP;
 
                 #[cfg(feature = "kernel-6.0")]
                 {

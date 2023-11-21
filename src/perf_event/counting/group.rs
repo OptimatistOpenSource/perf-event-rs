@@ -1,9 +1,37 @@
 use crate::counting::{ioctl_wrapped, Attr, Counting};
 use crate::syscall;
 use libc::pid_t;
+use std::collections::HashMap;
 use std::io;
-use std::io::ErrorKind;
+use std::io::{ErrorKind, Read};
 use std::os::fd::AsRawFd;
+
+#[repr(C)]
+pub(crate) struct GroupReadFormatValueFollowed {
+    pub event_count: u64, // u64 value;
+    pub event_id: u64,    // u64 id;
+    #[cfg(feature = "kernel-6.0")]
+    pub event_lost: u64, // u64 lost;
+}
+
+#[repr(C)]
+pub(crate) struct GroupReadFormat {
+    pub member_len: u64,   // u64 nr;
+    pub time_enabled: u64, // u64 time_enabled;
+    pub time_running: u64, // u64 time_running;
+                           // follows: struct { .. } values[nr];
+}
+
+pub struct GroupCountingMemberResult {
+    pub event_count: u64,
+    pub event_lost: u64,
+}
+
+pub struct GroupCountingResult {
+    pub time_enabled: u64,
+    pub time_running: u64,
+    pub member_results: HashMap<u64, GroupCountingMemberResult>,
+}
 
 pub struct CountingGroup {
     pid: pid_t,

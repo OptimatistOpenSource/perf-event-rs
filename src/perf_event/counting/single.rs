@@ -1,4 +1,4 @@
-use crate::counting::{ioctl_wrapped, Attr};
+use crate::counting::{ioctl_wrapped, Attr, GroupReadFormat, GroupReadFormatValueFollowed};
 use crate::infra::result::WrapResult;
 use crate::syscall;
 use crate::syscall::bindings::perf_event_attr;
@@ -15,7 +15,6 @@ pub struct Counting {
     pub(crate) file: File,
 }
 
-#[repr(C)]
 #[derive(Debug)]
 pub struct CountingResult {
     pub event_count: u64,
@@ -47,15 +46,28 @@ impl Counting {
     }
 
     pub fn get_result(&mut self) -> io::Result<CountingResult> {
-        let mut buf = [0_u8; std::mem::size_of::<CountingResult>()];
-
-        match self.file.read_exact(&mut buf) {
-            Ok(()) => {
-                let read_format_ptr = buf.as_ptr() as *const CountingResult;
-                unsafe { read_format_ptr.read() }.wrap_ok()
-            }
-            Err(e) => Err(e),
+        #[repr(C)]
+        struct ReadFormat {
+            header: GroupReadFormat,
+            value: GroupReadFormatValueFollowed, // This group has only one member
         }
+
+        let mut buf = [0_u8; std::mem::size_of::<ReadFormat>()];
+        self.file.read_exact(&mut buf)?;
+
+        let read_format = {
+            let ptr = buf.as_ptr() as *const ReadFormat;
+            unsafe { ptr.read() }
+        };
+        CountingResult {
+            event_count: read_format.value.event_count,
+            time_enabled: read_format.header.time_enabled,
+            time_running: read_format.header.time_running,
+            event_id: read_format.value.event_id,
+            #[cfg(feature = "kernel-6.0")]
+            event_lost: read_format.value.event_lost,
+        }
+        .wrap_ok()
     }
 
     pub fn enable(&self) -> io::Result<()> {
