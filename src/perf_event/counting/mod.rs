@@ -175,3 +175,33 @@ impl Counting {
         }
     */
 }
+
+pub struct CountingGroup {
+    leader: Counting,
+}
+
+impl CountingGroup {
+    pub fn enable(&self) -> io::Result<()> {
+        ioctl_wrapped(
+            &self.leader.file,
+            syscall::bindings::perf_event_ioctls_ENABLE,
+            Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
+        )
+    }
+
+    pub fn disable(&self) -> io::Result<()> {
+        ioctl_wrapped(
+            &self.leader.file,
+            syscall::bindings::perf_event_ioctls_DISABLE,
+            Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
+        )
+    }
+
+    pub fn reset_count(&self) -> io::Result<()> {
+        ioctl_wrapped(
+            &self.leader.file,
+            syscall::bindings::perf_event_ioctls_RESET,
+            Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
+        )
+    }
+}
