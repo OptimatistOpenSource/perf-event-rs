@@ -1,10 +1,12 @@
 use crate::counting::{ioctl_wrapped, Attr, Counting};
+use crate::infra::result::WrapResult;
 use crate::syscall;
 use libc::pid_t;
 use std::collections::HashMap;
 use std::io;
 use std::io::{ErrorKind, Read};
 use std::os::fd::AsRawFd;
+use std::os::unix::fs::FileExt;
 
 #[repr(C)]
 pub(crate) struct GroupReadFormatValueFollowed {
@@ -52,6 +54,10 @@ impl CountingGroup {
         self.members.get(0)
     }
 
+    fn leader_mut(&mut self) -> Option<&mut Counting> {
+        self.members.get_mut(0)
+    }
+
     pub fn add_member(mut self, attr: Attr) -> io::Result<CountingGroup> {
         match self.leader() {
             None => {
@@ -66,6 +72,57 @@ impl CountingGroup {
         };
 
         Ok(self)
+    }
+
+    pub fn get_result(&mut self) -> io::Result<GroupCountingResult> {
+        let Some(leader) = self.leader_mut() else {
+            return Err(io::Error::new(ErrorKind::Other, "Group has no members"));
+        };
+
+        use std::mem::size_of;
+
+        let header = {
+            let mut buf = [0_u8; size_of::<GroupReadFormat>()];
+            leader.file.read_exact(&mut buf)?;
+            let ptr = buf.as_ptr() as *const GroupReadFormat;
+            unsafe { ptr.read() }
+        };
+
+        let values = {
+            let mut buf =
+                vec![0_u8; size_of::<GroupReadFormatValueFollowed>() * header.member_len as usize];
+            leader
+                .file
+                .read_exact_at(&mut buf, size_of::<GroupReadFormat>() as u64)?;
+
+            let values_vec = unsafe {
+                Vec::from_raw_parts(
+                    buf.as_mut_ptr() as *mut GroupReadFormatValueFollowed,
+                    header.member_len as usize,
+                    header.member_len as usize,
+                )
+            };
+
+            values_vec
+                .into_iter()
+                .map(|it| {
+                    (
+                        it.event_id,
+                        GroupCountingMemberResult {
+                            event_count: it.event_count,
+                            event_lost: it.event_lost,
+                        },
+                    )
+                })
+                .collect::<HashMap<_, _>>()
+        };
+
+        GroupCountingResult {
+            time_enabled: header.time_enabled,
+            time_running: header.time_running,
+            member_results: values,
+        }
+        .wrap_ok()
     }
 
     pub fn enable(&self) -> io::Result<()> {
