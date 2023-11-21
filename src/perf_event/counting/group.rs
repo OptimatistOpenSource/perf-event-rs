@@ -24,7 +24,7 @@ impl CountingGroup {
         self.members.get(0)
     }
 
-    pub fn add_member<F>(mut self, attr: Attr) -> io::Result<CountingGroup> {
+    pub fn add_member(mut self, attr: Attr) -> io::Result<CountingGroup> {
         match self.leader() {
             None => {
                 let leader = unsafe { Counting::new(attr, self.pid, self.cpu, -1, 0) }?;
