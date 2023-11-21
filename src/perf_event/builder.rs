@@ -50,8 +50,6 @@ pub struct Builder {
     pub(crate) cpu: Option<i32>,
 
     #[allow(dead_code)]
-    pub(crate) group_fd: Option<i32>, // TODO
-    #[allow(dead_code)]
     pub(crate) flags: Option<u64>, // TODO
 }
 
@@ -60,7 +58,6 @@ impl Builder {
         Self {
             pid: None,
             cpu: None,
-            group_fd: None,
             flags: None,
         }
     }
