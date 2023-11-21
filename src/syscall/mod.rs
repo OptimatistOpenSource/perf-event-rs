@@ -9,8 +9,10 @@ pub mod bindings; // TODO: bindings may differ between kernel versions
 
 use libc::{c_int, c_ulong, pid_t};
 
+/// # Safety
+/// The arguments must be correct for this syscall
 pub unsafe fn perf_event_open(
-    attr: *const bindings::perf_event_attr,
+    attr: *const bindings::perf_event_attr, // TODO: validating references with lifetimes
     pid: pid_t,
     cpu: c_int,      //i32
     group_fd: c_int, //i32
@@ -26,6 +28,8 @@ pub unsafe fn perf_event_open(
     ) as c_int
 }
 
+/// # Safety
+/// The arguments must be correct for this syscall
 pub unsafe fn ioctl<A>(
     fd: c_int,        //i32
     request: c_ulong, //u64
