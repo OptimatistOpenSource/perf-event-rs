@@ -127,15 +127,7 @@ impl Counting {
         )
     }
 
-    /*
-        // TODO
-        pub fn set_filter(&self) -> io::Result<()> {
-            //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_FILTER)
-            todo!()
-        }
-    */
-
-    pub fn id(&self) -> io::Result<u64> {
+    pub fn get_event_id(&self) -> io::Result<u64> {
         let mut id = 0_u64;
         ioctl_wrapped(
             &self.file,
@@ -145,35 +137,6 @@ impl Counting {
         Ok(id)
     }
 
-    /*
-        // TODO
-        pub fn set_bpf(&self) -> io::Result<()> {
-            //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_BPF)
-            todo!()
-        }
-
-        // TODO: sampling mode only
-        pub fn pause_output(&self) -> io::Result<()> {
-            self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PAUSE_OUTPUT, 1i32)
-        }
-
-        // TODO: sampling mode only
-        pub fn resume_output(&self) -> io::Result<()> {
-            self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PAUSE_OUTPUT, 0i32)
-        }
-
-        // TODO
-        pub fn query_bpf(&self) -> io::Result<()> {
-            //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_QUERY_BPF)
-            todo!()
-        }
-
-        // TODO
-        pub fn modify_attributes(&self) -> io::Result<()> {
-            //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_MODIFY_ATTRIBUTES)
-            todo!()
-        }
-    */
 }
 
 pub struct CountingGroup {
@@ -205,3 +168,39 @@ impl CountingGroup {
         )
     }
 }
+
+/*
+    // TODO: tracing mode only
+    pub fn set_filter(&self) -> io::Result<()> {
+        //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_FILTER)
+        todo!()
+    }
+
+    // TODO: tracing mode only
+    pub fn set_bpf(&self) -> io::Result<()> {
+        //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_BPF)
+        todo!()
+    }
+
+    // TODO: sampling mode only
+    pub fn pause_output(&self) -> io::Result<()> {
+        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PAUSE_OUTPUT, 1i32)
+    }
+
+    // TODO: sampling mode only
+    pub fn resume_output(&self) -> io::Result<()> {
+        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PAUSE_OUTPUT, 0i32)
+    }
+
+    // TODO: tracing mode only
+    pub fn query_bpf(&self) -> io::Result<()> {
+        //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_QUERY_BPF)
+        todo!()
+    }
+
+    // TODO: breakpoint event only
+    pub fn modify_attributes(&self) -> io::Result<()> {
+        //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_MODIFY_ATTRIBUTES)
+        todo!()
+    }
+*/
