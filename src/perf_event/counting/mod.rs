@@ -1,5 +1,5 @@
 use crate::syscall;
-use crate::syscall::bindings::{perf_event_attr, perf_event_ioctls};
+use crate::syscall::bindings::perf_event_attr;
 use crate::syscall::{ioctl, perf_event_open};
 use std::fs::File;
 use std::io;
@@ -18,6 +18,17 @@ pub use attr::*;
 #[allow(unused_imports)]
 pub use builder::*;
 pub use event::*;
+
+fn ioctl_wrapped<A>(file: &File, request: impl Into<u64>, arg: Option<A>) -> io::Result<()> {
+    let i32 = match arg {
+        None => unsafe { ioctl(file.as_raw_fd() as libc::c_int, request.into(), 0) },
+        Some(arg) => unsafe { ioctl(file.as_raw_fd() as libc::c_int, request.into(), arg) },
+    };
+    match i32 {
+        -1 => Err(io::Error::last_os_error()),
+        _ => Ok(()),
+    }
+}
 
 pub struct Counting {
     // TODO
@@ -63,47 +74,19 @@ impl Counting {
         }
     }
 
-    fn perf_event_ioctl(&self, op: perf_event_ioctls) -> io::Result<()> {
-        let i32 = unsafe { ioctl(self.file.as_raw_fd() as libc::c_int, op as libc::c_ulong, 0) };
-        match i32 {
-            -1 => Err(io::Error::last_os_error()),
-            _ => Ok(()),
-        }
-    }
-
-    fn perf_event_ioctl_with_arg<A>(&self, op: perf_event_ioctls, arg: A) -> io::Result<()> {
-        let i32 = unsafe {
-            ioctl(
-                self.file.as_raw_fd() as libc::c_int,
-                op as libc::c_ulong,
-                arg,
-            )
-        };
-        match i32 {
-            -1 => Err(io::Error::last_os_error()),
-            _ => Ok(()),
-        }
-    }
-
     pub fn enable(&self) -> io::Result<()> {
-        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_ENABLE)
-    }
-
-    pub fn enable_group(&self) -> io::Result<()> {
-        self.perf_event_ioctl_with_arg(
+        ioctl_wrapped::<()>(
+            &self.file,
             syscall::bindings::perf_event_ioctls_ENABLE,
-            syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP,
+            None,
         )
     }
 
     pub fn disable(&self) -> io::Result<()> {
-        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_DISABLE)
-    }
-
-    pub fn disable_group(&self) -> io::Result<()> {
-        self.perf_event_ioctl_with_arg(
+        ioctl_wrapped::<()>(
+            &self.file,
             syscall::bindings::perf_event_ioctls_DISABLE,
-            syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP,
+            None,
         )
     }
 
@@ -116,27 +99,32 @@ impl Counting {
     */
 
     pub fn reset_count(&self) -> io::Result<()> {
-        self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_RESET)
-    }
-
-    pub fn reset_count_group(&self) -> io::Result<()> {
-        self.perf_event_ioctl_with_arg(
-            syscall::bindings::perf_event_ioctls_RESET,
-            syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP,
-        )
+        ioctl_wrapped::<()>(&self.file, syscall::bindings::perf_event_ioctls_RESET, None)
     }
 
     pub fn update_period(&self, new: u64) -> io::Result<()> {
-        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PERIOD, &new)
+        ioctl_wrapped(
+            &self.file,
+            syscall::bindings::perf_event_ioctls_PERIOD,
+            Some(&new),
+        )
     }
 
-    pub fn set_output(&self, new: File) -> io::Result<()> {
+    pub fn set_output(&self, new: &File) -> io::Result<()> {
         let raw_fd = new.as_raw_fd() as i64;
-        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_SET_OUTPUT, raw_fd)
+        ioctl_wrapped(
+            &self.file,
+            syscall::bindings::perf_event_ioctls_SET_OUTPUT,
+            Some(raw_fd),
+        )
     }
 
     pub fn ignore_output(&self) -> io::Result<()> {
-        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_SET_OUTPUT, -1i64)
+        ioctl_wrapped(
+            &self.file,
+            syscall::bindings::perf_event_ioctls_SET_OUTPUT,
+            Some(-1i64),
+        )
     }
 
     /*
@@ -149,7 +137,11 @@ impl Counting {
 
     pub fn id(&self) -> io::Result<u64> {
         let mut id = 0_u64;
-        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_ID, &mut id)?;
+        ioctl_wrapped(
+            &self.file,
+            syscall::bindings::perf_event_ioctls_ID,
+            Some(&mut id),
+        )?;
         Ok(id)
     }
 
