@@ -1,5 +1,6 @@
 mod attr;
 mod builder;
+mod record;
 
 use crate::perf_event::RawAttr;
 pub use attr::*;

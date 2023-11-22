@@ -1,0 +1,23 @@
+pub enum Record {
+    Mmap,
+    Lost,
+    Comm,
+    Exit,
+    Throttle,
+    Unthrottle,
+    Fork,
+    Read,
+    Sample,
+    Mmap2,
+    Aux,
+    ItraceStart,
+    LostSamples,
+    Switch,
+    SwitchCpuWide,
+    Namespaces,
+    Ksymbol,
+    BpfEvent,
+    Cgroup,
+    TextPoke,
+    AuxOutputHwId, // TODO: missing docs in man
+}
