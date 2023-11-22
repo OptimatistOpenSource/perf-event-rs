@@ -84,7 +84,6 @@ pub struct AttrOtherConfig {
 
     pub inherit_thread: bool,
     pub remove_on_exec: bool,
-    pub sigtrap: bool,
 }
 
 impl Default for AttrOtherConfig {
@@ -99,7 +98,6 @@ impl Default for AttrOtherConfig {
 
             inherit_thread: false,
             remove_on_exec: false,
-            sigtrap: false,
         }
     }
 }
@@ -204,7 +202,7 @@ impl Attr {
         #[cfg(feature = "kernel-5.13")]
         raw_attr.set_remove_on_exec(other_config.remove_on_exec as _);
         #[cfg(feature = "kernel-5.13")]
-        raw_attr.set_sigtrap(other_config.sigtrap as _);
+        raw_attr.set_sigtrap(0); // not use in counting mode
 
         use EventScope::*;
         scopes.into_iter().for_each(|scope| match scope {
