@@ -31,15 +31,15 @@ impl Debug for Attr {
         show!(exclude_hv);
         show!(exclude_idle);
 
-        show!(mmap); // not for counting mode
+        show!(mmap); // not use in counting mode
         show!(comm); // ditto
         show!(freq); // ditto
         show!(inherit_stat);
         show!(enable_on_exec);
-        show!(task); // not for counting mode
+        show!(task); // not use in counting mode
         show!(watermark); // ditto
         show!(precise_ip);
-        show!(mmap_data); // not for counting mode
+        show!(mmap_data); // not use in counting mode
         show!(sample_id_all); // ditto
 
         show!(exclude_host);
@@ -47,7 +47,7 @@ impl Debug for Attr {
         show!(exclude_callchain_kernel);
         show!(exclude_callchain_user);
 
-        show!(mmap2); // not for counting mode
+        show!(mmap2); // not use in counting mode
         show!(comm_exec); // ditto
         show!(use_clockid); // ditto
         show!(context_switch); // ditto
@@ -135,7 +135,7 @@ impl Attr {
                 read_format
             } as _,
             _bitfield_align_1: [],
-            _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]), // set latter via attr.set_...
+            _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]), // set latter via raw_attr.set_...
             __bindgen_anon_2: perf_event_attr__bindgen_ty_2::default(), // not use in counting mode
             bp_type: 0,                                             // ditto
             __bindgen_anon_3: perf_event_attr__bindgen_ty_3::default(), // ditto
@@ -154,7 +154,7 @@ impl Attr {
             #[cfg(feature = "kernel-5.13")]
             sig_data: 0, // not use in counting mode
             #[cfg(feature = "kernel-6.2")]
-            config3: 0, // TODO: miss doc in man
+            config3: 0, // TODO: missing docs in man
         };
 
         raw_attr.set_disabled(1);
@@ -167,12 +167,12 @@ impl Attr {
         raw_attr.set_exclude_hv(1);
         raw_attr.set_exclude_idle(1);
 
-        raw_attr.set_mmap(0); // not for counting mode
+        raw_attr.set_mmap(0); // not use in counting mode
         raw_attr.set_comm(0); // ditto
         raw_attr.set_freq(0); // ditto
         raw_attr.set_inherit_stat(other_config.inherit_stat as _);
         raw_attr.set_enable_on_exec(other_config.enable_on_exec as _);
-        raw_attr.set_task(0); // not for counting mode
+        raw_attr.set_task(0); // not use in counting mode
         raw_attr.set_watermark(0); // ditto
         raw_attr.set_precise_ip(0); // ditto
         raw_attr.set_mmap_data(0); // ditto
@@ -183,7 +183,7 @@ impl Attr {
         raw_attr.set_exclude_callchain_kernel(1);
         raw_attr.set_exclude_callchain_user(1);
 
-        raw_attr.set_mmap2(0); // not for counting mode
+        raw_attr.set_mmap2(0); // not use in counting mode
         raw_attr.set_comm_exec(0); // ditto
         raw_attr.set_use_clockid(0); // ditto
         raw_attr.set_context_switch(0); // ditto
