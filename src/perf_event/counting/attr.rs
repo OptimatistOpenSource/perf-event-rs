@@ -1,9 +1,7 @@
 use crate::perf_event::counting::event::Event;
-use crate::syscall::bindings::perf_event_attr;
 use crate::EventScope;
 use std::fmt::{Debug, Formatter, Write};
-
-type RawAttr = perf_event_attr;
+use crate::perf_event::RawAttr;
 
 pub struct Attr {
     raw_attr: RawAttr,
@@ -109,6 +107,8 @@ impl Attr {
         scopes: impl IntoIterator<Item = EventScope>,
         other_config: AttrOtherConfig,
     ) -> Self {
+        use crate::syscall::bindings::*;
+
         let mut raw_attr = RawAttr {
             type_: 0,
             size: std::mem::size_of::<RawAttr>() as libc::__u32,
@@ -216,7 +216,6 @@ impl Attr {
             CallchainUser => raw_attr.set_exclude_callchain_user(0),
         });
 
-        use crate::syscall::bindings::*;
         match event.into() {
             Event::Hw(ev) if ev.is_cache_event() => {
                 raw_attr.type_ = perf_type_id_PERF_TYPE_HW_CACHE;
