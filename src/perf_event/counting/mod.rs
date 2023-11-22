@@ -13,7 +13,6 @@ mod single;
 mod tests;
 
 pub use attr::*;
-#[allow(unused_imports)]
 pub use builder::*;
 pub use event::*;
 pub use group::*;

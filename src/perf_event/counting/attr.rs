@@ -126,10 +126,11 @@ impl Attr {
                     | perf_event_read_format_PERF_FORMAT_ID
                     | perf_event_read_format_PERF_FORMAT_GROUP;
 
-                #[cfg(feature = "kernel-6.0")]
-                {
-                    read_format |= perf_event_read_format_PERF_FORMAT_LOST;
-                }
+                // TODO: the following is for sampling mode
+                //#[cfg(feature = "kernel-6.0")]
+                //{
+                //    read_format |= perf_event_read_format_PERF_FORMAT_LOST;
+                //}
 
                 read_format
             } as _,

@@ -21,8 +21,9 @@ pub struct CountingResult {
     pub time_enabled: u64,
     pub time_running: u64,
     pub event_id: u64,
-    #[cfg(feature = "kernel-6.0")]
-    pub event_lost: u64,
+    // TODO: the following is for sampling mode
+    //#[cfg(feature = "kernel-6.0")]
+    //pub event_lost: u64,
 }
 
 impl Counting {
@@ -64,8 +65,9 @@ impl Counting {
             time_enabled: read_format.header.time_enabled,
             time_running: read_format.header.time_running,
             event_id: read_format.value.event_id,
-            #[cfg(feature = "kernel-6.0")]
-            event_lost: read_format.value.event_lost,
+            // TODO: the following is for sampling mode
+            //#[cfg(feature = "kernel-6.0")]
+            //event_lost: read_format.value.event_lost,
         }
         .wrap_ok()
     }

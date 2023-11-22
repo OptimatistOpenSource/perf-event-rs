@@ -13,8 +13,9 @@ use std::{io, ptr};
 pub(crate) struct GroupReadFormatValueFollowed {
     pub event_count: u64, // u64 value;
     pub event_id: u64,    // u64 id;
-    #[cfg(feature = "kernel-6.0")]
-    pub event_lost: u64, // u64 lost;
+    // TODO: the following is for sampling mode
+    //#[cfg(feature = "kernel-6.0")]
+    //pub event_lost: u64, // u64 lost;
 }
 
 #[repr(C)]
@@ -29,7 +30,9 @@ pub(crate) struct GroupReadFormat {
 #[derive(Debug)]
 pub struct GroupCountingMemberResult {
     pub event_count: u64,
-    pub event_lost: u64,
+    // TODO: the following is for sampling mode
+    //#[cfg(feature = "kernel-6.0")]
+    //pub event_lost: u64,
 }
 
 #[derive(Debug)]
@@ -112,7 +115,9 @@ impl CountingGroup {
                         it.event_id,
                         GroupCountingMemberResult {
                             event_count: it.event_count,
-                            event_lost: it.event_lost,
+                            // TODO: the following is for sampling mode
+                            //#[cfg(feature = "kernel-6.0")]
+                            //event_lost: it.event_lost,
                         },
                     )
                 })
