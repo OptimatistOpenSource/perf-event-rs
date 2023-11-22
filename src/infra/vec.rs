@@ -6,7 +6,9 @@ impl<T> VecExt<T> for Vec<T> {
     unsafe fn with_len_uninit(len: usize) -> Vec<T> {
         let mut vec = Vec::with_capacity(len);
         #[allow(clippy::uninit_vec)]
-        unsafe { vec.set_len(len) };
+        unsafe {
+            vec.set_len(len)
+        };
         vec
     }
 }

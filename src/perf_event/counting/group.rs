@@ -62,20 +62,18 @@ impl CountingGroup {
         self.members.get_mut(0)
     }
 
-    pub fn add_member(mut self, attr: Attr) -> io::Result<CountingGroup> {
-        match self.leader() {
-            None => {
-                let leader = unsafe { Counting::new(attr, self.pid, self.cpu, -1, 0) }?;
-                self.members.push(leader);
-            }
+    pub fn add_member(&mut self, attr: Attr) -> io::Result<u64> {
+        let member = match self.leader() {
+            None => unsafe { Counting::new(attr, self.pid, self.cpu, -1, 0) },
             Some(leader) => {
                 let group_fd = leader.file.as_raw_fd();
-                let member = unsafe { Counting::new(attr, self.pid, self.cpu, group_fd, 0) }?;
-                self.members.push(member);
+                unsafe { Counting::new(attr, self.pid, self.cpu, group_fd, 0) }
             }
-        };
+        }?;
+        let event_id = member.get_event_id()?;
+        self.members.push(member);
 
-        Ok(self)
+        Ok(event_id)
     }
 
     pub fn get_result(&mut self) -> io::Result<GroupCountingResult> {
