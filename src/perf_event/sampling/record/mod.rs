@@ -1,7 +1,6 @@
-pub enum Record {
+pub enum RecordBody {
     /*
     struct {
-      struct perf_event_header header;
       u32    pid, tid;
       u64    addr;
       u64    len;
@@ -13,7 +12,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u64    id;
       u64    lost;
       struct sample_id sample_id;
@@ -23,7 +21,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u32    pid;
       u32    tid;
       char   comm[];
@@ -34,7 +31,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u32    pid, ppid;
       u32    tid, ptid;
       u64    time;
@@ -45,7 +41,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u64    time;
       u64    id;
       u64    stream_id;
@@ -56,7 +51,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u64    time;
       u64    id;
       u64    stream_id;
@@ -67,7 +61,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u32    pid, ppid;
       u32    tid, ptid;
       u64    time;
@@ -78,7 +71,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u32    pid, tid;
       struct read_format values;
       struct sample_id sample_id;
@@ -88,7 +80,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u64    sample_id;   /* if PERF_SAMPLE_IDENTIFIER */
       u64    ip;          /* if PERF_SAMPLE_IP */
       u32    pid, tid;    /* if PERF_SAMPLE_TID */
@@ -136,7 +127,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u32    pid;
       u32    tid;
       u64    addr;
@@ -166,7 +156,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u64    aux_offset;
       u64    aux_size;
       u64    flags;
@@ -177,7 +166,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u32    pid;
       u32    tid;
     };
@@ -186,7 +174,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u64    lost;
       struct sample_id sample_id;
     };
@@ -195,7 +182,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       struct sample_id sample_id;
     };
     */
@@ -203,7 +189,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u32 next_prev_pid;
       u32 next_prev_tid;
       struct sample_id sample_id;
@@ -213,7 +198,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u32    pid;
       u32    tid;
       u64    nr_namespaces;
@@ -225,7 +209,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u64    addr;
       u32    len;
       u16    ksym_type;
@@ -238,7 +221,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u16 type;
       u16 flags;
       u32 id;
@@ -250,7 +232,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u64    id;
       char   path[];
       struct sample_id sample_id;
@@ -260,7 +241,6 @@ pub enum Record {
 
     /*
     struct {
-      struct perf_event_header header;
       u64    addr;
       u16    old_len;
       u16    new_len;
