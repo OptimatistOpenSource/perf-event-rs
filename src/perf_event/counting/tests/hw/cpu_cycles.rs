@@ -31,5 +31,5 @@ fn test() {
     assert_eq!(after, counting.get_result().unwrap().event_count);
 
     counting.enable().unwrap();
-    assert_ne!(after, counting.get_result().unwrap().event_count);
+    assert!(after < counting.get_result().unwrap().event_count);
 }
