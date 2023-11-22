@@ -49,10 +49,18 @@ fn test() {
         dbg!(instructions);
         assert!(instructions.event_count > 0);
 
+        // restart test
         group.enable().unwrap();
         let events = group.get_result().unwrap().member_results;
         assert!(cpu_cycles.event_count < events.get(&cpu_cycles_event_id).unwrap().event_count);
         assert!(instructions.event_count < events.get(&instructions_event_id).unwrap().event_count);
+
+        // reset_count test
+        group.disable().unwrap();
+        group.reset_count().unwrap();
+        let events = group.get_result().unwrap().member_results;
+        assert_eq!(events.get(&cpu_cycles_event_id).unwrap().event_count, 0);
+        assert_eq!(events.get(&instructions_event_id).unwrap().event_count, 0);
 
         instructions.event_count as f64 / cpu_cycles.event_count as f64
     };

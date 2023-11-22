@@ -30,6 +30,12 @@ fn test() {
     assert!(after > 0);
     assert_eq!(after, counting.get_result().unwrap().event_count);
 
+    // restart test
     counting.enable().unwrap();
     assert!(after < counting.get_result().unwrap().event_count);
+
+    // reset_count test
+    counting.disable().unwrap();
+    counting.reset_count().unwrap();
+    assert_eq!(counting.get_result().unwrap().event_count, 0);
 }

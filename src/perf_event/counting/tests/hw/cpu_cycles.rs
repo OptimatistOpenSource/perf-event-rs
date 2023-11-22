@@ -1,5 +1,6 @@
 use crate::counting::{Attr, HwEvent};
 use crate::{Builder, EventScope};
+use std::io;
 
 fn workload() {
     for _ in 0..10000000 {
@@ -30,6 +31,12 @@ fn test() {
     assert!(after > 0);
     assert_eq!(after, counting.get_result().unwrap().event_count);
 
+    // restart test
     counting.enable().unwrap();
     assert!(after < counting.get_result().unwrap().event_count);
+
+    // reset_count test
+    counting.disable().unwrap();
+    counting.reset_count().unwrap();
+    assert_eq!(counting.get_result().unwrap().event_count, 0);
 }
