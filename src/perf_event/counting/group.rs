@@ -100,11 +100,11 @@ impl CountingGroup {
 
         let header = {
             let ptr = buf.as_ptr() as *const GroupReadFormat;
-            unsafe { ptr.read() }.clone() // clone to stack
+            unsafe { &*ptr }
         };
 
         let values = {
-            let header_ptr = buf.as_ptr() as *const GroupReadFormat;
+            let header_ptr = header as *const GroupReadFormat;
             let values_ptr = unsafe { header_ptr.offset(1) as *const GroupReadFormatValueFollowed };
             let values = unsafe { &*ptr::slice_from_raw_parts(values_ptr, members_len) };
 

@@ -58,7 +58,7 @@ impl Counting {
 
         let read_format = {
             let ptr = buf.as_ptr() as *const ReadFormat;
-            unsafe { ptr.read() }
+            unsafe { &*ptr }
         };
         CountingResult {
             event_count: read_format.value.event_count,
