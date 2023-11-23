@@ -2,14 +2,14 @@ mod attr;
 mod builder;
 mod record;
 
+use crate::infra::result::WrapResult;
 use crate::perf_event::RawAttr;
+use crate::syscall::perf_event_open;
 pub use attr::*;
 pub use builder::*;
 use std::fs::File;
 use std::io;
 use std::os::fd::FromRawFd;
-use crate::infra::result::WrapResult;
-use crate::syscall::perf_event_open;
 
 pub struct Sampling {
     // TODO
@@ -35,7 +35,7 @@ impl Sampling {
                 raw_attr,
                 file: File::from_raw_fd(fd),
             }
-                .wrap_ok(),
+            .wrap_ok(),
         }
     }
 

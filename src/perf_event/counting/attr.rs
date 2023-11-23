@@ -1,7 +1,7 @@
 use crate::perf_event::counting::event::Event;
+use crate::perf_event::RawAttr;
 use crate::EventScope;
 use std::fmt::{Debug, Formatter, Write};
-use crate::perf_event::RawAttr;
 
 pub struct Attr {
     raw_attr: RawAttr,
