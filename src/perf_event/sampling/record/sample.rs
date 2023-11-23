@@ -44,6 +44,9 @@ struct {
 };
 */
 
+use crate::infra::Vla;
+use crate::syscall::bindings::{perf_branch_entry, perf_sample_weight};
+
 #[repr(C)]
 pub struct Body {
     sample_id: u64,
@@ -57,27 +60,23 @@ pub struct Body {
     cpu: u32,
     res: u32,
     period: u64,
-    // TODO
-    nr: u64,
-    // TODO
-    size1: u32,
-    // TODO
+    // TODO: struct read_format v;
+    ips: Vla<u64, u64>,
+    data_1: Vla<u32, u8>,
     bnr: u64,
-    // TODO
-    abi1: u64,
-    // TODO
-    size2: u64,
-    // TODO
+    lbr: Vla<u64, perf_branch_entry>,
+    abi_1: u64,
+    // TODO: u64    regs[weight(mask)];
+    data_2: Vla<u64, u8>,
     dyn_size: u64,
-    // TODO
+    weight: perf_sample_weight,
     data_src: u64,
     transaction: u64,
-    abi: u64,
-    // TODO
+    abi_2: u64,
+    // TODO: u64    regs[weight(mask)];
     phys_addr: u64,
     cgroup: u64,
     data_page_size: u64,
     code_page_size: u64,
-    size3: u64,
-    // TODO
+    data_3: Vla<u64, u8>,
 }

@@ -8,6 +8,8 @@ struct {
 };
 */
 
+use crate::infra::NullTerminated;
+
 #[repr(C)]
 pub struct Body {
     pid: u32,
@@ -15,5 +17,5 @@ pub struct Body {
     addr: u64,
     len: u64,
     pgoff: u64,
-    // TODO
+    filename: NullTerminated<u8>,
 }

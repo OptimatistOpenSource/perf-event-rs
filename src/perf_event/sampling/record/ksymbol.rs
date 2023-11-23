@@ -9,6 +9,7 @@ struct {
 };
 */
 
+use crate::infra::NullTerminated;
 use crate::sampling::record::sample_id;
 
 #[repr(C)]
@@ -17,6 +18,6 @@ pub struct Body {
     len: u32,
     ksym_type: u16,
     flags: u16,
-    // TODO
+    name: NullTerminated<u8>,
     sample_id: sample_id,
 }

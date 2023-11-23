@@ -7,12 +7,13 @@ struct {
 };
 */
 
+use crate::infra::NullTerminated;
 use crate::sampling::record::sample_id;
 
 #[repr(C)]
 pub struct Body {
     pid: u32,
     tid: u32,
-    // TODO
+    comm: NullTerminated<u8>,
     sample_id: sample_id,
 }
