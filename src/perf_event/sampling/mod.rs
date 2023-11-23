@@ -2,7 +2,7 @@ mod attr;
 mod builder;
 mod record;
 
-use crate::infra::result::WrapResult;
+use crate::infra::WrapResult;
 use crate::perf_event::RawAttr;
 use crate::syscall::perf_event_open;
 pub use attr::*;

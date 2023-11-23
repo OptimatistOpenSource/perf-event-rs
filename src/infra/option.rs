@@ -12,7 +12,7 @@ impl<T> WrapOption for T {}
 
 #[cfg(test)]
 mod tests {
-    use crate::infra::option::WrapOption;
+    use crate::infra::WrapOption;
 
     #[test]
     fn test_wrap_some() {

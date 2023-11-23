@@ -1,5 +1,5 @@
 use crate::counting::{Attr, Counting, CountingGroup};
-use crate::infra::result::WrapResult;
+use crate::infra::WrapResult;
 use crate::{BuildError, Builder};
 
 impl Builder {

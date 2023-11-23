@@ -1,4 +1,4 @@
-use crate::infra::result::WrapResult;
+use crate::infra::WrapResult;
 use std::io;
 use thiserror::Error;
 

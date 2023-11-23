@@ -15,7 +15,7 @@ impl<T> VecExt<T> for Vec<T> {
 
 #[cfg(test)]
 mod tests {
-    use crate::infra::vec::VecExt;
+    use crate::infra::VecExt;
 
     #[test]
     fn test_with_len_uninit() {

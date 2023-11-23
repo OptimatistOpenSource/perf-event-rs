@@ -16,7 +16,7 @@ impl<T> WrapResult for T {}
 
 #[cfg(test)]
 mod tests {
-    use crate::infra::result::WrapResult;
+    use crate::infra::WrapResult;
 
     #[test]
     fn test_wrap_ok() {

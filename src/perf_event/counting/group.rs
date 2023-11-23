@@ -1,6 +1,6 @@
 use crate::counting::{ioctl_wrapped, Attr, Counting};
-use crate::infra::result::WrapResult;
-use crate::infra::vec::VecExt;
+use crate::infra::VecExt;
+use crate::infra::WrapResult;
 use crate::syscall;
 use libc::pid_t;
 use std::collections::HashMap;

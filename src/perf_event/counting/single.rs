@@ -1,5 +1,5 @@
 use crate::counting::{ioctl_wrapped, read_format_body, read_format_header, Attr};
-use crate::infra::result::WrapResult;
+use crate::infra::WrapResult;
 use crate::syscall;
 use crate::syscall::bindings::perf_event_attr;
 use crate::syscall::perf_event_open;
