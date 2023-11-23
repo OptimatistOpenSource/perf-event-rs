@@ -1,4 +1,4 @@
-use crate::counting::{ioctl_wrapped, Attr, GroupReadFormat, GroupReadFormatValueFollowed};
+use crate::counting::{ioctl_wrapped, read_format_body, read_format_header, Attr};
 use crate::infra::result::WrapResult;
 use crate::syscall;
 use crate::syscall::bindings::perf_event_attr;
@@ -48,23 +48,24 @@ impl Counting {
 
     pub fn get_result(&mut self) -> io::Result<CountingResult> {
         #[repr(C)]
-        struct ReadFormat {
-            header: GroupReadFormat,
-            value: GroupReadFormatValueFollowed, // This group has only one member
+        #[allow(non_camel_case_types)]
+        struct read_format {
+            header: read_format_header,
+            body: read_format_body, // This group has only one member
         }
 
-        let mut buf = [0_u8; std::mem::size_of::<ReadFormat>()];
+        let mut buf = [0_u8; std::mem::size_of::<read_format>()];
         self.file.read_exact(&mut buf)?;
 
         let read_format = {
-            let ptr = buf.as_ptr() as *const ReadFormat;
+            let ptr = buf.as_ptr() as *const read_format;
             unsafe { &*ptr }
         };
         CountingResult {
-            event_count: read_format.value.event_count,
+            event_count: read_format.body.event_count,
             time_enabled: read_format.header.time_enabled,
             time_running: read_format.header.time_running,
-            event_id: read_format.value.event_id,
+            event_id: read_format.body.event_id,
             // TODO: the following is for sampling mode
             //#[cfg(feature = "kernel-6.0")]
             //event_lost: read_format.value.event_lost,

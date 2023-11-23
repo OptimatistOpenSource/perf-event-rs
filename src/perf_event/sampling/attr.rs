@@ -1,8 +1,4 @@
 use crate::perf_event::RawAttr;
-use crate::syscall::bindings::{
-    perf_event_attr, perf_event_attr__bindgen_ty_1, perf_event_attr__bindgen_ty_2,
-    perf_event_attr__bindgen_ty_3, perf_event_attr__bindgen_ty_4,
-};
 
 pub struct Attr {
     raw_attr: RawAttr,

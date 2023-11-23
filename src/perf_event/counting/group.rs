@@ -10,7 +10,9 @@ use std::{io, ptr};
 
 #[repr(C)]
 #[derive(Debug)]
-pub(crate) struct GroupReadFormatValueFollowed {
+#[allow(non_camel_case_types)]
+/// read_format body in PERF_FORMAT_GROUP
+pub(crate) struct read_format_body {
     pub event_count: u64, // u64 value;
     pub event_id: u64,    // u64 id;
                           // TODO: the following is for sampling mode
@@ -20,7 +22,9 @@ pub(crate) struct GroupReadFormatValueFollowed {
 
 #[repr(C)]
 #[derive(Debug, Clone)]
-pub(crate) struct GroupReadFormat {
+#[allow(non_camel_case_types)]
+/// read_format header in PERF_FORMAT_GROUP
+pub(crate) struct read_format_header {
     pub members_len: u64,  // u64 nr;
     pub time_enabled: u64, // u64 time_enabled;
     pub time_running: u64, // u64 time_running;
@@ -89,8 +93,7 @@ impl CountingGroup {
         use std::mem::size_of;
 
         let buf = {
-            let len = size_of::<GroupReadFormat>()
-                + size_of::<GroupReadFormatValueFollowed>() * members_len;
+            let len = size_of::<read_format_header>() + size_of::<read_format_body>() * members_len;
 
             let mut buf = unsafe { Vec::<u8>::with_len_uninit(len) };
             leader.file.read_exact(&mut buf)?;
@@ -99,13 +102,13 @@ impl CountingGroup {
         };
 
         let header = {
-            let ptr = buf.as_ptr() as *const GroupReadFormat;
+            let ptr = buf.as_ptr() as *const read_format_header;
             unsafe { &*ptr }
         };
 
         let values = {
-            let header_ptr = header as *const GroupReadFormat;
-            let values_ptr = unsafe { header_ptr.offset(1) as *const GroupReadFormatValueFollowed };
+            let header_ptr = header as *const read_format_header;
+            let values_ptr = unsafe { header_ptr.offset(1) as *const read_format_body };
             let values = unsafe { &*ptr::slice_from_raw_parts(values_ptr, members_len) };
 
             values
