@@ -55,4 +55,8 @@ impl Sampling {
             None,
         )
     }
+
+    pub fn next_sample() {
+
+    }
 }

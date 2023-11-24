@@ -19,7 +19,7 @@ fn test() {
     };
     let mut counting = builder.build_counting(attr).unwrap();
 
-    let before = counting.get_result().unwrap().event_count;
+    let before = counting.result().unwrap().event_count;
     dbg!(before);
     assert_eq!(before, 0);
     counting.enable().unwrap();
@@ -27,17 +27,17 @@ fn test() {
     workload();
 
     counting.disable().unwrap();
-    let after = counting.get_result().unwrap().event_count;
+    let after = counting.result().unwrap().event_count;
     dbg!(after);
     assert!(after > 0);
-    assert_eq!(after, counting.get_result().unwrap().event_count);
+    assert_eq!(after, counting.result().unwrap().event_count);
 
     // restart test
     counting.enable().unwrap();
-    assert!(after < counting.get_result().unwrap().event_count);
+    assert!(after < counting.result().unwrap().event_count);
 
     // reset_count test
     counting.disable().unwrap();
     counting.reset_count().unwrap();
-    assert_eq!(counting.get_result().unwrap().event_count, 0);
+    assert_eq!(counting.result().unwrap().event_count, 0);
 }

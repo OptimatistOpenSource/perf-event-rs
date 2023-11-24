@@ -28,7 +28,7 @@ fn test() {
         .unwrap();
 
     {
-        let result = group.get_result().unwrap();
+        let result = group.result().unwrap();
         let cpu_clock = result.member_results.get(&cpu_clock_event_id).unwrap();
         dbg!(cpu_clock);
         assert_eq!(cpu_clock.event_count, 0);
@@ -42,7 +42,7 @@ fn test() {
 
     group.disable().unwrap();
     let rate = {
-        let events = group.get_result().unwrap().member_results;
+        let events = group.result().unwrap().member_results;
         let cpu_clock = events.get(&cpu_clock_event_id).unwrap();
         dbg!(cpu_clock);
         assert!(cpu_clock.event_count > 0);
@@ -53,7 +53,7 @@ fn test() {
         // restart test
         group.enable().unwrap();
         workload(100);
-        let events = group.get_result().unwrap().member_results;
+        let events = group.result().unwrap().member_results;
         assert!(cpu_clock.event_count < events.get(&cpu_clock_event_id).unwrap().event_count);
         dbg!(events.get(&page_faults_event_id).unwrap().event_count);
         assert!(page_faults.event_count < events.get(&page_faults_event_id).unwrap().event_count);
@@ -61,7 +61,7 @@ fn test() {
         // reset_count test
         group.disable().unwrap();
         group.reset_count().unwrap();
-        let events = group.get_result().unwrap().member_results;
+        let events = group.result().unwrap().member_results;
         assert_eq!(events.get(&cpu_clock_event_id).unwrap().event_count, 0);
         assert_eq!(events.get(&page_faults_event_id).unwrap().event_count, 0);
 

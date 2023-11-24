@@ -78,13 +78,13 @@ impl CountingGroup {
                 unsafe { Counting::new(attr, self.pid, self.cpu, group_fd, 0) }
             }
         }?;
-        let event_id = member.get_event_id()?;
+        let event_id = member.event_id()?;
         self.members.push(member);
 
         Ok(event_id)
     }
 
-    pub fn get_result(&mut self) -> io::Result<GroupCountingResult> {
+    pub fn result(&mut self) -> io::Result<GroupCountingResult> {
         let members_len = self.members.len();
 
         let Some(leader) = self.leader_mut() else {

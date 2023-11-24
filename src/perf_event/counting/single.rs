@@ -46,7 +46,7 @@ impl Counting {
         }
     }
 
-    pub fn get_result(&mut self) -> io::Result<CountingResult> {
+    pub fn result(&mut self) -> io::Result<CountingResult> {
         #[repr(C)]
         #[allow(non_camel_case_types)]
         struct read_format {
@@ -126,7 +126,7 @@ impl Counting {
         )
     }
 
-    pub fn get_event_id(&self) -> io::Result<u64> {
+    pub fn event_id(&self) -> io::Result<u64> {
         let mut id = 0_u64;
         ioctl_wrapped(
             &self.file,

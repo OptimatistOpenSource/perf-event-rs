@@ -28,7 +28,7 @@ fn test() {
         .unwrap();
 
     {
-        let result = group.get_result().unwrap();
+        let result = group.result().unwrap();
         let cpu_cycles = result.member_results.get(&cpu_cycles_event_id).unwrap();
         dbg!(cpu_cycles);
         assert_eq!(cpu_cycles.event_count, 0);
@@ -42,7 +42,7 @@ fn test() {
 
     group.disable().unwrap();
     let ipc = {
-        let events = group.get_result().unwrap().member_results;
+        let events = group.result().unwrap().member_results;
         let cpu_cycles = events.get(&cpu_cycles_event_id).unwrap();
         dbg!(cpu_cycles);
         assert!(cpu_cycles.event_count > 0);
@@ -52,14 +52,14 @@ fn test() {
 
         // restart test
         group.enable().unwrap();
-        let events = group.get_result().unwrap().member_results;
+        let events = group.result().unwrap().member_results;
         assert!(cpu_cycles.event_count < events.get(&cpu_cycles_event_id).unwrap().event_count);
         assert!(instructions.event_count < events.get(&instructions_event_id).unwrap().event_count);
 
         // reset_count test
         group.disable().unwrap();
         group.reset_count().unwrap();
-        let events = group.get_result().unwrap().member_results;
+        let events = group.result().unwrap().member_results;
         assert_eq!(events.get(&cpu_cycles_event_id).unwrap().event_count, 0);
         assert_eq!(events.get(&instructions_event_id).unwrap().event_count, 0);
 
