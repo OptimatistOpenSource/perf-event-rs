@@ -1,4 +1,4 @@
-use crate::perf_event::counting::Event;
+use crate::Event;
 
 pub struct RawEvent {
     config: u64,

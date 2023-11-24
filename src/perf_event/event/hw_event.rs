@@ -1,5 +1,5 @@
-use crate::perf_event::counting::Event;
 use crate::syscall::bindings::*;
+use crate::Event;
 
 pub enum CacheOp {
     Read,

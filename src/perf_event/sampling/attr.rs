@@ -1,6 +1,5 @@
-use crate::counting::Event;
 use crate::perf_event::RawAttr;
-use crate::EventScope;
+use crate::{Event, EventScope};
 
 pub enum OverflowBy {
     Period(u64),
