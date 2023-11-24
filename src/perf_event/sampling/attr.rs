@@ -104,7 +104,7 @@ impl Attr {
             #[cfg(feature = "kernel-5.13")]
             sig_data: 0, // not use in sampling mode
             #[cfg(feature = "kernel-6.2")]
-            config3: 0, // TODO: missing docs in man
+            config3: 0, // TODO: missing docs in manual
         };
 
         raw_attr.set_disabled(1);
