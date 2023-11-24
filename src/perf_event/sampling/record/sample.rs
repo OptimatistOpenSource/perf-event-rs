@@ -44,9 +44,9 @@ struct {
 };
 */
 
-use crate::counting::{read_format_body, read_format_header};
+use crate::counting::read_format_header;
 use crate::infra::Vla;
-use crate::syscall::bindings::{perf_branch_entry, perf_sample_weight};
+use crate::syscall::bindings::perf_sample_weight;
 
 // TODO: use getter pattern for DST records
 #[repr(C)]

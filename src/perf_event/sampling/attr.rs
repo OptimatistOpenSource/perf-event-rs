@@ -1,6 +1,6 @@
 use crate::counting::Event;
-use crate::EventScope;
 use crate::perf_event::RawAttr;
+use crate::EventScope;
 
 pub enum OverflowBy {
     Period(u64),
@@ -16,7 +16,7 @@ impl Attr {
     pub fn new(
         event: impl Into<Event>,
         scopes: impl IntoIterator<Item = EventScope>,
-        overflow_by: OverflowBy
+        overflow_by: OverflowBy,
     ) -> Self {
         use crate::syscall::bindings::*;
 
