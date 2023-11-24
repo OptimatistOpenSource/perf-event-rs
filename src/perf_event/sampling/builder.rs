@@ -14,9 +14,8 @@ impl Builder {
                 pid: Some(pid),
                 cpu: Some(cpu),
                 ..
-            } => {
-                todo!()
-            }
+            } => unsafe { Sampling::new(attr, pid.clone(), cpu.clone(), -1, 0) }
+                .map_err(BuildError::SyscallFailed),
             _ => todo!(),
         }
     }
