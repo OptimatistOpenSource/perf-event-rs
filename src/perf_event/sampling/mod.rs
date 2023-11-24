@@ -4,7 +4,8 @@ mod record;
 
 use crate::infra::WrapResult;
 use crate::perf_event::RawAttr;
-use crate::syscall::perf_event_open;
+use crate::syscall;
+use crate::syscall::{ioctl_wrapped, perf_event_open};
 pub use attr::*;
 pub use builder::*;
 use std::fs::File;
@@ -40,10 +41,18 @@ impl Sampling {
     }
 
     pub fn enable(&self) -> io::Result<()> {
-        todo!()
+        ioctl_wrapped::<()>(
+            &self.file,
+            syscall::bindings::perf_event_ioctls_ENABLE,
+            None,
+        )
     }
 
     pub fn disable(&self) -> io::Result<()> {
-        todo!()
+        ioctl_wrapped::<()>(
+            &self.file,
+            syscall::bindings::perf_event_ioctls_DISABLE,
+            None,
+        )
     }
 }
