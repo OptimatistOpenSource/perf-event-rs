@@ -1,26 +1,26 @@
 use crate::syscall::bindings::perf_event_header;
 
-mod aux;
-mod aux_output_hw_id;
-mod bpf_event;
-mod cgroup;
-mod comm;
-mod exit;
-mod fork;
-mod intrace_start;
-mod ksymbol;
-mod lost;
-mod lost_samples;
-mod mmap;
-mod mmap2;
-mod namespaces;
-mod read;
-mod sample;
-mod switch;
-mod switch_cpu_wide;
-mod text_poke;
-mod throttle;
-mod unthrottle;
+pub mod aux;
+pub mod aux_output_hw_id;
+pub mod bpf_event;
+pub mod cgroup;
+pub mod comm;
+pub mod exit;
+pub mod fork;
+pub mod intrace_start;
+pub mod ksymbol;
+pub mod lost;
+pub mod lost_samples;
+pub mod mmap;
+pub mod mmap2;
+pub mod namespaces;
+pub mod read;
+pub mod sample;
+pub mod switch;
+pub mod switch_cpu_wide;
+pub mod text_poke;
+pub mod throttle;
+pub mod unthrottle;
 
 pub enum RecordBody {
     Mmap(*const mmap::Body),

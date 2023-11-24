@@ -1,13 +1,18 @@
 mod attr;
 mod builder;
 mod record;
+#[cfg(test)]
+mod tests;
 
 use crate::infra::WrapResult;
 use crate::perf_event::RawAttr;
+use crate::sampling::record::sample;
 use crate::syscall;
+use crate::syscall::bindings::perf_event_mmap_page;
 use crate::syscall::{ioctl_wrapped, perf_event_open};
 pub use attr::*;
 pub use builder::*;
+use memmap::MmapOptions;
 use std::fs::File;
 use std::io;
 use std::os::fd::FromRawFd;
