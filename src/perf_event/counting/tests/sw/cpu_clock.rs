@@ -1,5 +1,5 @@
-use crate::counting::{Attr, SwEvent};
-use crate::{Builder, EventScope};
+use crate::counting::Attr;
+use crate::{Builder, EventScope, SwEvent};
 
 fn workload() {
     for _ in 0..10000000 {

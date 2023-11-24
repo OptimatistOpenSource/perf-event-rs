@@ -1,5 +1,5 @@
-use crate::counting::{Attr, HwEvent};
-use crate::{Builder, EventScope};
+use crate::counting::Attr;
+use crate::{Builder, EventScope, HwEvent};
 use std::io;
 
 fn workload() {
