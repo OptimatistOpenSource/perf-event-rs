@@ -44,13 +44,12 @@ struct {
 };
 */
 
-use crate::counting::read_format_header;
-use crate::infra::Vla;
+use crate::counting::{read_format_body, read_format_header};
+use crate::infra::{SliceExt, Vla};
 use crate::syscall::bindings::perf_sample_weight;
+use std::slice;
 
-// TODO: use getter pattern for DST records
-#[repr(C)]
-pub struct Body {
+struct Sized1 {
     sample_id: u64,
     ip: u64,
     pid: u32,
@@ -63,15 +62,9 @@ pub struct Body {
     res: u32,
     period: u64,
     v_header: read_format_header,
-    //v_body: [read_format_body],
-    ips: Vla<u64, u64>,
-    data_1: Vla<u32, u8>,
-    // TODO:
-    //bnr: u64,
-    //lbr: Vla<u64, perf_branch_entry>,
-    //abi_1: u64,
-    //u64    regs[weight(mask)];
-    data_2: Vla<u64, u8>,
+}
+
+struct Sized2 {
     dyn_size: u64,
     weight: perf_sample_weight,
     data_src: u64,
@@ -83,5 +76,93 @@ pub struct Body {
     cgroup: u64,
     data_page_size: u64,
     code_page_size: u64,
-    data_3: Vla<u64, u8>,
+}
+
+#[repr(C)]
+pub struct Body {}
+
+macro_rules! sized1_get {
+    ($name:ident,$ty:ty) => {
+        pub fn $name(&self) -> $ty {
+            &self.sized1().$name
+        }
+    };
+}
+
+macro_rules! sized2_get {
+    ($name:ident,$ty:ty) => {
+        pub fn $name(&self) -> $ty {
+            &self.sized2().$name
+        }
+    };
+}
+
+impl Body {
+    fn sized1(&self) -> &Sized1 {
+        let ptr = self as *const _ as *const Sized1;
+        unsafe { &*ptr }
+    }
+    sized1_get!(sample_id, &u64);
+    sized1_get!(ip, &u64);
+    sized1_get!(pid, &u32);
+    sized1_get!(tid, &u32);
+    sized1_get!(time, &u64);
+    sized1_get!(addr, &u64);
+    sized1_get!(id, &u64);
+    sized1_get!(stream_id, &u64);
+    sized1_get!(cpu, &u32);
+    sized1_get!(res, &u32);
+    sized1_get!(period, &u64);
+    sized1_get!(v_header, &read_format_header);
+
+    pub fn v_body(&self) -> &[read_format_body] {
+        let sized1_ptr = self.sized1() as *const Sized1;
+        let ptr = unsafe { sized1_ptr.offset(1) } as *const read_format_body;
+        let members_len = self.v_header().members_len as usize;
+        unsafe { slice::from_raw_parts(ptr, members_len) }
+    }
+
+    pub fn ips(&self) -> &[u64] {
+        let ptr = self.v_body().follow_mem_ptr::<u8>();
+        let vla: &Vla<u64, u64> = unsafe { &*Vla::from_ptr(ptr) };
+        vla.as_slice()
+    }
+
+    pub fn data_1(&self) -> &[u8] {
+        let ptr = self.ips().follow_mem_ptr::<u8>();
+        let vla: &Vla<u32, u8> = unsafe { &*Vla::from_ptr(ptr) };
+        vla.as_slice()
+    }
+
+    // TODO:
+    //bnr: u64,
+    //lbr: Vla<u64, perf_branch_entry>,
+    //abi_1: u64,
+    //u64    regs[weight(mask)];
+
+    pub fn data_2(&self) -> &[u8] {
+        let ptr = self.data_1().follow_mem_ptr::<u8>();
+        let vla: &Vla<u32, u8> = unsafe { &*Vla::from_ptr(ptr) };
+        vla.as_slice()
+    }
+
+    fn sized2(&self) -> &Sized2 {
+        let ptr = self.data_2().follow_mem_ptr::<Sized2>();
+        unsafe { &*ptr }
+    }
+    sized2_get!(dyn_size, &u64);
+    sized2_get!(weight, &perf_sample_weight);
+    sized2_get!(data_src, &u64);
+    sized2_get!(transaction, &u64);
+    sized2_get!(phys_addr, &u64);
+    sized2_get!(cgroup, &u64);
+    sized2_get!(data_page_size, &u64);
+    sized2_get!(code_page_size, &u64);
+
+    pub fn data_3(&self) -> &[u8] {
+        let sized2_ptr = self.sized2() as *const Sized2;
+        let ptr = unsafe { sized2_ptr.offset(1) };
+        let vla: &Vla<u64, u8> = unsafe { &*Vla::from_ptr(ptr) };
+        vla.as_slice()
+    }
 }
