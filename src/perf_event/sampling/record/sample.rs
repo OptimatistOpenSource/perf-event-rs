@@ -44,9 +44,11 @@ struct {
 };
 */
 
+use crate::counting::{read_format_body, read_format_header};
 use crate::infra::Vla;
 use crate::syscall::bindings::{perf_branch_entry, perf_sample_weight};
 
+// TODO: use getter pattern for DST records
 #[repr(C)]
 pub struct Body {
     sample_id: u64,
@@ -60,20 +62,23 @@ pub struct Body {
     cpu: u32,
     res: u32,
     period: u64,
-    // TODO: struct read_format v;
+    v_header: read_format_header,
+    //v_body: [read_format_body],
     ips: Vla<u64, u64>,
     data_1: Vla<u32, u8>,
-    bnr: u64,
-    lbr: Vla<u64, perf_branch_entry>,
-    abi_1: u64,
-    // TODO: u64    regs[weight(mask)];
+    // TODO:
+    //bnr: u64,
+    //lbr: Vla<u64, perf_branch_entry>,
+    //abi_1: u64,
+    //u64    regs[weight(mask)];
     data_2: Vla<u64, u8>,
     dyn_size: u64,
     weight: perf_sample_weight,
     data_src: u64,
     transaction: u64,
-    abi_2: u64,
-    // TODO: u64    regs[weight(mask)];
+    // TODO:
+    //abi_2: u64,
+    //u64    regs[weight(mask)];
     phys_addr: u64,
     cgroup: u64,
     data_page_size: u64,
