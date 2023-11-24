@@ -8,7 +8,7 @@ pub struct Attr {
 }
 
 impl Debug for Attr {
-    // TODO: more messages needed
+    // TODO: more messages are needed
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.write_char('\n')?;
 
@@ -101,7 +101,7 @@ impl Default for AttrOtherConfig {
 }
 
 impl Attr {
-    // TODO: more options needed
+    // TODO: more options are needed
     pub fn new(
         event: impl Into<Event>,
         scopes: impl IntoIterator<Item = EventScope>,
