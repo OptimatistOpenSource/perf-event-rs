@@ -5,9 +5,11 @@
 #[allow(non_camel_case_types)]
 #[allow(non_upper_case_globals)]
 #[allow(non_snake_case)]
-pub mod bindings; // TODO: bindings may differ between kernel versions
+pub mod bindings;
+mod wrapped; // TODO: bindings may differ between kernel versions
 
 use libc::{c_int, c_ulong, pid_t};
+pub use wrapped::*;
 
 /// # Safety
 /// The arguments must be correct for this syscall

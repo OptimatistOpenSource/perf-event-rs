@@ -1,7 +1,8 @@
-use crate::counting::{ioctl_wrapped, Attr, Counting};
+use crate::counting::{Attr, Counting};
 use crate::infra::VecExt;
 use crate::infra::WrapResult;
 use crate::syscall;
+use crate::syscall::ioctl_wrapped;
 use libc::pid_t;
 use std::collections::HashMap;
 use std::io::{ErrorKind, Read};
