@@ -3,9 +3,11 @@ mod option;
 mod result;
 mod vec;
 mod vla;
+mod slice;
 
 pub use null_terminated::*;
 pub use option::*;
 pub use result::*;
 pub use vec::*;
 pub use vla::*;
+pub use slice::*;
