@@ -10,8 +10,12 @@ pub struct Vla<L, T> {
 }
 
 impl<L, T> Vla<L, T> {
-    pub unsafe fn from_ptr<P>(ptr: &P) -> &Vla<L, T> {
-        let ptr = ptr as *const _ as *const Vla<L, T>;
+    pub unsafe fn from_ptr<X>(ptr: *const X) -> *const Vla<L, T> {
+        let ptr = ptr as *const Vla<L, T>;
+        &*ptr
+    }
+    pub unsafe fn from_brw<X>(brw: &X) -> &Vla<L, T> {
+        let ptr = brw as *const _ as *const Vla<L, T>;
         &*ptr
     }
 }
