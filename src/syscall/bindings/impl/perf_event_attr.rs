@@ -30,6 +30,7 @@ impl Debug for perf_event_attr {
                 sample_max_stack
                 aux_sample_size
                 sig_data
+                #[cfg(feature = "kernel-6.2")]
                 config3
         }
 
