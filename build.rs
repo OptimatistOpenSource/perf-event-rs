@@ -8,7 +8,7 @@ fn main() {
         .generate()
         .unwrap_or_else(|e| panic!("Failed to generate bindings: {}", e));
 
-    let path = "src/syscall/bindings.rs";
+    let path = "src/syscall/bindings/bindgen.rs";
     bindings
         .write_to_file(path)
         .unwrap_or_else(|e| panic!("Failed to write {}: {}", path, e));
