@@ -1,17 +1,20 @@
 use crate::syscall::bindings::*;
-use std::fmt::{Debug, Formatter, Write};
+use std::fmt::{Debug, Formatter};
 
 macro_rules! debug_union {
     (
-        name: $struct:ident
+        name: $name:ident
         self: $self:ident
         fmt: $f:ident
-        fields: $($field:ident)+
-    ) => {
-        $f.debug_struct(stringify!($struct))
-            $(.field(stringify!($field), &unsafe { $self.$field }))+
-            .finish()?;
-    };
+        fields: $($(#[$attr:meta])* $field:ident)+
+    ) => {{
+        let mut ds = $f.debug_struct(stringify!($name));
+        $(
+            $(#[$attr])*
+            ds.field(stringify!($field), &unsafe { $self.$field });
+        )+
+        ds.finish()?;
+    }};
 }
 
 impl Debug for perf_event_attr__bindgen_ty_1 {
@@ -80,14 +83,33 @@ impl Debug for perf_event_attr__bindgen_ty_4 {
 
 macro_rules! debug_struct {
     (
-        name: $struct:ident
+        name: $name:ident
         self: $self:ident
         fmt: $f:ident
-        fields: $($field:ident)+
+        fields: $($(#[$attr:meta])* $field:ident)+
     ) => {
-        $f.debug_struct(stringify!($struct))
-            $(.field(stringify!($field), &$self.$field))+
-            .finish()?;
+        let mut ds = $f.debug_struct(stringify!($name));
+        $(
+            $(#[$attr])*
+            ds.field(stringify!($field), &$self.$field);
+        )+
+        ds.finish()?;
+    };
+}
+
+macro_rules! debug_bits {
+    (
+        name: $name:ident
+        self: $self:ident
+        fmt: $f:ident
+        fields: $($(#[$attr:meta])* $field:ident)+
+    ) => {
+        let mut ds = $f.debug_struct(stringify!($name));
+        $(
+            $(#[$attr])*
+            ds.field(stringify!($field), &$self.$field());
+        )+
+        ds.finish()?;
     };
 }
 
@@ -101,9 +123,11 @@ impl Debug for perf_event_attr {
             fields:
                 type_
                 size
+                config
                 __bindgen_anon_1
                 sample_type
                 read_format
+                _bitfield_1
                 __bindgen_anon_2
                 bp_type
                 __bindgen_anon_3
@@ -120,61 +144,62 @@ impl Debug for perf_event_attr {
                 config3
         }
 
-        macro_rules! config_bit {
-            ($fn_name:ident) => {{
-                let val = self.$fn_name();
-                f.write_fmt(format_args!("    {}: {}\n", stringify!($fn_name), val))?;
-            }};
+        f.write_str(" : ")?;
+
+        debug_bits! {
+            name: __bindgen_anon_1
+            self: self
+            fmt: f
+            fields:
+                disabled
+                inherit
+                pinned
+                exclusive
+
+                exclude_user
+                exclude_kernel
+                exclude_hv
+                exclude_idle
+
+                mmap
+                comm
+                freq
+                inherit_stat
+                enable_on_exec
+                task
+                watermark
+                precise_ip
+                mmap_data
+                sample_id_all
+
+                exclude_host
+                exclude_guest
+                exclude_callchain_kernel
+                exclude_callchain_user
+
+                mmap2
+                comm_exec
+                use_clockid
+                context_switch
+                write_backward
+                namespaces
+                ksymbol
+                bpf_event
+                #[cfg(feature = "kernel-5.4")]
+                aux_output
+                #[cfg(feature = "kernel-5.7")]
+                cgroup
+                #[cfg(feature = "kernel-5.8")]
+                text_poke
+                #[cfg(feature = "kernel-5.12")]
+                build_id
+                #[cfg(feature = "kernel-5.13")]
+                inherit_thread
+                #[cfg(feature = "kernel-5.13")]
+                remove_on_exec
+                #[cfg(feature = "kernel-5.13")]
+                sigtrap
         }
-
-        config_bit!(disabled);
-        config_bit!(inherit);
-        config_bit!(pinned);
-        config_bit!(exclusive);
-
-        config_bit!(exclude_user);
-        config_bit!(exclude_kernel);
-        config_bit!(exclude_hv);
-        config_bit!(exclude_idle);
-
-        config_bit!(mmap);
-        config_bit!(comm);
-        config_bit!(freq);
-        config_bit!(inherit_stat);
-        config_bit!(enable_on_exec);
-        config_bit!(task);
-        config_bit!(watermark);
-        config_bit!(precise_ip);
-        config_bit!(mmap_data);
-        config_bit!(sample_id_all);
-
-        config_bit!(exclude_host);
-        config_bit!(exclude_guest);
-        config_bit!(exclude_callchain_kernel);
-        config_bit!(exclude_callchain_user);
-
-        config_bit!(mmap2);
-        config_bit!(comm_exec);
-        config_bit!(use_clockid);
-        config_bit!(context_switch);
-        config_bit!(write_backward);
-        config_bit!(namespaces);
-        config_bit!(ksymbol);
-        config_bit!(bpf_event);
-        #[cfg(feature = "kernel-5.4")]
-        config_bit!(aux_output);
-        #[cfg(feature = "kernel-5.7")]
-        config_bit!(cgroup);
-        #[cfg(feature = "kernel-5.8")]
-        config_bit!(text_poke);
-        #[cfg(feature = "kernel-5.12")]
-        config_bit!(build_id);
-        #[cfg(feature = "kernel-5.13")]
-        config_bit!(inherit_thread);
-        #[cfg(feature = "kernel-5.13")]
-        config_bit!(remove_on_exec);
-        #[cfg(feature = "kernel-5.13")]
-        config_bit!(sigtrap);
 
         Ok(())
     }
