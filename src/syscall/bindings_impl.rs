@@ -204,3 +204,55 @@ impl Debug for perf_event_attr {
         Ok(())
     }
 }
+
+impl Debug for perf_event_mmap_page {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        debug_struct! {
+            name: perf_event_mmap_page
+            self: self
+            fmt: f
+            fields:
+                version
+                compat_version
+                lock
+                index
+                offset
+                time_enabled
+                time_running
+                __bindgen_anon_1
+                pmc_width
+                time_shift
+                time_mult
+                time_offset
+                time_zero
+                size
+                time_cycles
+                time_mask
+                data_head
+                data_tail
+                data_offset
+                data_size
+                aux_head
+                aux_tail
+                aux_offset
+                aux_size
+        }
+
+        Ok(())
+    }
+}
+
+impl Debug for perf_event_mmap_page__bindgen_ty_1 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        debug_union! {
+            name: perf_event_mmap_page__bindgen_ty_1
+            self: self
+            fmt: f
+            fields:
+                capabilities
+                __bindgen_anon_1
+        }
+
+        Ok(())
+    }
+}
