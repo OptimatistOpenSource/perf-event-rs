@@ -3,9 +3,9 @@ use std::fmt::{Debug, Formatter, Write};
 
 macro_rules! debug_union {
     (
+        name: $struct:ident
         self: $self:ident
         fmt: $f:ident
-        struct: $struct:ident
         fields: $($field:ident)+
     ) => {
         $f.debug_struct(stringify!($struct))
@@ -17,9 +17,9 @@ macro_rules! debug_union {
 impl Debug for perf_event_attr__bindgen_ty_1 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         debug_union! {
+            name: perf_event_attr__bindgen_ty_1
             self: self
             fmt: f
-            struct: perf_event_attr__bindgen_ty_1
             fields:
                 sample_period
                 sample_freq
@@ -32,9 +32,9 @@ impl Debug for perf_event_attr__bindgen_ty_1 {
 impl Debug for perf_event_attr__bindgen_ty_2 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         debug_union! {
+            name: perf_event_attr__bindgen_ty_2
             self: self
             fmt: f
-            struct: perf_event_attr__bindgen_ty_2
             fields:
                 wakeup_events
                 wakeup_watermark
@@ -47,9 +47,9 @@ impl Debug for perf_event_attr__bindgen_ty_2 {
 impl Debug for perf_event_attr__bindgen_ty_3 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         debug_union! {
+            name: perf_event_attr__bindgen_ty_3
             self: self
             fmt: f
-            struct: perf_event_attr__bindgen_ty_3
             fields:
                 bp_addr
                 kprobe_func
@@ -64,9 +64,9 @@ impl Debug for perf_event_attr__bindgen_ty_3 {
 impl Debug for perf_event_attr__bindgen_ty_4 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         debug_union! {
+            name: perf_event_attr__bindgen_ty_4
             self: self
             fmt: f
-            struct: perf_event_attr__bindgen_ty_4
             fields:
                 bp_len
                 kprobe_addr
@@ -80,9 +80,9 @@ impl Debug for perf_event_attr__bindgen_ty_4 {
 
 macro_rules! debug_struct {
     (
+        name: $struct:ident
         self: $self:ident
         fmt: $f:ident
-        struct: $struct:ident
         fields: $($field:ident)+
     ) => {
         $f.debug_struct(stringify!($struct))
@@ -95,9 +95,9 @@ impl Debug for perf_event_attr {
     // TODO: kernel version features
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         debug_struct! {
+            name: perf_event_attr
             self: self
             fmt: f
-            struct: perf_event_attr
             fields:
                 type_
                 size
