@@ -70,7 +70,7 @@ impl Builder {
     pub fn on_process(mut self, pid: u32) -> Result<Self, BuildError> {
         match pid {
             0 => BuildError::InvalidPid("PID is 0".to_string()),
-            _ if pid > 2 ^ 22 => BuildError::InvalidPid(format!("PID {} is too big", pid)),
+            _ if pid > 2_u32.pow(22) => BuildError::InvalidPid(format!("PID {} is too big", pid)),
             _ => {
                 self.pid = Some(pid as i32);
                 return Ok(self);
