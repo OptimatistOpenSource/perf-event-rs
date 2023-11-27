@@ -70,7 +70,7 @@ impl perf_event_header {
         unsafe { ptr.offset(1) }
     }
 
-    pub fn body(&self) -> RecordBody {
+    pub(crate) fn body(&self) -> RecordBody {
         use crate::syscall::bindings::*;
         use RecordBody::*;
         let ptr = self.follow_mem_ptr();
