@@ -13,7 +13,7 @@ use crate::infra::NullTerminated;
 use crate::sampling::record::sample_id;
 
 #[repr(C)]
-pub struct Body {
+pub(crate) struct Body {
     addr: u64,
     len: u32,
     ksym_type: u16,

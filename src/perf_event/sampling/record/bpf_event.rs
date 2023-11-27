@@ -13,7 +13,7 @@ use crate::sampling::record::sample_id;
 const BPF_TAG_SIZE: usize = 8; // TODO: use bindgen
 
 #[repr(C)]
-pub struct Body {
+pub(crate) struct Body {
     r#type: u16,
     flags: u16,
     id: u32,

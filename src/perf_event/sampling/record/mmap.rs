@@ -11,7 +11,7 @@ struct {
 use crate::infra::NullTerminated;
 
 #[repr(C)]
-pub struct Body {
+pub(crate) struct Body {
     pid: u32,
     tid: u32,
     addr: u64,

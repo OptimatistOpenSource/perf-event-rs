@@ -10,7 +10,7 @@ struct {
 use crate::sampling::record::sample_id;
 
 #[repr(C)]
-pub struct Body {
+pub(crate) struct Body {
     aux_offset: u64,
     aux_size: u64,
     flags: u64,

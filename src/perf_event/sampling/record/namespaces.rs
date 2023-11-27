@@ -12,13 +12,13 @@ use crate::infra::Vla;
 use crate::sampling::record::sample_id;
 
 #[allow(non_camel_case_types)]
-pub struct namespace {
+pub(crate) struct namespace {
     dev: u64,
     inode: u64,
 }
 
 #[repr(C)]
-pub struct Body {
+pub(crate) struct Body {
     pid: u32,
     tid: u32,
     namespaces: Vla<u64, namespace>,

@@ -11,7 +11,7 @@ use crate::infra::NullTerminated;
 use crate::sampling::record::sample_id;
 
 #[repr(C)]
-pub struct Body {
+pub(crate) struct Body {
     pid: u32,
     tid: u32,
     comm: NullTerminated<u8>,

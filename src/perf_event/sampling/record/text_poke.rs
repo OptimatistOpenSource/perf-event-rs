@@ -11,7 +11,7 @@ struct {
 use crate::sampling::record::sample_id;
 
 #[repr(C)]
-pub struct Body {
+pub(crate) struct Body {
     addr: u64,
     old_len: u16,
     new_len: u16,

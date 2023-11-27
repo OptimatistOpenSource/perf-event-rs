@@ -10,7 +10,7 @@ struct {
 use crate::sampling::record::sample_id;
 
 #[repr(C)]
-pub struct Body {
+pub(crate) struct Body {
     time: u64,
     id: u64,
     stream_id: u64,

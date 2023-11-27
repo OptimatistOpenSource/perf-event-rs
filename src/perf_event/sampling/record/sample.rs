@@ -79,7 +79,7 @@ struct Sized2 {
 }
 
 #[repr(C)]
-pub struct Body {}
+pub(crate) struct Body {}
 
 macro_rules! sized1_get {
     ($name:ident,$ty:ty) => {

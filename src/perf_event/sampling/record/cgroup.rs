@@ -10,7 +10,7 @@ use crate::infra::NullTerminated;
 use crate::sampling::record::sample_id;
 
 #[repr(C)]
-pub struct Body {
+pub(crate) struct Body {
     id: u64,
     path: NullTerminated<u8>,
     sample_id: sample_id,

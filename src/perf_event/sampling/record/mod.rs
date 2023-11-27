@@ -22,7 +22,7 @@ pub mod text_poke;
 pub mod throttle;
 pub mod unthrottle;
 
-pub enum RecordBody {
+pub(crate) enum RecordBody {
     Mmap(*const mmap::Body),
     Lost(*const lost::Body),
     Comm(*const comm::Body),
