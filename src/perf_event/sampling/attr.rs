@@ -1,11 +1,13 @@
 use crate::perf_event::RawAttr;
 use crate::{Event, EventScope};
+use std::fmt::Debug;
 
 pub enum OverflowBy {
     Period(u64),
     Freq(u64),
 }
 
+#[derive(Debug)]
 pub struct Attr {
     raw_attr: RawAttr,
 }

@@ -1,74 +1,10 @@
 use crate::perf_event::RawAttr;
 use crate::{Event, EventScope};
-use std::fmt::{Debug, Formatter, Write};
+use std::fmt::Debug;
 
+#[derive(Debug)]
 pub struct Attr {
     raw_attr: RawAttr,
-}
-
-impl Debug for Attr {
-    // TODO: more messages are needed
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_char('\n')?;
-
-        macro_rules! show {
-            ($getter:ident) => {{
-                let val = self.raw_attr.$getter();
-                f.write_fmt(format_args!("{}: {}\n", stringify!($getter), val))?;
-            }};
-        }
-
-        show!(disabled);
-        show!(inherit);
-        show!(pinned);
-        show!(exclusive);
-
-        show!(exclude_user);
-        show!(exclude_kernel);
-        show!(exclude_hv);
-        show!(exclude_idle);
-
-        show!(mmap); // not use in counting mode
-        show!(comm); // ditto
-        show!(freq); // ditto
-        show!(inherit_stat);
-        show!(enable_on_exec);
-        show!(task); // not use in counting mode
-        show!(watermark); // ditto
-        show!(precise_ip);
-        show!(mmap_data); // not use in counting mode
-        show!(sample_id_all); // ditto
-
-        show!(exclude_host);
-        show!(exclude_guest);
-        show!(exclude_callchain_kernel);
-        show!(exclude_callchain_user);
-
-        show!(mmap2); // not use in counting mode
-        show!(comm_exec); // ditto
-        show!(use_clockid); // ditto
-        show!(context_switch); // ditto
-        show!(write_backward); // ditto
-        show!(namespaces); // ditto
-        show!(ksymbol); // ditto
-        show!(bpf_event); // ditto
-        #[cfg(feature = "kernel-5.4")]
-        show!(aux_output); // ditto
-        #[cfg(feature = "kernel-5.7")]
-        show!(cgroup); // ditto
-        #[cfg(feature = "kernel-5.8")]
-        show!(text_poke); // ditto
-        #[cfg(feature = "kernel-5.12")]
-        show!(build_id); // ditto
-        #[cfg(feature = "kernel-5.13")]
-        show!(inherit_thread);
-        #[cfg(feature = "kernel-5.13")]
-        show!(remove_on_exec);
-        #[cfg(feature = "kernel-5.13")]
-        show!(sigtrap);
-
-        Ok(())
-    }
 }
 
 pub struct AttrOtherConfig {
