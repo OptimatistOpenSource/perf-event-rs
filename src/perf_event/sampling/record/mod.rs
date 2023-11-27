@@ -1,5 +1,5 @@
 use crate::syscall::bindings::perf_event_header;
-
+/*
 pub mod aux;
 pub mod aux_output_hw_id;
 pub mod bpf_event;
@@ -15,14 +15,17 @@ pub mod mmap;
 pub mod mmap2;
 pub mod namespaces;
 pub mod read;
+*/
 pub mod sample;
+/*
 pub mod switch;
 pub mod switch_cpu_wide;
 pub mod text_poke;
 pub mod throttle;
 pub mod unthrottle;
-
+*/
 pub(crate) enum RecordBody {
+    /*
     Mmap(*const mmap::Body),
     Lost(*const lost::Body),
     Comm(*const comm::Body),
@@ -31,7 +34,9 @@ pub(crate) enum RecordBody {
     Unthrottle(*const unthrottle::Body),
     Fork(*const fork::Body),
     Read(*const read::Body),
+    */
     Sample(*const sample::Body),
+    /*
     Mmap2(*const mmap2::Body),
     Aux(*const aux::Body),
     ItraceStart(*const intrace_start::Body),
@@ -44,6 +49,7 @@ pub(crate) enum RecordBody {
     Cgroup(*const cgroup::Body),
     TextPoke(*const text_poke::Body),
     AuxOutputHwId(*const aux_output_hw_id::Body), // TODO: missing docs in manual
+    */
 }
 
 #[allow(non_camel_case_types)]
@@ -81,6 +87,7 @@ impl perf_event_header {
         }
 
         match_enum! {
+            /*
             (perf_event_type_PERF_RECORD_MMAP,Mmap,mmap::Body),
             (perf_event_type_PERF_RECORD_LOST,Lost,lost::Body),
             (perf_event_type_PERF_RECORD_COMM,Comm,comm::Body),
@@ -89,7 +96,9 @@ impl perf_event_header {
             (perf_event_type_PERF_RECORD_UNTHROTTLE,Unthrottle,unthrottle::Body),
             (perf_event_type_PERF_RECORD_FORK,Fork,fork::Body),
             (perf_event_type_PERF_RECORD_READ,Read,read::Body),
+            */
             (perf_event_type_PERF_RECORD_SAMPLE,Sample,sample::Body),
+            /*
             (perf_event_type_PERF_RECORD_MMAP2,Mmap2,mmap2::Body),
             (perf_event_type_PERF_RECORD_AUX,Aux,aux::Body),
             (perf_event_type_PERF_RECORD_ITRACE_START,ItraceStart,intrace_start::Body),
@@ -102,6 +111,7 @@ impl perf_event_header {
             (perf_event_type_PERF_RECORD_CGROUP,Cgroup,cgroup::Body),
             (perf_event_type_PERF_RECORD_TEXT_POKE,TextPoke,text_poke::Body),
             (perf_event_type_PERF_RECORD_AUX_OUTPUT_HW_ID,AuxOutputHwId,aux_output_hw_id::Body),
+            */
         }
     }
 }
