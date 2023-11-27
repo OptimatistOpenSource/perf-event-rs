@@ -16,9 +16,10 @@ use std::{io, ptr};
 pub(crate) struct read_format_body {
     pub event_count: u64, // u64 value;
     pub event_id: u64,    // u64 id;
-                          // TODO: the following is for sampling mode
-                          //#[cfg(feature = "kernel-6.0")]
-                          //pub event_lost: u64, // u64 lost;
+
+    /// only meaningful in sampling mode
+    #[cfg(feature = "kernel-6.0")]
+    pub event_lost: u64, // u64 lost;
 }
 
 #[repr(C)]
