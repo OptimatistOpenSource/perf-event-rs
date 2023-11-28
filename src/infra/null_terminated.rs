@@ -10,7 +10,7 @@ pub struct NullTerminated<T> {
 impl<T> NullTerminated<T> {
     pub unsafe fn from_ptr<P>(ptr: &P) -> &NullTerminated<T> {
         let ptr = ptr as *const _ as *const NullTerminated<T>;
-        &*ptr
+        ptr.as_ref().unwrap()
     }
 
     pub fn as_slice(&self) -> &[T] {

@@ -105,7 +105,7 @@ macro_rules! sized2_get {
 impl Body {
     pub(crate) fn sized1(&self) -> &Sized1 {
         let ptr = self as *const _ as *const Sized1;
-        unsafe { &*ptr }
+        unsafe { ptr.as_ref().unwrap() }
     }
     sized1_get!(sample_id, &u64);
     sized1_get!(ip, &u64);
@@ -129,13 +129,13 @@ impl Body {
 
     pub fn ips(&self) -> &[u64] {
         let len_ptr = unsafe { self.v_body().follow_mem_ptr().align_as_ptr::<u64>() };
-        let vla: &Vla<u64, u64> = unsafe { &*Vla::from_ptr(len_ptr) };
+        let vla: &Vla<u64, u64> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
         vla.as_slice()
     }
 
     pub fn data_1(&self) -> &[u8] {
         let len_ptr = unsafe { self.ips().follow_mem_ptr().align_as_ptr::<u32>() };
-        let vla: &Vla<u32, u8> = unsafe { &*Vla::from_ptr(len_ptr) };
+        let vla: &Vla<u32, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
         vla.as_slice()
     }
 
@@ -147,7 +147,7 @@ impl Body {
 
     pub fn data_2(&self) -> &[u8] {
         let len_ptr = unsafe { self.data_1().follow_mem_ptr().align_as_ptr::<u64>() };
-        let vla: &Vla<u64, u8> = unsafe { &*Vla::from_ptr(len_ptr) };
+        let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
         vla.as_slice()
     }
 
@@ -156,7 +156,7 @@ impl Body {
             None
         } else {
             let ptr = unsafe { self.data_2().follow_mem_ptr().align_as_ptr::<u64>() };
-            unsafe { &*ptr }.wrap_some()
+            unsafe { ptr.as_ref() }
         }
     }
 
@@ -167,7 +167,7 @@ impl Body {
         } else {
             unsafe { self.data_2().follow_mem_ptr().align_as_ptr::<Sized2>() }
         };
-        unsafe { &*ptr }
+        unsafe { ptr.as_ref().unwrap() }
     }
     // TODO:
     //sized2_get!(weight, &perf_sample_weight);
@@ -181,7 +181,7 @@ impl Body {
     pub fn data_3(&self) -> &[u8] {
         let sized2_ptr = self.sized2() as *const Sized2;
         let len_ptr = unsafe { sized2_ptr.offset(1).align_as_ptr::<u64>() };
-        let vla: &Vla<u64, u8> = unsafe { &*Vla::from_ptr(len_ptr) };
+        let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
         vla.as_slice()
     }
 }

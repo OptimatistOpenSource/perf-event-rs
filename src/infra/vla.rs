@@ -12,11 +12,11 @@ pub struct Vla<L, T> {
 impl<L, T> Vla<L, T> {
     pub unsafe fn from_ptr(ptr: *const L) -> *const Vla<L, T> {
         let ptr = ptr as *const Vla<L, T>;
-        &*ptr
+        ptr.as_ref().unwrap()
     }
-    pub unsafe fn from_brw<X>(brw: &X) -> &Vla<L, T> {
-        let ptr = brw as *const _ as *const Vla<L, T>;
-        &*ptr
+    pub unsafe fn from_ref<X>(r: &X) -> &Vla<L, T> {
+        let ptr = r as *const _ as *const Vla<L, T>;
+        ptr.as_ref().unwrap()
     }
 }
 

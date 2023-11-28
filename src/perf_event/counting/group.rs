@@ -7,7 +7,7 @@ use libc::pid_t;
 use std::collections::HashMap;
 use std::io::{ErrorKind, Read};
 use std::os::fd::AsRawFd;
-use std::{io, ptr};
+use std::{io, ptr, slice};
 
 #[repr(C)]
 #[derive(Debug)]
@@ -105,13 +105,13 @@ impl CountingGroup {
 
         let header = {
             let ptr = buf.as_ptr() as *const read_format_header;
-            unsafe { &*ptr }
+            unsafe { ptr.as_ref().unwrap() }
         };
 
         let values = {
             let header_ptr = header as *const read_format_header;
             let values_ptr = unsafe { header_ptr.offset(1) as *const read_format_body };
-            let values = unsafe { &*ptr::slice_from_raw_parts(values_ptr, members_len) };
+            let values = unsafe { slice::from_raw_parts(values_ptr, members_len) };
 
             values
                 .iter()
