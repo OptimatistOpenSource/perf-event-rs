@@ -1,11 +1,10 @@
-pub trait SliceExt {
-    fn follow_mem_ptr<P>(&self) -> *const P;
+pub trait SliceExt<T> {
+    fn follow_mem_ptr(&self) -> *const T;
 }
 
-impl<T> SliceExt for &[T] {
-    fn follow_mem_ptr<P>(&self) -> *const P {
+impl<T> SliceExt<T> for &[T] {
+    fn follow_mem_ptr(&self) -> *const T {
         let offset = self.len() as isize;
-        let ptr = unsafe { self.as_ptr().offset(offset) };
-        ptr as *const P
+        unsafe { self.as_ptr().offset(offset) }
     }
 }
