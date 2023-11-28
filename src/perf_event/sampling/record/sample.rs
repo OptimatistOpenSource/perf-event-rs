@@ -45,11 +45,14 @@ struct {
 */
 
 use crate::counting::{read_format_body, read_format_header};
-use crate::infra::{SliceExt, Vla};
-use crate::syscall::bindings::perf_sample_weight;
+use crate::debug_struct_fn;
+use crate::infra::{ConstPtrExt, SliceExt, Vla, WrapOption};
+use std::fmt::{Debug, Formatter};
 use std::slice;
 
-struct Sized1 {
+#[repr(C)]
+#[derive(Debug)]
+pub(crate) struct Sized1 {
     sample_id: u64,
     ip: u64,
     pid: u32,
@@ -64,18 +67,20 @@ struct Sized1 {
     v_header: read_format_header,
 }
 
-struct Sized2 {
-    dyn_size: u64,
-    weight: perf_sample_weight,
-    data_src: u64,
-    transaction: u64,
+#[repr(C)]
+#[derive(Debug)]
+pub(crate) struct Sized2 {
+    // TODO:
+    //weight: perf_sample_weight,
+    pub data_src: u64,
+    pub transaction: u64,
     // TODO:
     //abi_2: u64,
     //u64    regs[weight(mask)];
-    phys_addr: u64,
-    cgroup: u64,
-    data_page_size: u64,
-    code_page_size: u64,
+    pub phys_addr: u64,
+    pub cgroup: u64,
+    pub data_page_size: u64,
+    pub code_page_size: u64,
 }
 
 #[repr(C)]
@@ -98,7 +103,7 @@ macro_rules! sized2_get {
 }
 
 impl Body {
-    fn sized1(&self) -> &Sized1 {
+    pub(crate) fn sized1(&self) -> &Sized1 {
         let ptr = self as *const _ as *const Sized1;
         unsafe { &*ptr }
     }
@@ -117,20 +122,20 @@ impl Body {
 
     pub fn v_body(&self) -> &[read_format_body] {
         let sized1_ptr = self.sized1() as *const Sized1;
-        let ptr = unsafe { sized1_ptr.offset(1) } as *const read_format_body;
+        let ptr = unsafe { sized1_ptr.offset(1).align_as_ptr::<read_format_body>() };
         let members_len = self.v_header().members_len as usize;
         unsafe { slice::from_raw_parts(ptr, members_len) }
     }
 
     pub fn ips(&self) -> &[u64] {
-        let ptr = self.v_body().follow_mem_ptr::<u8>();
-        let vla: &Vla<u64, u64> = unsafe { &*Vla::from_ptr(ptr) };
+        let len_ptr = unsafe { self.v_body().follow_mem_ptr().align_as_ptr::<u64>() };
+        let vla: &Vla<u64, u64> = unsafe { &*Vla::from_ptr(len_ptr) };
         vla.as_slice()
     }
 
     pub fn data_1(&self) -> &[u8] {
-        let ptr = self.ips().follow_mem_ptr::<u8>();
-        let vla: &Vla<u32, u8> = unsafe { &*Vla::from_ptr(ptr) };
+        let len_ptr = unsafe { self.ips().follow_mem_ptr().align_as_ptr::<u32>() };
+        let vla: &Vla<u32, u8> = unsafe { &*Vla::from_ptr(len_ptr) };
         vla.as_slice()
     }
 
@@ -141,17 +146,31 @@ impl Body {
     //u64    regs[weight(mask)];
 
     pub fn data_2(&self) -> &[u8] {
-        let ptr = self.data_1().follow_mem_ptr::<u8>();
-        let vla: &Vla<u32, u8> = unsafe { &*Vla::from_ptr(ptr) };
+        let len_ptr = unsafe { self.data_1().follow_mem_ptr().align_as_ptr::<u64>() };
+        let vla: &Vla<u64, u8> = unsafe { &*Vla::from_ptr(len_ptr) };
         vla.as_slice()
     }
 
-    fn sized2(&self) -> &Sized2 {
-        let ptr = self.data_2().follow_mem_ptr::<Sized2>();
+    pub fn dyn_size(&self) -> Option<&u64> {
+        if self.data_2().len() == 0 {
+            None
+        } else {
+            let ptr = unsafe { self.data_2().follow_mem_ptr().align_as_ptr::<u64>() };
+            unsafe { &*ptr }.wrap_some()
+        }
+    }
+
+    pub(crate) fn sized2(&self) -> &Sized2 {
+        let ptr = if let Some(dyn_size) = self.dyn_size() {
+            let dyn_size_ptr = dyn_size as *const u64;
+            unsafe { dyn_size_ptr.offset(1).align_as_ptr::<Sized2>() }
+        } else {
+            unsafe { self.data_2().follow_mem_ptr().align_as_ptr::<Sized2>() }
+        };
         unsafe { &*ptr }
     }
-    sized2_get!(dyn_size, &u64);
-    sized2_get!(weight, &perf_sample_weight);
+    // TODO:
+    //sized2_get!(weight, &perf_sample_weight);
     sized2_get!(data_src, &u64);
     sized2_get!(transaction, &u64);
     sized2_get!(phys_addr, &u64);
@@ -161,8 +180,47 @@ impl Body {
 
     pub fn data_3(&self) -> &[u8] {
         let sized2_ptr = self.sized2() as *const Sized2;
-        let ptr = unsafe { sized2_ptr.offset(1) };
-        let vla: &Vla<u64, u8> = unsafe { &*Vla::from_ptr(ptr) };
+        let len_ptr = unsafe { sized2_ptr.offset(1).align_as_ptr::<u64>() };
+        let vla: &Vla<u64, u8> = unsafe { &*Vla::from_ptr(len_ptr) };
         vla.as_slice()
+    }
+}
+
+impl Debug for Body {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        debug_struct_fn! {
+            name: sample_body
+            self: self
+            fmt: f
+            fields:
+                sample_id
+                ip
+                pid
+                tid
+                time
+                addr
+                id
+                stream_id
+                cpu
+                res
+                period
+                v_header
+                v_body
+                ips
+                data_1
+                data_2
+                dyn_size
+                // TODO:
+                //weight
+                data_src
+                transaction
+                phys_addr
+                cgroup
+                data_page_size
+                code_page_size
+                data_3
+        }
+
+        Ok(())
     }
 }
