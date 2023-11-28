@@ -24,6 +24,7 @@ pub mod text_poke;
 pub mod throttle;
 pub mod unthrottle;
 */
+#[derive(Debug)]
 pub(crate) enum RecordBody {
     /*
     Mmap(*const mmap::Body),
