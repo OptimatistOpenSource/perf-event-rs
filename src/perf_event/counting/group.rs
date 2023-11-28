@@ -36,9 +36,9 @@ pub(crate) struct read_format_header {
 #[derive(Debug)]
 pub struct GroupCountingMemberResult {
     pub event_count: u64,
-    // TODO: the following is for sampling mode
-    //#[cfg(feature = "kernel-6.0")]
-    //pub event_lost: u64,
+    /// only meaningful in sampling mode
+    #[cfg(feature = "kernel-6.0")]
+    pub event_lost: u64,
 }
 
 #[derive(Debug)]
@@ -120,9 +120,9 @@ impl CountingGroup {
                         it.event_id,
                         GroupCountingMemberResult {
                             event_count: it.event_count,
-                            // TODO: the following is for sampling mode
-                            //#[cfg(feature = "kernel-6.0")]
-                            //event_lost: it.event_lost,
+                            // only meaningful in sampling mode
+                            #[cfg(feature = "kernel-6.0")]
+                            event_lost: it.event_lost,
                         },
                     )
                 })
