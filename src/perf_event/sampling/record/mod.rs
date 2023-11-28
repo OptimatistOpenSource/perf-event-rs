@@ -36,7 +36,7 @@ pub(crate) enum RecordBody {
     Fork(*const fork::Body),
     Read(*const read::Body),
     */
-    Sample(*const sample::Body),
+    Sample(*const sample::raw::Body),
     /*
     Mmap2(*const mmap2::Body),
     Aux(*const aux::Body),
@@ -98,7 +98,7 @@ impl perf_event_header {
             (perf_event_type_PERF_RECORD_FORK,Fork,fork::Body),
             (perf_event_type_PERF_RECORD_READ,Read,read::Body),
             */
-            (perf_event_type_PERF_RECORD_SAMPLE,Sample,sample::Body),
+            (perf_event_type_PERF_RECORD_SAMPLE,Sample,sample::raw::Body),
             /*
             (perf_event_type_PERF_RECORD_MMAP2,Mmap2,mmap2::Body),
             (perf_event_type_PERF_RECORD_AUX,Aux,aux::Body),
