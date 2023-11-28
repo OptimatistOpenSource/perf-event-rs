@@ -10,6 +10,7 @@ mod perf_event_attr__bindgen_ty_4;
 mod perf_event_mmap_page;
 #[allow(non_snake_case)]
 mod perf_event_mmap_page__bindgen_ty_1;
+mod perf_sample_weight;
 
 pub use perf_event_attr::*;
 pub use perf_event_attr__bindgen_ty_1::*;
@@ -54,7 +55,7 @@ macro_rules! debug_struct {
 }
 
 #[macro_export]
-macro_rules! debug_bits {
+macro_rules! debug_struct_fn {
     (
         name: $name:ident
         self: $self:ident

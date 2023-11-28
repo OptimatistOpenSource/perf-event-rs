@@ -1,5 +1,5 @@
 use crate::syscall::bindings::perf_event_attr;
-use crate::{debug_bits, debug_struct};
+use crate::{debug_struct, debug_struct_fn};
 use std::fmt::{Debug, Formatter};
 
 impl Debug for perf_event_attr {
@@ -36,7 +36,7 @@ impl Debug for perf_event_attr {
 
         f.write_str(" : ")?;
 
-        debug_bits! {
+        debug_struct_fn! {
             name: __bindgen_anon_1
             self: self
             fmt: f
