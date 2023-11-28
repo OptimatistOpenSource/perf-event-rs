@@ -152,7 +152,7 @@ impl Body {
     }
 
     pub fn dyn_size(&self) -> Option<&u64> {
-        if self.data_2().len() == 0 {
+        if self.data_2().is_empty() {
             None
         } else {
             let ptr = unsafe { self.data_2().follow_mem_ptr().align_as_ptr::<u64>() };

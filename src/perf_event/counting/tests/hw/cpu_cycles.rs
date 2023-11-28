@@ -1,6 +1,5 @@
 use crate::counting::Attr;
 use crate::{Builder, EventScope, HwEvent};
-use std::io;
 
 fn workload() {
     for _ in 0..10000000 {

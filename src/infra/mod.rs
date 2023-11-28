@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 mod null_terminated;
 mod option;
 mod ptr;

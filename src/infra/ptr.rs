@@ -3,6 +3,7 @@ pub trait ConstPtrExt {
 }
 
 impl<A> ConstPtrExt for *const A {
+    #[allow(clippy::ptr_offset_with_cast)]
     unsafe fn align_as_ptr<T>(self) -> *const T {
         let offset = self.align_offset(std::mem::align_of::<T>());
         (unsafe { self.offset(offset as isize) }) as *const T
@@ -14,6 +15,7 @@ pub trait MutPtrExt {
 }
 
 impl<A> MutPtrExt for *const A {
+    #[allow(clippy::ptr_offset_with_cast)]
     unsafe fn align_as_ptr<T>(self) -> *mut T {
         let offset = self.align_offset(std::mem::align_of::<T>());
         (unsafe { self.offset(offset as isize) }) as *mut T
