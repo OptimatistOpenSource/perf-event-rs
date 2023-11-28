@@ -16,7 +16,7 @@ fn test() {
         let scopes = [EventScope::User, EventScope::Host];
         Attr::new(event, scopes, Default::default())
     };
-    let mut counting = builder.build_counting(attr).unwrap();
+    let mut counting = builder.build_counting(&attr).unwrap();
 
     let before = counting.result().unwrap().event_count;
     dbg!(before);

@@ -16,14 +16,14 @@ fn test() {
         .add_member({
             let event = SwEvent::CpuClock;
             let scopes = [EventScope::User, EventScope::Host];
-            Attr::new(event, scopes, Default::default())
+            &Attr::new(event, scopes, Default::default())
         })
         .unwrap();
     let page_faults_event_id = group
         .add_member({
             let event = SwEvent::PageFaults;
             let scopes = [EventScope::User, EventScope::Host];
-            Attr::new(event, scopes, Default::default())
+            &Attr::new(event, scopes, Default::default())
         })
         .unwrap();
 

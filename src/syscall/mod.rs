@@ -7,7 +7,7 @@ pub use wrapped::*;
 /// # Safety
 /// The arguments must be correct for this syscall
 pub unsafe fn perf_event_open(
-    attr: *const bindings::perf_event_attr, // TODO: validating references with lifetimes
+    attr: &bindings::perf_event_attr,
     pid: pid_t,
     cpu: c_int,      //i32
     group_fd: c_int, //i32

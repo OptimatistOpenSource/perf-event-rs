@@ -7,7 +7,7 @@ use libc::pid_t;
 use std::collections::HashMap;
 use std::io::{ErrorKind, Read};
 use std::os::fd::AsRawFd;
-use std::{io, ptr, slice};
+use std::{io, slice};
 
 #[repr(C)]
 #[derive(Debug)]
@@ -71,7 +71,7 @@ impl CountingGroup {
         self.members.get_mut(0)
     }
 
-    pub fn add_member(&mut self, attr: Attr) -> io::Result<u64> {
+    pub fn add_member(&mut self, attr: &Attr) -> io::Result<u64> {
         let member = match self.leader() {
             None => unsafe { Counting::new(attr, self.pid, self.cpu, -1, 0) },
             Some(leader) => {

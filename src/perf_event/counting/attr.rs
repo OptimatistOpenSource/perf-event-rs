@@ -184,4 +184,8 @@ impl Attr {
     pub fn into_raw(self) -> RawAttr {
         self.raw_attr
     }
+
+    pub fn as_raw(&self) -> &RawAttr {
+        &self.raw_attr
+    }
 }

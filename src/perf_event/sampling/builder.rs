@@ -3,7 +3,7 @@ use crate::{BuildError, Builder};
 
 impl Builder {
     // TODO
-    pub fn build_sampling(&self, attr: Attr) -> Result<Sampling, BuildError> {
+    pub fn build_sampling(&self, attr: &Attr) -> Result<Sampling, BuildError> {
         match self {
             Builder {
                 pid: None,

@@ -46,7 +46,7 @@ struct {
 
 use crate::counting::{read_format_body, read_format_header};
 use crate::debug_struct_fn;
-use crate::infra::{ConstPtrExt, SliceExt, Vla, WrapOption};
+use crate::infra::{ConstPtrExt, SliceExt, Vla};
 use std::fmt::{Debug, Formatter};
 use std::slice;
 

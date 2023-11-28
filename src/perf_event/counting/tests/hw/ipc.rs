@@ -16,14 +16,14 @@ fn test() {
         .add_member({
             let event = HwEvent::CpuCycles;
             let scopes = [EventScope::User, EventScope::Host];
-            Attr::new(event, scopes, Default::default())
+            &Attr::new(event, scopes, Default::default())
         })
         .unwrap();
     let instructions_event_id = group
         .add_member({
             let event = HwEvent::Instructions;
             let scopes = [EventScope::User, EventScope::Host];
-            Attr::new(event, scopes, Default::default())
+            &Attr::new(event, scopes, Default::default())
         })
         .unwrap();
 

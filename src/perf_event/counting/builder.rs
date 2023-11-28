@@ -4,7 +4,7 @@ use crate::{BuildError, Builder};
 
 impl Builder {
     // TODO
-    pub fn build_counting(&self, attr: Attr) -> Result<Counting, BuildError> {
+    pub fn build_counting(&self, attr: &Attr) -> Result<Counting, BuildError> {
         match self {
             Builder {
                 pid: None,

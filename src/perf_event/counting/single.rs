@@ -1,7 +1,6 @@
 use crate::counting::{read_format_body, read_format_header, Attr};
 use crate::infra::WrapResult;
 use crate::syscall;
-use crate::syscall::bindings::perf_event_attr;
 use crate::syscall::{ioctl_wrapped, perf_event_open};
 use std::fs::File;
 use std::io;
@@ -9,9 +8,6 @@ use std::io::Read;
 use std::os::fd::{AsRawFd, FromRawFd};
 
 pub struct Counting {
-    // TODO
-    #[allow(dead_code)]
-    pub(crate) raw_attr: Box<perf_event_attr>,
     pub(crate) file: File,
 }
 
@@ -28,18 +24,16 @@ pub struct CountingResult {
 
 impl Counting {
     pub(crate) unsafe fn new(
-        attr: Attr,
+        attr: &Attr,
         pid: i32,
         cpu: i32,
         group_fd: i32,
         flags: u64,
     ) -> io::Result<Self> {
-        let raw_attr = Box::new(attr.into_raw());
-        let i32 = unsafe { perf_event_open(&*raw_attr as *const _, pid, cpu, group_fd, flags) };
+        let i32 = unsafe { perf_event_open(attr.as_raw(), pid, cpu, group_fd, flags) };
         match i32 {
             -1 => Err(io::Error::last_os_error()),
             fd => Self {
-                raw_attr,
                 file: File::from_raw_fd(fd),
             }
             .wrap_ok(),
