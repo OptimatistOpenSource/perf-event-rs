@@ -1,5 +1,6 @@
 mod null_terminated;
 mod option;
+mod ptr;
 mod result;
 mod slice;
 mod vec;
@@ -11,3 +12,4 @@ pub use result::*;
 pub use slice::*;
 pub use vec::*;
 pub use vla::*;
+pub use ptr::*;
