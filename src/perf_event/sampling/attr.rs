@@ -22,9 +22,9 @@ impl Attr {
         use crate::syscall::bindings::*;
 
         let mut raw_attr = RawAttr {
-            type_: 0, // not use in sampling mode
+            type_: 0,
             size: std::mem::size_of::<RawAttr>() as libc::__u32,
-            config: 0, // not use in sampling mode
+            config: 0,
             __bindgen_anon_1: match overflow_by {
                 OverflowBy::Freq(f) => perf_event_attr__bindgen_ty_1 { sample_freq: f },
                 OverflowBy::Period(p) => perf_event_attr__bindgen_ty_1 { sample_period: p },
@@ -47,12 +47,13 @@ impl Attr {
                     //| perf_event_sample_format_PERF_SAMPLE_BRANCH_STACK // TODO: Not all hardware supports this feature
                     //| perf_event_sample_format_PERF_SAMPLE_REGS_USER // TODO
                     //| perf_event_sample_format_PERF_SAMPLE_STACK_USER // TODO
-                    | perf_event_sample_format_PERF_SAMPLE_WEIGHT
+                    //| perf_event_sample_format_PERF_SAMPLE_WEIGHT // FIX: this will lead to "Invalid Argument"
                     | perf_event_sample_format_PERF_SAMPLE_DATA_SRC
                     | perf_event_sample_format_PERF_SAMPLE_IDENTIFIER
                     | perf_event_sample_format_PERF_SAMPLE_TRANSACTION
                     //| perf_event_sample_format_PERF_SAMPLE_REGS_INTR // TODO
-                    | perf_event_sample_format_PERF_SAMPLE_PHYS_ADDR;
+                    | perf_event_sample_format_PERF_SAMPLE_PHYS_ADDR
+                    | perf_event_sample_format_PERF_SAMPLE_AUX;
 
                 #[cfg(feature = "kernel-5.7")]
                 {
@@ -110,14 +111,14 @@ impl Attr {
         };
 
         raw_attr.set_disabled(1);
-        raw_attr.set_inherit(0); // not use in sampling mode
-        raw_attr.set_pinned(0); // ditto
-        raw_attr.set_exclusive(0); // ditto
+        raw_attr.set_inherit(0); // FIX: this will lead to bad sampling
+        raw_attr.set_pinned(0); // TODO
+        raw_attr.set_exclusive(0); // TODO
 
-        raw_attr.set_exclude_user(0); // ditto
-        raw_attr.set_exclude_kernel(0); // ditto
-        raw_attr.set_exclude_hv(0); // ditto
-        raw_attr.set_exclude_idle(0); // ditto
+        raw_attr.set_exclude_user(1);
+        raw_attr.set_exclude_kernel(1);
+        raw_attr.set_exclude_hv(1);
+        raw_attr.set_exclude_idle(1);
 
         raw_attr.set_mmap(0); // TODO
         raw_attr.set_comm(0); // not use in sampling mode
@@ -125,21 +126,21 @@ impl Attr {
             OverflowBy::Freq(_) => raw_attr.set_freq(1),
             _ => raw_attr.set_freq(0),
         }
-        raw_attr.set_inherit_stat(0); // not use in sampling mode
-        raw_attr.set_enable_on_exec(0); // ditto
+        raw_attr.set_inherit_stat(0); // TODO
+        raw_attr.set_enable_on_exec(0); // TODO
         raw_attr.set_task(0); // TODO
         raw_attr.set_watermark(0); // TODO
         raw_attr.set_precise_ip(0); // TODO
         raw_attr.set_mmap_data(0); // TODO
         raw_attr.set_sample_id_all(0); // TODO
 
-        raw_attr.set_exclude_host(0); // not use in counting mode
-        raw_attr.set_exclude_guest(0); // ditto
-        raw_attr.set_exclude_callchain_kernel(0); // ditto
-        raw_attr.set_exclude_callchain_user(0); // ditto
+        raw_attr.set_exclude_host(1);
+        raw_attr.set_exclude_guest(1);
+        raw_attr.set_exclude_callchain_kernel(1);
+        raw_attr.set_exclude_callchain_user(1);
 
         raw_attr.set_mmap2(0); // TODO
-        raw_attr.set_comm_exec(0); // not use in counting mode
+        raw_attr.set_comm_exec(0); // not use in sampling mode
         raw_attr.set_use_clockid(0); // TODO
         raw_attr.set_context_switch(0); // TODO
         raw_attr.set_write_backward(0);
@@ -155,9 +156,9 @@ impl Attr {
         #[cfg(feature = "kernel-5.12")]
         raw_attr.set_build_id(0); // TODO
         #[cfg(feature = "kernel-5.13")]
-        raw_attr.set_inherit_thread(0); // not use in counting mode
+        raw_attr.set_inherit_thread(0); // TODO
         #[cfg(feature = "kernel-5.13")]
-        raw_attr.set_remove_on_exec(0); // ditto
+        raw_attr.set_remove_on_exec(0); // TODO
         #[cfg(feature = "kernel-5.13")]
         raw_attr.set_sigtrap(0); // TODO
 
