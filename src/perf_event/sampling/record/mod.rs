@@ -8,8 +8,8 @@ pub mod exit;
 pub mod fork;
 pub mod intrace_start;
 pub mod ksymbol;
-pub mod lost;
 */
+pub mod lost;
 pub mod lost_samples;
 /*
 pub mod mmap;
@@ -37,7 +37,9 @@ pub struct Record {
 pub enum RecordBody {
     /*
     Mmap(*const mmap::Body),
-    Lost(*const lost::Body),
+    */
+    Lost(Box<lost::Body>),
+    /*
     Comm(*const comm::Body),
     Exit(*const exit::Body),
      */

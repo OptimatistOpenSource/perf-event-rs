@@ -5,7 +5,9 @@ mod record;
 mod tests;
 
 use crate::infra::{ArrayExt, VecExt, WrapBox, WrapOption, WrapResult};
-use crate::sampling::record::{sample, throttle, unthrottle, Record, RecordBody, lost_samples};
+use crate::sampling::record::{
+    lost, lost_samples, sample, throttle, unthrottle, Record, RecordBody,
+};
 use crate::syscall;
 use crate::syscall::bindings::*;
 use crate::syscall::{ioctl_wrapped, perf_event_open};
@@ -133,7 +135,12 @@ impl Sampling {
             match record_header.type_ {
                 /*
                 (perf_event_type_PERF_RECORD_MMAP,Mmap,mmap::Body),
-                (perf_event_type_PERF_RECORD_LOST,Lost,lost::Body),
+                */
+                perf_event_type_PERF_RECORD_LOST => {
+                    let ptr = follow_mem_ptr as *const lost::Body;
+                    RecordBody::Lost(ptr.read().wrap_box())
+                }
+                /*
                 (perf_event_type_PERF_RECORD_COMM,Comm,comm::Body),
                 (perf_event_type_PERF_RECORD_EXIT,Exit,exit::Body),
                 */
