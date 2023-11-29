@@ -190,7 +190,12 @@ impl Sampling {
                 (perf_event_type_PERF_RECORD_NAMESPACES,Namespaces,namespaces::Body),
                 (perf_event_type_PERF_RECORD_KSYMBOL,Ksymbol,ksymbol::Body),
                 (perf_event_type_PERF_RECORD_BPF_EVENT,BpfEvent,bpf_event::Body),
-                (perf_event_type_PERF_RECORD_CGROUP,Cgroup,cgroup::Body),
+                */
+                perf_event_type_PERF_RECORD_CGROUP => {
+                    let ptr = follow_mem_ptr as *const cgroup::Body;
+                    RecordBody::Cgroup(ptr.read().wrap_box())
+                }
+                /*
                 (perf_event_type_PERF_RECORD_TEXT_POKE,TextPoke,text_poke::Body),
                 */
                 perf_event_type_PERF_RECORD_AUX_OUTPUT_HW_ID => {

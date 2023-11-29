@@ -2,7 +2,9 @@ pub mod aux;
 pub mod aux_output_hw_id;
 /*
 pub mod bpf_event;
+*/
 pub mod cgroup;
+/*
 pub mod comm;
 */
 pub mod exit;
@@ -62,14 +64,16 @@ pub enum RecordBody {
     Namespaces(*const namespaces::Body),
     Ksymbol(*const ksymbol::Body),
     BpfEvent(*const bpf_event::Body),
-    Cgroup(*const cgroup::Body),
+    */
+    Cgroup(Box<cgroup::Body>),
+    /*
     TextPoke(*const text_poke::Body),
     */
     AuxOutputHwId(Box<aux_output_hw_id::Body>), // TODO: missing docs in manual
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[allow(non_camel_case_types)]
 pub struct sample_id {
     pub pid: u32,
