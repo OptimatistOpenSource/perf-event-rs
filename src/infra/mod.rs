@@ -2,7 +2,7 @@
 
 mod array;
 mod r#box;
-mod null_terminated;
+mod zero_terminated;
 mod option;
 mod ptr;
 mod result;
@@ -11,7 +11,7 @@ mod vec;
 mod vla;
 
 pub use array::*;
-pub use null_terminated::*;
+pub use zero_terminated::*;
 pub use option::*;
 pub use ptr::*;
 pub use r#box::*;
