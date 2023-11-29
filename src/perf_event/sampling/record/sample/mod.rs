@@ -2,36 +2,37 @@ use crate::counting::{GroupCountingMemberResult, GroupCountingResult};
 
 pub mod raw;
 
+#[derive(Debug)]
 pub struct Body {
-    sample_id: u64,
-    ip: u64,
-    pid: u32,
-    tid: u32,
-    time: u64,
-    addr: u64,
-    id: u64,
-    stream_id: u64,
-    cpu: u32,
-    res: u32,
-    period: u64,
-    v: GroupCountingResult,
-    ips: Vec<u64>,
-    data_1: Vec<u8>,
-    data_2: Vec<u8>,
-    dyn_size: Option<u64>,
-    data_src: u64,
-    transaction: u64,
-    phys_addr: u64,
-    cgroup: u64,
-    data_page_size: u64,
-    code_page_size: u64,
-    data_3: Vec<u8>,
+    pub sample_id: u64,
+    pub ip: u64,
+    pub pid: u32,
+    pub tid: u32,
+    pub time: u64,
+    pub addr: u64,
+    pub id: u64,
+    pub stream_id: u64,
+    pub cpu: u32,
+    pub res: u32,
+    pub period: u64,
+    pub v: GroupCountingResult,
+    pub ips: Vec<u64>,
+    pub data_1: Vec<u8>,
+    pub data_2: Vec<u8>,
+    pub dyn_size: Option<u64>,
+    pub data_src: u64,
+    pub transaction: u64,
+    pub phys_addr: u64,
+    pub cgroup: u64,
+    pub data_page_size: u64,
+    pub code_page_size: u64,
+    pub data_3: Vec<u8>,
 }
 
 type RawBody = raw::Body;
 
 impl Body {
-    unsafe fn from_raw(raw: &RawBody) -> Self {
+    pub(crate) unsafe fn from_raw(raw: &RawBody) -> Self {
         Self {
             sample_id: *raw.sample_id(),
             ip: *raw.ip(),
