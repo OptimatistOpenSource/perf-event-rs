@@ -157,9 +157,9 @@ impl Sampling {
                     let ptr = follow_mem_ptr as *const fork::Body;
                     RecordBody::Fork(ptr.read().wrap_box())
                 }
-                /*
-                (perf_event_type_PERF_RECORD_READ,Read,read::Body),
-                */
+                perf_event_type_PERF_RECORD_READ => {
+                    RecordBody::Read(read::Body::from_ptr(follow_mem_ptr).wrap_box())
+                }
                 perf_event_type_PERF_RECORD_SAMPLE => {
                     RecordBody::Sample(sample::Body::from_ptr(follow_mem_ptr).wrap_box())
                 }

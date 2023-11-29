@@ -12,8 +12,8 @@ pub mod lost_samples;
 /*
 pub mod mmap2;
 pub mod namespaces;
-pub mod read;
 */
+pub mod read;
 pub mod mmap;
 pub mod sample;
 pub mod switch;
@@ -37,9 +37,7 @@ pub enum RecordBody {
     Throttle(Box<throttle::Body>),
     Unthrottle(Box<unthrottle::Body>),
     Fork(Box<fork::Body>),
-    /*
-    Read(*const read::Body),
-    */
+    Read(Box<read::Body>),
     Sample(Box<sample::Body>),
     /*
     Mmap2(*const mmap2::Body),
