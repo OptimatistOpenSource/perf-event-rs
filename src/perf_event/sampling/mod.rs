@@ -4,7 +4,7 @@ mod record;
 #[cfg(test)]
 mod tests;
 
-use crate::infra::{ArrayExt, VecExt, WrapOption, WrapResult};
+use crate::infra::{ArrayExt, VecExt, WrapBox, WrapOption, WrapResult};
 use crate::sampling::record::{sample, throttle, unthrottle, Record, RecordBody};
 use crate::syscall;
 use crate::syscall::bindings::*;
@@ -139,18 +139,18 @@ impl Sampling {
                 */
                 perf_event_type_PERF_RECORD_THROTTLE => {
                     let ptr = follow_mem_ptr as *const throttle::Body;
-                    RecordBody::Throttle(ptr.read())
+                    RecordBody::Throttle(ptr.read().wrap_box())
                 }
                 perf_event_type_PERF_RECORD_UNTHROTTLE => {
                     let ptr = follow_mem_ptr as *const unthrottle::Body;
-                    RecordBody::Unthrottle(ptr.read())
+                    RecordBody::Unthrottle(ptr.read().wrap_box())
                 }
                 /*
                 (perf_event_type_PERF_RECORD_FORK,Fork,fork::Body),
                 (perf_event_type_PERF_RECORD_READ,Read,read::Body),
                 */
                 perf_event_type_PERF_RECORD_SAMPLE => {
-                    RecordBody::Sample(sample::Body::from_ptr(follow_mem_ptr))
+                    RecordBody::Sample(sample::Body::from_ptr(follow_mem_ptr).wrap_box())
                 }
                 /*
                 (perf_event_type_PERF_RECORD_MMAP2,Mmap2,mmap2::Body),

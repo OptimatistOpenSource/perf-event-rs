@@ -39,13 +39,13 @@ pub enum RecordBody {
     Comm(*const comm::Body),
     Exit(*const exit::Body),
      */
-    Throttle(throttle::Body),
-    Unthrottle(unthrottle::Body),
+    Throttle(Box<throttle::Body>),
+    Unthrottle(Box<unthrottle::Body>),
     /*
     Fork(*const fork::Body),
     Read(*const read::Body),
     */
-    Sample(sample::Body),
+    Sample(Box<sample::Body>),
     /*
     Mmap2(*const mmap2::Body),
     Aux(*const aux::Body),
