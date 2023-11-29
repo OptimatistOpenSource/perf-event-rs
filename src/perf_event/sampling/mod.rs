@@ -198,9 +198,9 @@ impl Sampling {
                 perf_event_type_PERF_RECORD_CGROUP => {
                     RecordBody::Cgroup(cgroup::Body::from_ptr(follow_mem_ptr).wrap_box())
                 }
-                /*
-                (perf_event_type_PERF_RECORD_TEXT_POKE,TextPoke,text_poke::Body),
-                */
+                perf_event_type_PERF_RECORD_TEXT_POKE => {
+                    RecordBody::TextPoke(text_poke::Body::from_ptr(follow_mem_ptr).wrap_box())
+                }
                 perf_event_type_PERF_RECORD_AUX_OUTPUT_HW_ID => {
                     let ptr = follow_mem_ptr as *const aux_output_hw_id::Body;
                     RecordBody::AuxOutputHwId(ptr.read().wrap_box())

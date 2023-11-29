@@ -1,8 +1,6 @@
 pub mod aux;
 pub mod aux_output_hw_id;
-/*
 pub mod bpf_event;
-*/
 pub mod cgroup;
 pub mod comm;
 pub mod exit;
@@ -16,14 +14,11 @@ pub mod mmap2;
 pub mod namespaces;
 pub mod read;
 */
+pub mod mmap;
 pub mod sample;
 pub mod switch;
 pub mod switch_cpu_wide;
-/*
 pub mod text_poke;
-*/
-
-pub mod mmap;
 pub mod throttle;
 pub mod unthrottle;
 
@@ -62,9 +57,7 @@ pub enum RecordBody {
     BpfEvent(*const bpf_event::Body),
     */
     Cgroup(Box<cgroup::Body>),
-    /*
-    TextPoke(*const text_poke::Body),
-    */
+    TextPoke(Box<text_poke::Body>),
     AuxOutputHwId(Box<aux_output_hw_id::Body>), // TODO: missing docs in manual
 }
 
