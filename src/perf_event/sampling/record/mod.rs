@@ -11,8 +11,8 @@ pub mod lost;
 pub mod lost_samples;
 /*
 pub mod mmap2;
-pub mod namespaces;
 */
+pub mod namespaces;
 pub mod read;
 pub mod mmap;
 pub mod sample;
@@ -47,9 +47,7 @@ pub enum RecordBody {
     LostSamples(Box<lost_samples::Body>),
     Switch(Box<switch::Body>),
     SwitchCpuWide(Box<switch_cpu_wide::Body>),
-    /*
-    Namespaces(*const namespaces::Body),
-    */
+    Namespaces(Box<namespaces::Body>),
     Ksymbol(Box<ksymbol::Body>),
     BpfEvent(Box<bpf_event::Body>),
     Cgroup(Box<cgroup::Body>),

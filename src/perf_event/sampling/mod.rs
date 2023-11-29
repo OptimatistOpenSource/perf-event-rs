@@ -186,9 +186,9 @@ impl Sampling {
                     let ptr = follow_mem_ptr as *const switch_cpu_wide::Body;
                     RecordBody::SwitchCpuWide(ptr.read().wrap_box())
                 }
-                /*
-                (perf_event_type_PERF_RECORD_NAMESPACES,Namespaces,namespaces::Body),
-                */
+                perf_event_type_PERF_RECORD_NAMESPACES => {
+                    RecordBody::Namespaces(namespaces::Body::from_ptr(follow_mem_ptr).wrap_box())
+                }
                 perf_event_type_PERF_RECORD_KSYMBOL => {
                     RecordBody::Ksymbol(ksymbol::Body::from_ptr(follow_mem_ptr).wrap_box())
                 }
