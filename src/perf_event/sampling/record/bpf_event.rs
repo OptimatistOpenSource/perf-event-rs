@@ -9,14 +9,14 @@ struct {
 */
 
 use crate::sampling::record::sample_id;
-
-const BPF_TAG_SIZE: usize = 8; // TODO: use bindgen
+use crate::syscall::bindings::BPF_TAG_SIZE;
 
 #[repr(C)]
-pub(crate) struct Body {
-    r#type: u16,
-    flags: u16,
-    id: u32,
-    tag: [u8; BPF_TAG_SIZE],
-    sample_id: sample_id,
+#[derive(Debug)]
+pub struct Body {
+    pub r#type: u16,
+    pub flags: u16,
+    pub id: u32,
+    pub tag: [u8; BPF_TAG_SIZE as usize],
+    pub sample_id: sample_id,
 }

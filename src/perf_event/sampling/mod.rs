@@ -192,9 +192,10 @@ impl Sampling {
                 perf_event_type_PERF_RECORD_KSYMBOL => {
                     RecordBody::Ksymbol(ksymbol::Body::from_ptr(follow_mem_ptr).wrap_box())
                 }
-                /*
-                (perf_event_type_PERF_RECORD_BPF_EVENT,BpfEvent,bpf_event::Body),
-                */
+                perf_event_type_PERF_RECORD_BPF_EVENT => {
+                    let ptr = follow_mem_ptr as *const bpf_event::Body;
+                    RecordBody::BpfEvent(ptr.read().wrap_box())
+                }
                 perf_event_type_PERF_RECORD_CGROUP => {
                     RecordBody::Cgroup(cgroup::Body::from_ptr(follow_mem_ptr).wrap_box())
                 }

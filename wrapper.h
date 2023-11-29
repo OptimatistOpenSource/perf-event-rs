@@ -1,5 +1,6 @@
 // This file is consumed by bindgen, called from our build.rs file.
 
+#include <linux/bpf.h>
 #include <linux/perf_event.h>
 #include <linux/hw_breakpoint.h>
 

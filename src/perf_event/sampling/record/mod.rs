@@ -53,9 +53,7 @@ pub enum RecordBody {
     Namespaces(*const namespaces::Body),
     */
     Ksymbol(Box<ksymbol::Body>),
-    /*
-    BpfEvent(*const bpf_event::Body),
-    */
+    BpfEvent(Box<bpf_event::Body>),
     Cgroup(Box<cgroup::Body>),
     TextPoke(Box<text_poke::Body>),
     AuxOutputHwId(Box<aux_output_hw_id::Body>), // TODO: missing docs in manual
@@ -64,6 +62,7 @@ pub enum RecordBody {
 #[repr(C)]
 #[derive(Debug, Clone)]
 #[allow(non_camel_case_types)]
+// TODO: use camel case
 pub struct sample_id {
     pub pid: u32,
     pub tid: u32,
