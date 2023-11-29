@@ -8,9 +8,7 @@ pub mod comm;
 pub mod exit;
 pub mod fork;
 pub mod intrace_start;
-/*
 pub mod ksymbol;
-*/
 pub mod lost;
 pub mod lost_samples;
 /*
@@ -58,7 +56,9 @@ pub enum RecordBody {
     SwitchCpuWide(Box<switch_cpu_wide::Body>),
     /*
     Namespaces(*const namespaces::Body),
-    Ksymbol(*const ksymbol::Body),
+    */
+    Ksymbol(Box<ksymbol::Body>),
+    /*
     BpfEvent(*const bpf_event::Body),
     */
     Cgroup(Box<cgroup::Body>),
