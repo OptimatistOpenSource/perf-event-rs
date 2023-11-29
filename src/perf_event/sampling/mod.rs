@@ -6,7 +6,8 @@ mod tests;
 
 use crate::infra::{ArrayExt, VecExt, WrapBox, WrapOption, WrapResult};
 use crate::sampling::record::{
-    lost, lost_samples, sample, throttle, unthrottle, Record, RecordBody,
+    aux, aux_output_hw_id, exit, fork, intrace_start, lost, lost_samples, sample, switch,
+    switch_cpu_wide, throttle, unthrottle, Record, RecordBody,
 };
 use crate::syscall;
 use crate::syscall::bindings::*;
@@ -142,8 +143,11 @@ impl Sampling {
                 }
                 /*
                 (perf_event_type_PERF_RECORD_COMM,Comm,comm::Body),
-                (perf_event_type_PERF_RECORD_EXIT,Exit,exit::Body),
                 */
+                perf_event_type_PERF_RECORD_EXIT => {
+                    let ptr = follow_mem_ptr as *const exit::Body;
+                    RecordBody::Exit(ptr.read().wrap_box())
+                }
                 perf_event_type_PERF_RECORD_THROTTLE => {
                     let ptr = follow_mem_ptr as *const throttle::Body;
                     RecordBody::Throttle(ptr.read().wrap_box())
@@ -152,8 +156,11 @@ impl Sampling {
                     let ptr = follow_mem_ptr as *const unthrottle::Body;
                     RecordBody::Unthrottle(ptr.read().wrap_box())
                 }
+                perf_event_type_PERF_RECORD_FORK => {
+                    let ptr = follow_mem_ptr as *const fork::Body;
+                    RecordBody::Fork(ptr.read().wrap_box())
+                }
                 /*
-                (perf_event_type_PERF_RECORD_FORK,Fork,fork::Body),
                 (perf_event_type_PERF_RECORD_READ,Read,read::Body),
                 */
                 perf_event_type_PERF_RECORD_SAMPLE => {
@@ -161,23 +168,38 @@ impl Sampling {
                 }
                 /*
                 (perf_event_type_PERF_RECORD_MMAP2,Mmap2,mmap2::Body),
-                (perf_event_type_PERF_RECORD_AUX,Aux,aux::Body),
-                (perf_event_type_PERF_RECORD_ITRACE_START,ItraceStart,intrace_start::Body),
                 */
+                perf_event_type_PERF_RECORD_AUX => {
+                    let ptr = follow_mem_ptr as *const aux::Body;
+                    RecordBody::Aux(ptr.read().wrap_box())
+                }
+                perf_event_type_PERF_RECORD_ITRACE_START => {
+                    let ptr = follow_mem_ptr as *const intrace_start::Body;
+                    RecordBody::ItraceStart(ptr.read().wrap_box())
+                }
                 perf_event_type_PERF_RECORD_LOST_SAMPLES => {
                     let ptr = follow_mem_ptr as *const lost_samples::Body;
                     RecordBody::LostSamples(ptr.read().wrap_box())
                 }
+                perf_event_type_PERF_RECORD_SWITCH => {
+                    let ptr = follow_mem_ptr as *const switch::Body;
+                    RecordBody::Switch(ptr.read().wrap_box())
+                }
+                perf_event_type_PERF_RECORD_SWITCH_CPU_WIDE => {
+                    let ptr = follow_mem_ptr as *const switch_cpu_wide::Body;
+                    RecordBody::SwitchCpuWide(ptr.read().wrap_box())
+                }
                 /*
-                (perf_event_type_PERF_RECORD_SWITCH,Switch,switch::Body),
-                (perf_event_type_PERF_RECORD_SWITCH_CPU_WIDE,SwitchCpuWide,switch_cpu_wide::Body),
                 (perf_event_type_PERF_RECORD_NAMESPACES,Namespaces,namespaces::Body),
                 (perf_event_type_PERF_RECORD_KSYMBOL,Ksymbol,ksymbol::Body),
                 (perf_event_type_PERF_RECORD_BPF_EVENT,BpfEvent,bpf_event::Body),
                 (perf_event_type_PERF_RECORD_CGROUP,Cgroup,cgroup::Body),
                 (perf_event_type_PERF_RECORD_TEXT_POKE,TextPoke,text_poke::Body),
-                (perf_event_type_PERF_RECORD_AUX_OUTPUT_HW_ID,AuxOutputHwId,aux_output_hw_id::Body),
                 */
+                perf_event_type_PERF_RECORD_AUX_OUTPUT_HW_ID => {
+                    let ptr = follow_mem_ptr as *const aux_output_hw_id::Body;
+                    RecordBody::AuxOutputHwId(ptr.read().wrap_box())
+                }
                 _ => todo!(),
             }
         };

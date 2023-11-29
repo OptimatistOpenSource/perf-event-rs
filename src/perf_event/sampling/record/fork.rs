@@ -10,11 +10,12 @@ struct {
 use crate::sampling::record::sample_id;
 
 #[repr(C)]
-pub(crate) struct Body {
-    pid: u32,
-    ppid: u32,
-    tid: u32,
-    ptid: u32,
-    time: u64,
-    sample_id: sample_id,
+#[derive(Debug)]
+pub struct Body {
+    pub pid: u32,
+    pub ppid: u32,
+    pub tid: u32,
+    pub ptid: u32,
+    pub time: u64,
+    pub sample_id: sample_id,
 }

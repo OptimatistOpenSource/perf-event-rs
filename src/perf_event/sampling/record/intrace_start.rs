@@ -6,7 +6,8 @@ struct {
 */
 
 #[repr(C)]
-pub(crate) struct Body {
-    pid: u32,
-    tid: u32,
+#[derive(Debug)]
+pub struct Body {
+    pub pid: u32,
+    pub tid: u32,
 }

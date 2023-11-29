@@ -1,12 +1,14 @@
-/*
 pub mod aux;
 pub mod aux_output_hw_id;
+/*
 pub mod bpf_event;
 pub mod cgroup;
 pub mod comm;
+*/
 pub mod exit;
 pub mod fork;
 pub mod intrace_start;
+/*
 pub mod ksymbol;
 */
 pub mod lost;
@@ -18,9 +20,9 @@ pub mod namespaces;
 pub mod read;
 */
 pub mod sample;
-/*
 pub mod switch;
 pub mod switch_cpu_wide;
+/*
 pub mod text_poke;
 */
 
@@ -41,31 +43,31 @@ pub enum RecordBody {
     Lost(Box<lost::Body>),
     /*
     Comm(*const comm::Body),
-    Exit(*const exit::Body),
-     */
+    */
+    Exit(Box<exit::Body>),
     Throttle(Box<throttle::Body>),
     Unthrottle(Box<unthrottle::Body>),
+    Fork(Box<fork::Body>),
     /*
-    Fork(*const fork::Body),
     Read(*const read::Body),
     */
     Sample(Box<sample::Body>),
     /*
     Mmap2(*const mmap2::Body),
-    Aux(*const aux::Body),
-    ItraceStart(*const intrace_start::Body),
     */
+    Aux(Box<aux::Body>),
+    ItraceStart(Box<intrace_start::Body>),
     LostSamples(Box<lost_samples::Body>),
+    Switch(Box<switch::Body>),
+    SwitchCpuWide(Box<switch_cpu_wide::Body>),
     /*
-    Switch(*const switch::Body),
-    SwitchCpuWide(*const switch_cpu_wide::Body),
     Namespaces(*const namespaces::Body),
     Ksymbol(*const ksymbol::Body),
     BpfEvent(*const bpf_event::Body),
     Cgroup(*const cgroup::Body),
     TextPoke(*const text_poke::Body),
-    AuxOutputHwId(*const aux_output_hw_id::Body), // TODO: missing docs in manual
     */
+    AuxOutputHwId(Box<aux_output_hw_id::Body>), // TODO: missing docs in manual
 }
 
 #[repr(C)]

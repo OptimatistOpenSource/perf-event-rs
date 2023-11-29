@@ -7,6 +7,7 @@ struct {
 use crate::sampling::record::sample_id;
 
 #[repr(C)]
-pub(crate) struct Body {
-    sample_id: sample_id,
+#[derive(Debug)]
+pub struct Body {
+    pub sample_id: sample_id,
 }
