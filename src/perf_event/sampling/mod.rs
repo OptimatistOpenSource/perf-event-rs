@@ -4,42 +4,48 @@ mod record;
 #[cfg(test)]
 mod tests;
 
-use crate::infra::WrapResult;
-use crate::perf_event::RawAttr;
+use crate::infra::{ArrayExt, VecExt, WrapResult};
 use crate::sampling::record::sample;
 use crate::syscall;
-use crate::syscall::bindings::perf_event_mmap_page;
+use crate::syscall::bindings::{
+    perf_event_header, perf_event_mmap_page, perf_event_type_PERF_RECORD_SAMPLE,
+};
 use crate::syscall::{ioctl_wrapped, perf_event_open};
 pub use attr::*;
 pub use builder::*;
-use memmap::MmapOptions;
+use memmap::{MmapMut, MmapOptions};
 use std::fs::File;
-use std::io;
 use std::os::fd::FromRawFd;
+use std::{io, slice};
 
 pub struct Sampling {
-    // TODO
-    #[allow(dead_code)]
-    pub(crate) raw_attr: Box<RawAttr>,
+    pub(crate) mmap: MmapMut,
     pub(crate) file: File,
 }
 
 // TODO
 impl Sampling {
     pub(crate) unsafe fn new(
-        attr: Attr,
+        attr: &Attr,
         pid: i32,
         cpu: i32,
         group_fd: i32,
         flags: u64,
     ) -> io::Result<Self> {
-        let raw_attr = Box::new(attr.into_raw());
-        let i32 = unsafe { perf_event_open(&*raw_attr as *const _, pid, cpu, group_fd, flags) };
+        let i32 = unsafe { perf_event_open(attr.as_raw(), pid, cpu, group_fd, flags) };
         match i32 {
             -1 => Err(io::Error::last_os_error()),
-            fd => Self {
-                raw_attr,
-                file: File::from_raw_fd(fd),
+            fd => {
+                let file = File::from_raw_fd(fd);
+                let pages = 1 + (1 << 16); // TODO
+                let mmap = unsafe {
+                    MmapOptions::new()
+                        .len(page_size::get() * pages)
+                        .map_mut(&file)
+                }
+                .unwrap();
+
+                Self { mmap, file }
             }
             .wrap_ok(),
         }
