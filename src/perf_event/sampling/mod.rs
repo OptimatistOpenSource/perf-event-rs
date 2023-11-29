@@ -138,9 +138,10 @@ impl Sampling {
                     let ptr = follow_mem_ptr as *const lost::Body;
                     RecordBody::Lost(ptr.read().wrap_box())
                 }
-                /*
-                (perf_event_type_PERF_RECORD_COMM,Comm,comm::Body),
-                */
+                perf_event_type_PERF_RECORD_COMM => {
+                    let ptr = follow_mem_ptr as *const comm::Body;
+                    RecordBody::Comm(ptr.read().wrap_box())
+                }
                 perf_event_type_PERF_RECORD_EXIT => {
                     let ptr = follow_mem_ptr as *const exit::Body;
                     RecordBody::Exit(ptr.read().wrap_box())

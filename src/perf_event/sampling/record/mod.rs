@@ -4,9 +4,7 @@ pub mod aux_output_hw_id;
 pub mod bpf_event;
 */
 pub mod cgroup;
-/*
 pub mod comm;
-*/
 pub mod exit;
 pub mod fork;
 pub mod intrace_start;
@@ -41,9 +39,7 @@ pub struct Record {
 pub enum RecordBody {
     Mmap(Box<mmap::Body>),
     Lost(Box<lost::Body>),
-    /*
-    Comm(*const comm::Body),
-    */
+    Comm(Box<comm::Body>),
     Exit(Box<exit::Body>),
     Throttle(Box<throttle::Body>),
     Unthrottle(Box<unthrottle::Body>),
