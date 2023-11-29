@@ -4,12 +4,10 @@ mod record;
 #[cfg(test)]
 mod tests;
 
-use crate::infra::{ArrayExt, VecExt, WrapResult};
-use crate::sampling::record::sample;
+use crate::infra::{ArrayExt, VecExt, WrapOption, WrapResult};
+use crate::sampling::record::{sample, throttle, unthrottle, Record, RecordBody};
 use crate::syscall;
-use crate::syscall::bindings::{
-    perf_event_header, perf_event_mmap_page, perf_event_type_PERF_RECORD_SAMPLE,
-};
+use crate::syscall::bindings::*;
 use crate::syscall::{ioctl_wrapped, perf_event_open};
 pub use attr::*;
 pub use builder::*;
@@ -23,7 +21,7 @@ pub struct Sampling {
     pub(crate) file: File,
 }
 
-// TODO
+// TODO: impl iter
 impl Sampling {
     pub(crate) unsafe fn new(
         attr: &Attr,
@@ -68,7 +66,7 @@ impl Sampling {
     }
 
     // TODO
-    pub fn next_sample(&mut self) -> Option<sample::Body> /* TODO: misc */ {
+    pub fn next_sample(&mut self) -> Option<Record> {
         let metapage =
             unsafe { (self.mmap.as_mut_ptr() as *mut perf_event_mmap_page).as_mut() }.unwrap();
 
@@ -130,37 +128,46 @@ impl Sampling {
         dbg!(record_header.type_);
 
         #[allow(non_upper_case_globals)]
-        let record_body = match record_header.type_ {
-            /*
-            (perf_event_type_PERF_RECORD_MMAP,Mmap,mmap::Body),
-            (perf_event_type_PERF_RECORD_LOST,Lost,lost::Body),
-            (perf_event_type_PERF_RECORD_COMM,Comm,comm::Body),
-            (perf_event_type_PERF_RECORD_EXIT,Exit,exit::Body),
-            (perf_event_type_PERF_RECORD_THROTTLE,Throttle,throttle::Body),
-            (perf_event_type_PERF_RECORD_UNTHROTTLE,Unthrottle,unthrottle::Body),
-            (perf_event_type_PERF_RECORD_FORK,Fork,fork::Body),
-            (perf_event_type_PERF_RECORD_READ,Read,read::Body),
-            */
-            perf_event_type_PERF_RECORD_SAMPLE => unsafe {
-                let raw_ptr = (record_header as *const perf_event_header).offset(1)
-                    as *const sample::raw::Body;
-                sample::Body::from_raw(raw_ptr.as_ref().unwrap())
-            },
-            /*
-            (perf_event_type_PERF_RECORD_MMAP2,Mmap2,mmap2::Body),
-            (perf_event_type_PERF_RECORD_AUX,Aux,aux::Body),
-            (perf_event_type_PERF_RECORD_ITRACE_START,ItraceStart,intrace_start::Body),
-            (perf_event_type_PERF_RECORD_LOST_SAMPLES,LostSamples,lost_samples::Body),
-            (perf_event_type_PERF_RECORD_SWITCH,Switch,switch::Body),
-            (perf_event_type_PERF_RECORD_SWITCH_CPU_WIDE,SwitchCpuWide,switch_cpu_wide::Body),
-            (perf_event_type_PERF_RECORD_NAMESPACES,Namespaces,namespaces::Body),
-            (perf_event_type_PERF_RECORD_KSYMBOL,Ksymbol,ksymbol::Body),
-            (perf_event_type_PERF_RECORD_BPF_EVENT,BpfEvent,bpf_event::Body),
-            (perf_event_type_PERF_RECORD_CGROUP,Cgroup,cgroup::Body),
-            (perf_event_type_PERF_RECORD_TEXT_POKE,TextPoke,text_poke::Body),
-            (perf_event_type_PERF_RECORD_AUX_OUTPUT_HW_ID,AuxOutputHwId,aux_output_hw_id::Body),
-            */
-            _ => todo!(),
+        let record_body = unsafe {
+            let follow_mem_ptr = (record_header as *const perf_event_header).offset(1) as *const _;
+            match record_header.type_ {
+                /*
+                (perf_event_type_PERF_RECORD_MMAP,Mmap,mmap::Body),
+                (perf_event_type_PERF_RECORD_LOST,Lost,lost::Body),
+                (perf_event_type_PERF_RECORD_COMM,Comm,comm::Body),
+                (perf_event_type_PERF_RECORD_EXIT,Exit,exit::Body),
+                */
+                perf_event_type_PERF_RECORD_THROTTLE => {
+                    let ptr = follow_mem_ptr as *const throttle::Body;
+                    RecordBody::Throttle(ptr.read())
+                }
+                perf_event_type_PERF_RECORD_UNTHROTTLE => {
+                    let ptr = follow_mem_ptr as *const unthrottle::Body;
+                    RecordBody::Unthrottle(ptr.read())
+                }
+                /*
+                (perf_event_type_PERF_RECORD_FORK,Fork,fork::Body),
+                (perf_event_type_PERF_RECORD_READ,Read,read::Body),
+                */
+                perf_event_type_PERF_RECORD_SAMPLE => {
+                    RecordBody::Sample(sample::Body::from_ptr(follow_mem_ptr))
+                }
+                /*
+                (perf_event_type_PERF_RECORD_MMAP2,Mmap2,mmap2::Body),
+                (perf_event_type_PERF_RECORD_AUX,Aux,aux::Body),
+                (perf_event_type_PERF_RECORD_ITRACE_START,ItraceStart,intrace_start::Body),
+                (perf_event_type_PERF_RECORD_LOST_SAMPLES,LostSamples,lost_samples::Body),
+                (perf_event_type_PERF_RECORD_SWITCH,Switch,switch::Body),
+                (perf_event_type_PERF_RECORD_SWITCH_CPU_WIDE,SwitchCpuWide,switch_cpu_wide::Body),
+                (perf_event_type_PERF_RECORD_NAMESPACES,Namespaces,namespaces::Body),
+                (perf_event_type_PERF_RECORD_KSYMBOL,Ksymbol,ksymbol::Body),
+                (perf_event_type_PERF_RECORD_BPF_EVENT,BpfEvent,bpf_event::Body),
+                (perf_event_type_PERF_RECORD_CGROUP,Cgroup,cgroup::Body),
+                (perf_event_type_PERF_RECORD_TEXT_POKE,TextPoke,text_poke::Body),
+                (perf_event_type_PERF_RECORD_AUX_OUTPUT_HW_ID,AuxOutputHwId,aux_output_hw_id::Body),
+                */
+                _ => todo!(),
+            }
         };
 
         match metapage.data_tail as isize + record_header.size as isize
@@ -170,6 +177,10 @@ impl Sampling {
             offset => metapage.data_tail = offset as _,
         }
 
-        Some(record_body)
+        Record {
+            misc: record_header.misc,
+            body: record_body,
+        }
+        .wrap_some()
     }
 }

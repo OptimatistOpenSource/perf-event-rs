@@ -20,22 +20,32 @@ pub mod sample;
 pub mod switch;
 pub mod switch_cpu_wide;
 pub mod text_poke;
+*/
+
 pub mod throttle;
 pub mod unthrottle;
-*/
-/*#[derive(Debug)]
-pub(crate) enum RecordBody {
+
+#[derive(Debug)]
+pub struct Record {
+    pub misc: u16,
+    pub body: RecordBody,
+}
+
+#[derive(Debug)]
+pub enum RecordBody {
     /*
     Mmap(*const mmap::Body),
     Lost(*const lost::Body),
     Comm(*const comm::Body),
     Exit(*const exit::Body),
-    Throttle(*const throttle::Body),
-    Unthrottle(*const unthrottle::Body),
+     */
+    Throttle(throttle::Body),
+    Unthrottle(unthrottle::Body),
+    /*
     Fork(*const fork::Body),
     Read(*const read::Body),
     */
-    Sample(*const sample::raw::Body),
+    Sample(sample::Body),
     /*
     Mmap2(*const mmap2::Body),
     Aux(*const aux::Body),
@@ -51,8 +61,10 @@ pub(crate) enum RecordBody {
     AuxOutputHwId(*const aux_output_hw_id::Body), // TODO: missing docs in manual
     */
 }
-*/
-/*#[allow(non_camel_case_types)]
+
+#[repr(C)]
+#[derive(Debug)]
+#[allow(non_camel_case_types)]
 pub struct sample_id {
     pid: u32,
     tid: u32,
@@ -63,4 +75,3 @@ pub struct sample_id {
     res: u32,
     id2: u64,
 }
-*/

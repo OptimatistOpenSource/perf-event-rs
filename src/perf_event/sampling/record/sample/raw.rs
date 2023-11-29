@@ -103,7 +103,7 @@ macro_rules! sized2_get {
 }
 
 impl Body {
-    pub(crate) fn sized1(&self) -> &Sized1 {
+    pub fn sized1(&self) -> &Sized1 {
         let ptr = self as *const _ as *const Sized1;
         unsafe { ptr.as_ref().unwrap() }
     }
