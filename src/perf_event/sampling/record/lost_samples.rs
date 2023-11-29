@@ -8,7 +8,8 @@ struct {
 use crate::sampling::record::sample_id;
 
 #[repr(C)]
-pub(crate) struct Body {
-    lost: u64,
-    sample_id: sample_id,
+#[derive(Debug)]
+pub struct Body {
+    pub lost: u64,
+    pub sample_id: sample_id,
 }

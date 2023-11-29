@@ -12,8 +12,8 @@ use crate::sampling::record::sample_id;
 #[repr(C)]
 #[derive(Debug)]
 pub struct Body {
-    time: u64,
-    id: u64,
-    stream_id: u64,
-    sample_id: sample_id,
+    pub time: u64,
+    pub id: u64,
+    pub stream_id: u64,
+    pub sample_id: sample_id,
 }

@@ -9,7 +9,9 @@ pub mod fork;
 pub mod intrace_start;
 pub mod ksymbol;
 pub mod lost;
+*/
 pub mod lost_samples;
+/*
 pub mod mmap;
 pub mod mmap2;
 pub mod namespaces;
@@ -50,7 +52,9 @@ pub enum RecordBody {
     Mmap2(*const mmap2::Body),
     Aux(*const aux::Body),
     ItraceStart(*const intrace_start::Body),
-    LostSamples(*const lost_samples::Body),
+    */
+    LostSamples(Box<lost_samples::Body>),
+    /*
     Switch(*const switch::Body),
     SwitchCpuWide(*const switch_cpu_wide::Body),
     Namespaces(*const namespaces::Body),
@@ -66,12 +70,12 @@ pub enum RecordBody {
 #[derive(Debug)]
 #[allow(non_camel_case_types)]
 pub struct sample_id {
-    pid: u32,
-    tid: u32,
-    time: u64,
-    id1: u64,
-    stream_id: u64,
-    cpu: u32,
-    res: u32,
-    id2: u64,
+    pub pid: u32,
+    pub tid: u32,
+    pub time: u64,
+    pub id1: u64,
+    pub stream_id: u64,
+    pub cpu: u32,
+    pub res: u32,
+    pub id2: u64,
 }
