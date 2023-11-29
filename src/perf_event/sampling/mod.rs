@@ -5,10 +5,7 @@ mod record;
 mod tests;
 
 use crate::infra::{ArrayExt, VecExt, WrapBox, WrapOption, WrapResult};
-use crate::sampling::record::{
-    aux, aux_output_hw_id, exit, fork, intrace_start, lost, lost_samples, sample, switch,
-    switch_cpu_wide, throttle, unthrottle, Record, RecordBody,
-};
+use crate::sampling::record::*;
 use crate::syscall;
 use crate::syscall::bindings::*;
 use crate::syscall::{ioctl_wrapped, perf_event_open};
@@ -80,22 +77,22 @@ impl Sampling {
             return None;
         }
 
-        let ring_ptr = unsafe { self.mmap.as_mut_ptr().offset(metapage.data_offset as _) };
+        let ring_ptr = unsafe { self.mmap.as_mut_ptr().add(metapage.data_offset as _) };
 
         let record_len = match metapage.data_tail as isize + 8 - metapage.data_size as isize {
             left if left <= 0 => {
-                let offset = (metapage.data_tail + 6) as isize;
-                let ptr = unsafe { ring_ptr.offset(offset) } as *const u16;
+                let offset = (metapage.data_tail + 6) as _;
+                let ptr = unsafe { ring_ptr.add(offset) } as *const u16;
                 unsafe { *ptr }
             }
             1 => unsafe {
                 let mut buf = <[u8; 2]>::uninit();
-                buf[0] = *(ring_ptr.offset((metapage.data_size - 1) as isize) as *const u8);
-                buf[1] = *(ring_ptr.offset(0) as *const u8);
+                buf[0] = *(ring_ptr.add((metapage.data_size - 1) as _) as *const u8);
+                buf[1] = *(ring_ptr as *const u8);
                 std::mem::transmute(buf)
             },
             left => unsafe {
-                let ptr = ring_ptr.offset(left - 2) as *const u16;
+                let ptr = ring_ptr.add((left - 2) as _) as *const u16;
                 *ptr
             },
         } as usize;
@@ -106,9 +103,9 @@ impl Sampling {
             match metapage.data_tail as isize + record_len as isize - metapage.data_size as isize {
                 left if left > 0 => {
                     let ring_end_part = {
-                        let start = metapage.data_tail as isize;
+                        let start = metapage.data_tail as _;
                         let len = (metapage.data_size - metapage.data_tail) as usize;
-                        unsafe { slice::from_raw_parts(ring_ptr.offset(start), len) }
+                        unsafe { slice::from_raw_parts(ring_ptr.add(start), len) }
                     };
                     let ring_start_part = unsafe { slice::from_raw_parts(ring_ptr, left as _) };
 
@@ -121,7 +118,7 @@ impl Sampling {
                     buf
                 }
                 _ => unsafe {
-                    slice::from_raw_parts(ring_ptr.offset(metapage.data_tail as _), record_len)
+                    slice::from_raw_parts(ring_ptr.add(metapage.data_tail as _), record_len)
                 }
                 .to_vec(),
             };
@@ -132,11 +129,11 @@ impl Sampling {
 
         #[allow(non_upper_case_globals)]
         let record_body = unsafe {
-            let follow_mem_ptr = (record_header as *const perf_event_header).offset(1) as *const _;
+            let follow_mem_ptr = (record_header as *const perf_event_header).add(1) as *const _;
             match record_header.type_ {
-                /*
-                (perf_event_type_PERF_RECORD_MMAP,Mmap,mmap::Body),
-                */
+                perf_event_type_PERF_RECORD_MMAP => {
+                    RecordBody::Mmap(mmap::Body::from_ptr(follow_mem_ptr).wrap_box())
+                }
                 perf_event_type_PERF_RECORD_LOST => {
                     let ptr = follow_mem_ptr as *const lost::Body;
                     RecordBody::Lost(ptr.read().wrap_box())

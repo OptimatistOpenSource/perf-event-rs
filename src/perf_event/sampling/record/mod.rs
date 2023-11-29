@@ -14,7 +14,6 @@ pub mod ksymbol;
 pub mod lost;
 pub mod lost_samples;
 /*
-pub mod mmap;
 pub mod mmap2;
 pub mod namespaces;
 pub mod read;
@@ -26,6 +25,7 @@ pub mod switch_cpu_wide;
 pub mod text_poke;
 */
 
+pub mod mmap;
 pub mod throttle;
 pub mod unthrottle;
 
@@ -37,9 +37,7 @@ pub struct Record {
 
 #[derive(Debug)]
 pub enum RecordBody {
-    /*
-    Mmap(*const mmap::Body),
-    */
+    Mmap(Box<mmap::Body>),
     Lost(Box<lost::Body>),
     /*
     Comm(*const comm::Body),

@@ -21,7 +21,7 @@ impl<T> ZeroTerminated<T> {
         fn is_all_zero<T>(ptr: *const T) -> bool {
             let ptr = ptr as *const u8;
             for i in 0..std::mem::size_of::<T>() {
-                if unsafe { *ptr.offset(i as isize) } != 0 {
+                if unsafe { *ptr.add(i) } != 0 {
                     return false;
                 }
             }
@@ -31,7 +31,7 @@ impl<T> ZeroTerminated<T> {
         while is_all_zero(ptr).not() {
             len += 1;
             unsafe {
-                ptr = ptr.offset(1);
+                ptr = ptr.add(1);
             }
         }
         let ptr = self as *const _ as *const T;
