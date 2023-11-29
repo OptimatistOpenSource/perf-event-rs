@@ -122,7 +122,7 @@ impl Body {
 
     pub fn v_body(&self) -> &[read_format_body] {
         let sized1_ptr = self.sized1() as *const Sized1;
-        let ptr = unsafe { sized1_ptr.offset(1).align_as_ptr::<read_format_body>() };
+        let ptr = unsafe { sized1_ptr.add(1).align_as_ptr::<read_format_body>() };
         let members_len = self.v_header().members_len as usize;
         unsafe { slice::from_raw_parts(ptr, members_len) }
     }
@@ -163,7 +163,7 @@ impl Body {
     pub(crate) fn sized2(&self) -> &Sized2 {
         let ptr = if let Some(dyn_size) = self.dyn_size() {
             let dyn_size_ptr = dyn_size as *const u64;
-            unsafe { dyn_size_ptr.offset(1).align_as_ptr::<Sized2>() }
+            unsafe { dyn_size_ptr.add(1).align_as_ptr::<Sized2>() }
         } else {
             unsafe { self.data_2().follow_mem_ptr().align_as_ptr::<Sized2>() }
         };
@@ -180,7 +180,7 @@ impl Body {
 
     pub fn data_3(&self) -> &[u8] {
         let sized2_ptr = self.sized2() as *const Sized2;
-        let len_ptr = unsafe { sized2_ptr.offset(1).align_as_ptr::<u64>() };
+        let len_ptr = unsafe { sized2_ptr.add(1).align_as_ptr::<u64>() };
         let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
         vla.as_slice()
     }

@@ -110,7 +110,7 @@ impl CountingGroup {
 
         let values = {
             let header_ptr = header as *const read_format_header;
-            let values_ptr = unsafe { header_ptr.offset(1) as *const read_format_body };
+            let values_ptr = unsafe { header_ptr.add(1) as *const read_format_body };
             let values = unsafe { slice::from_raw_parts(values_ptr, members_len) };
 
             values
