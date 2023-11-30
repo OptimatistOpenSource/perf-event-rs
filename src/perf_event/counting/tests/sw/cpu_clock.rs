@@ -1,6 +1,6 @@
 use crate::counting::Attr;
-use crate::{Builder, EventScope, SwEvent};
 use crate::test::cpu_workload;
+use crate::{Builder, EventScope, SwEvent};
 
 #[test]
 fn test_basic() {

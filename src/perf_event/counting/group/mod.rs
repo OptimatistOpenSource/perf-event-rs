@@ -1,5 +1,7 @@
+mod guard;
 mod result;
 
+use crate::counting::group::guard::CountingGuard;
 use crate::counting::{Attr, Counting};
 use crate::infra::VecExt;
 use crate::infra::WrapResult;
@@ -35,7 +37,7 @@ impl CountingGroup {
         self.members.get_mut(0)
     }
 
-    pub fn add_member(&mut self, attr: &Attr) -> io::Result<u64> {
+    pub fn add_member(&mut self, attr: &Attr) -> io::Result<CountingGuard> {
         let member = match self.leader() {
             None => unsafe { Counting::new(attr, self.pid, self.cpu, -1, 0) },
             Some(leader) => {
@@ -43,10 +45,11 @@ impl CountingGroup {
                 unsafe { Counting::new(attr, self.pid, self.cpu, group_fd, 0) }
             }
         }?;
+
         let event_id = member.event_id()?;
         self.members.push(member);
 
-        Ok(event_id)
+        CountingGuard::new(event_id).wrap_ok()
     }
 
     pub fn result(&mut self) -> io::Result<CountingGroupResult> {

@@ -4,13 +4,13 @@ use crate::infra::WrapResult;
 use crate::sampling::record::*;
 use crate::sampling::single::next_sample::next_sample;
 use crate::sampling::Attr;
+use crate::syscall;
 use crate::syscall::bindings::*;
 use crate::syscall::{ioctl_wrapped, perf_event_open};
 use memmap::{MmapMut, MmapOptions};
 use std::fs::File;
 use std::io;
 use std::os::fd::FromRawFd;
-use crate::syscall;
 
 pub struct Sampling {
     pub(crate) mmap: MmapMut,
