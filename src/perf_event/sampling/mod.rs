@@ -20,7 +20,6 @@ pub struct Sampling {
     pub(crate) file: File,
 }
 
-// TODO: impl iter
 impl Sampling {
     pub(crate) unsafe fn new(
         attr: &Attr,
@@ -56,13 +55,9 @@ impl Sampling {
         ioctl_wrapped::<()>(&self.file, perf_event_ioctls_DISABLE, None)
     }
 
-    // TODO
     pub fn next_sample(&mut self) -> Option<Record> {
         let metapage =
             unsafe { (self.mmap.as_mut_ptr() as *mut perf_event_mmap_page).as_mut() }.unwrap();
-
-        dbg!(metapage.data_tail);
-        dbg!(metapage.data_head);
 
         if metapage.data_tail == metapage.data_head {
             return None;
@@ -87,8 +82,6 @@ impl Sampling {
                 *ptr
             },
         } as usize;
-
-        dbg!(record_len);
 
         let record_buf =
             match metapage.data_tail as isize + record_len as isize - metapage.data_size as isize {
@@ -116,7 +109,6 @@ impl Sampling {
 
         let record_header =
             unsafe { (record_buf.as_ptr() as *const perf_event_header).as_ref() }.unwrap();
-        dbg!(record_header.type_);
 
         #[allow(non_upper_case_globals)]
         let record_body = unsafe {
@@ -213,5 +205,13 @@ impl Sampling {
             body: record_body,
         }
         .wrap_some()
+    }
+}
+
+impl Iterator for Sampling {
+    type Item = Record;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.next_sample()
     }
 }
