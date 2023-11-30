@@ -1,4 +1,5 @@
-use crate::sampling::{Attr, Sampling};
+use crate::sampling::single::Sampling;
+use crate::sampling::Attr;
 use crate::{BuildError, Builder};
 
 impl Builder {

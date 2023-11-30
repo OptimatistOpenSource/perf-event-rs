@@ -6,9 +6,9 @@ struct {
 };
 */
 
-use crate::counting::{read_format_body, read_format_header};
 use crate::infra::SliceExt;
 use crate::sampling::record::SampleId;
+use crate::syscall::bindings::{read_format_body, read_format_header};
 use std::slice;
 
 #[repr(C)]
