@@ -163,9 +163,9 @@ impl Sampling {
                 perf_event_type_PERF_RECORD_SAMPLE => {
                     RecordBody::Sample(sample::Body::from_ptr(follow_mem_ptr).wrap_box())
                 }
-                /*
-                (perf_event_type_PERF_RECORD_MMAP2,Mmap2,mmap2::Body),
-                */
+                perf_event_type_PERF_RECORD_MMAP2 => RecordBody::Mmap2(
+                    mmap2::Body::from_ptr(follow_mem_ptr, record_header.misc).wrap_box(),
+                ),
                 perf_event_type_PERF_RECORD_AUX => {
                     let ptr = follow_mem_ptr as *const aux::Body;
                     RecordBody::Aux(ptr.read().wrap_box())
@@ -206,7 +206,7 @@ impl Sampling {
                     let ptr = follow_mem_ptr as *const aux_output_hw_id::Body;
                     RecordBody::AuxOutputHwId(ptr.read().wrap_box())
                 }
-                _ => todo!(),
+                _ => unreachable!(),
             }
         };
 

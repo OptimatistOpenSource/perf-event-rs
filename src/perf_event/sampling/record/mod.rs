@@ -9,12 +9,10 @@ pub mod intrace_start;
 pub mod ksymbol;
 pub mod lost;
 pub mod lost_samples;
-/*
+pub mod mmap;
 pub mod mmap2;
-*/
 pub mod namespaces;
 pub mod read;
-pub mod mmap;
 pub mod sample;
 pub mod switch;
 pub mod switch_cpu_wide;
@@ -39,9 +37,7 @@ pub enum RecordBody {
     Fork(Box<fork::Body>),
     Read(Box<read::Body>),
     Sample(Box<sample::Body>),
-    /*
-    Mmap2(*const mmap2::Body),
-    */
+    Mmap2(Box<mmap2::Body>),
     Aux(Box<aux::Body>),
     ItraceStart(Box<intrace_start::Body>),
     LostSamples(Box<lost_samples::Body>),
