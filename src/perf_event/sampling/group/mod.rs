@@ -1,3 +1,5 @@
+mod guard;
+
 use crate::sampling::{Attr, Sampling};
 use crate::syscall;
 use crate::syscall::ioctl_wrapped;
@@ -5,6 +7,8 @@ use libc::pid_t;
 use std::io;
 use std::io::ErrorKind;
 use std::os::fd::AsRawFd;
+use crate::infra::WrapResult;
+use crate::sampling::group::guard::SamplingGuard;
 
 pub struct SamplingGroup {
     pid: pid_t,
@@ -29,7 +33,7 @@ impl SamplingGroup {
         self.members.get_mut(0)
     }
 
-    pub fn add_member(&mut self, attr: &Attr) -> io::Result<u64> {
+    pub fn add_member(&mut self, attr: &Attr) -> io::Result<SamplingGuard> {
         let member = match self.leader() {
             None => unsafe { Sampling::new(attr, self.pid, self.cpu, -1, 0) },
             Some(leader) => {
@@ -37,10 +41,11 @@ impl SamplingGroup {
                 unsafe { Sampling::new(attr, self.pid, self.cpu, group_fd, 0) }
             }
         }?;
+
         let event_id = member.event_id()?;
         self.members.push(member);
 
-        Ok(event_id)
+        SamplingGuard::new(event_id).wrap_ok()
     }
 
     pub fn enable(&self) -> io::Result<()> {
