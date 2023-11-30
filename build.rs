@@ -3,6 +3,7 @@ extern crate bindgen;
 fn main() {
     let bindings = bindgen::Builder::default()
         .derive_default(true)
+        .generate_comments(false)
         .header("wrapper.h")
         .clang_arg("-I/usr/include") // This may differ between distros
         .generate()
