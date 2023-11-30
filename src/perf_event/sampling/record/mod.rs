@@ -53,9 +53,7 @@ pub enum RecordBody {
 
 #[repr(C)]
 #[derive(Debug, Clone)]
-#[allow(non_camel_case_types)]
-// TODO: use camel case
-pub struct sample_id {
+pub struct SampleId {
     pub pid: u32,
     pub tid: u32,
     pub time: u64,

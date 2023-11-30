@@ -7,8 +7,8 @@ struct {
 */
 
 use crate::counting::{read_format_body, read_format_header};
-use crate::infra::{ConstPtrExt, SliceExt};
-use crate::sampling::record::sample_id;
+use crate::infra::SliceExt;
+use crate::sampling::record::SampleId;
 use std::slice;
 
 #[repr(C)]
@@ -23,6 +23,7 @@ pub struct Body;
 
 macro_rules! sized1_get {
     ($name:ident,$ty:ty) => {
+        #[inline]
         pub fn $name(&self) -> $ty {
             &self.sized1().$name
         }
@@ -30,6 +31,7 @@ macro_rules! sized1_get {
 }
 
 impl Body {
+    #[inline]
     fn sized1(&self) -> &Sized1 {
         let ptr = self as *const _ as *const Sized1;
         unsafe { ptr.as_ref().unwrap() }
@@ -40,17 +42,13 @@ impl Body {
 
     pub fn values_body(&self) -> &[read_format_body] {
         let sized1_ptr = self.sized1() as *const Sized1;
-        let ptr = unsafe { sized1_ptr.add(1).align_as_ptr::<read_format_body>() };
+        let ptr = unsafe { sized1_ptr.add(1) as *const read_format_body };
         let members_len = self.values_header().members_len as usize;
         unsafe { slice::from_raw_parts(ptr, members_len) }
     }
 
-    pub fn sample_id(&self) -> &sample_id {
-        let ptr = unsafe {
-            self.values_body()
-                .follow_mem_ptr()
-                .align_as_ptr::<sample_id>()
-        };
+    pub fn sample_id(&self) -> &SampleId {
+        let ptr = unsafe { self.values_body().follow_mem_ptr() as *const SampleId };
         unsafe { ptr.as_ref() }.unwrap()
     }
 }

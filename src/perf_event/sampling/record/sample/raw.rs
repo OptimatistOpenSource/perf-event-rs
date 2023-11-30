@@ -87,6 +87,7 @@ pub(crate) struct Body;
 
 macro_rules! sized1_get {
     ($name:ident,$ty:ty) => {
+        #[inline]
         pub fn $name(&self) -> $ty {
             &self.sized1().$name
         }
@@ -95,14 +96,15 @@ macro_rules! sized1_get {
 
 macro_rules! sized2_get {
     ($name:ident,$ty:ty) => {
+        #[inline]
         pub fn $name(&self) -> $ty {
             &self.sized2().$name
         }
     };
 }
 
-// TODO: rm unnecessary alignment
 impl Body {
+    #[inline]
     fn sized1(&self) -> &Sized1 {
         let ptr = self as *const _ as *const Sized1;
         unsafe { ptr.as_ref().unwrap() }
@@ -122,19 +124,19 @@ impl Body {
 
     pub fn v_body(&self) -> &[read_format_body] {
         let sized1_ptr = self.sized1() as *const Sized1;
-        let ptr = unsafe { sized1_ptr.add(1).align_as_ptr::<read_format_body>() };
+        let ptr = unsafe { sized1_ptr.add(1) } as *const read_format_body;
         let members_len = self.v_header().members_len as usize;
         unsafe { slice::from_raw_parts(ptr, members_len) }
     }
 
     pub fn ips(&self) -> &[u64] {
-        let len_ptr = unsafe { self.v_body().follow_mem_ptr().align_as_ptr::<u64>() };
+        let len_ptr = unsafe { self.v_body().follow_mem_ptr() } as *const u64;
         let vla: &Vla<u64, u64> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
         vla.as_slice()
     }
 
     pub fn data_1(&self) -> &[u8] {
-        let len_ptr = unsafe { self.ips().follow_mem_ptr().align_as_ptr::<u32>() };
+        let len_ptr = unsafe { self.ips().follow_mem_ptr() } as *const u32;
         let vla: &Vla<u32, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
         vla.as_slice()
     }
@@ -160,7 +162,7 @@ impl Body {
         }
     }
 
-    pub(crate) fn sized2(&self) -> &Sized2 {
+    fn sized2(&self) -> &Sized2 {
         let ptr = if let Some(dyn_size) = self.dyn_size() {
             let dyn_size_ptr = dyn_size as *const u64;
             unsafe { dyn_size_ptr.add(1).align_as_ptr::<Sized2>() }
@@ -180,7 +182,7 @@ impl Body {
 
     pub fn data_3(&self) -> &[u8] {
         let sized2_ptr = self.sized2() as *const Sized2;
-        let len_ptr = unsafe { sized2_ptr.add(1).align_as_ptr::<u64>() };
+        let len_ptr = unsafe { sized2_ptr.add(1) } as *const u64;
         let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
         vla.as_slice()
     }

@@ -1,4 +1,4 @@
-use crate::sampling::record::sample_id;
+use crate::sampling::record::SampleId;
 
 mod raw;
 
@@ -14,7 +14,7 @@ pub struct Body {
     pub pid: u32,
     pub tid: u32,
     pub namespaces: Vec<Namespace>,
-    pub sample_id: sample_id,
+    pub sample_id: SampleId,
 }
 
 type RawBody = raw::Body;

@@ -1,4 +1,4 @@
-use crate::sampling::record::sample_id;
+use crate::sampling::record::SampleId;
 use std::ffi::CString;
 
 mod raw;
@@ -7,7 +7,7 @@ mod raw;
 pub struct Body {
     pub id: u64,
     pub path: CString,
-    pub sample_id: sample_id,
+    pub sample_id: SampleId,
 }
 
 type RawBody = raw::Body;
@@ -21,7 +21,7 @@ impl Body {
     unsafe fn from_raw(raw: &RawBody) -> Self {
         Self {
             id: *raw.id(),
-            path: CString::from_vec_unchecked(raw.path().as_slice().to_vec()),
+            path: CString::from_vec_unchecked(raw.path().to_vec()),
             sample_id: raw.sample_id().clone(),
         }
     }

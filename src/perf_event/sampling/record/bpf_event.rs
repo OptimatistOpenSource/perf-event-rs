@@ -8,7 +8,7 @@ struct {
 };
 */
 
-use crate::sampling::record::sample_id;
+use crate::sampling::record::SampleId;
 use crate::syscall::bindings::BPF_TAG_SIZE;
 
 #[repr(C)]
@@ -18,5 +18,5 @@ pub struct Body {
     pub flags: u16,
     pub id: u32,
     pub tag: [u8; BPF_TAG_SIZE as usize],
-    pub sample_id: sample_id,
+    pub sample_id: SampleId,
 }

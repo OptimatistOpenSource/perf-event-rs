@@ -6,7 +6,6 @@ mod tests;
 
 use crate::infra::{ArrayExt, VecExt, WrapBox, WrapOption, WrapResult};
 use crate::sampling::record::*;
-use crate::syscall;
 use crate::syscall::bindings::*;
 use crate::syscall::{ioctl_wrapped, perf_event_open};
 pub use attr::*;
@@ -50,19 +49,11 @@ impl Sampling {
     }
 
     pub fn enable(&self) -> io::Result<()> {
-        ioctl_wrapped::<()>(
-            &self.file,
-            syscall::bindings::perf_event_ioctls_ENABLE,
-            None,
-        )
+        ioctl_wrapped::<()>(&self.file, perf_event_ioctls_ENABLE, None)
     }
 
     pub fn disable(&self) -> io::Result<()> {
-        ioctl_wrapped::<()>(
-            &self.file,
-            syscall::bindings::perf_event_ioctls_DISABLE,
-            None,
-        )
+        ioctl_wrapped::<()>(&self.file, perf_event_ioctls_DISABLE, None)
     }
 
     // TODO

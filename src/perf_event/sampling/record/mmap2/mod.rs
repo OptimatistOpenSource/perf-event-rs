@@ -1,4 +1,4 @@
-use crate::sampling::record::sample_id;
+use crate::sampling::record::SampleId;
 use crate::syscall::bindings::PERF_RECORD_MISC_MMAP_BUILD_ID;
 use std::ffi::CString;
 
@@ -26,7 +26,7 @@ pub struct Body {
     pub prot: u32,
     pub flags: u32,
     pub filename: CString,
-    pub sample_id: sample_id,
+    pub sample_id: SampleId,
 }
 
 type RawBody = raw::Body;
@@ -46,10 +46,9 @@ impl Body {
             pgoff: *raw.pgoff(),
             anon_enum: match misc as _ {
                 PERF_RECORD_MISC_MMAP_BUILD_ID => {
-                    let build_id_len=raw.anon_union().anon_struct_2.build_id_size as _;
-                    let build_id = raw.anon_union().anon_struct_2.build_id
-                        [0..build_id_len]
-                        .to_vec();
+                    let build_id_len = raw.anon_union().anon_struct_2.build_id_size as _;
+                    let build_id =
+                        raw.anon_union().anon_struct_2.build_id[0..build_id_len].to_vec();
                     AnonEnum::BuildId(build_id)
                 }
                 _ => AnonEnum::Normal {
@@ -61,7 +60,7 @@ impl Body {
             },
             prot: *raw.prot(),
             flags: *raw.flags(),
-            filename: CString::from_vec_unchecked(raw.filename().as_slice().to_vec()),
+            filename: CString::from_vec_unchecked(raw.filename().to_vec()),
             sample_id: raw.sample_id().clone(),
         }
     }

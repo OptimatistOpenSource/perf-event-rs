@@ -1,6 +1,6 @@
 mod raw;
 
-use crate::sampling::record::sample_id;
+use crate::sampling::record::SampleId;
 use std::ffi::CString;
 
 #[derive(Debug)]
@@ -8,7 +8,7 @@ pub struct Body {
     pub pid: u32,
     pub tid: u32,
     pub comm: CString,
-    pub sample_id: sample_id,
+    pub sample_id: SampleId,
 }
 
 type RawBody = raw::Body;
@@ -23,7 +23,7 @@ impl Body {
         Self {
             pid: *raw.pid(),
             tid: *raw.tid(),
-            comm: CString::from_vec_unchecked(raw.comm().as_slice().to_vec()),
+            comm: CString::from_vec_unchecked(raw.comm().to_vec()),
             sample_id: raw.sample_id().clone(),
         }
     }

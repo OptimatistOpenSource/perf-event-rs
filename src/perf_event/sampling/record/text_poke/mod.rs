@@ -1,4 +1,4 @@
-use crate::sampling::record::sample_id;
+use crate::sampling::record::SampleId;
 
 mod raw;
 
@@ -8,7 +8,7 @@ pub struct Body {
     pub old_len: u16,
     pub new_len: u16,
     pub bytes: Vec<u8>,
-    pub sample_id: sample_id,
+    pub sample_id: SampleId,
 }
 
 type RawBody = raw::Body;
@@ -24,7 +24,7 @@ impl Body {
             addr: *raw.addr(),
             old_len: *raw.old_len(),
             new_len: *raw.new_len(),
-            bytes: raw.bytes().as_slice().to_vec(),
+            bytes: raw.bytes().to_vec(),
             sample_id: raw.sample_id().clone(),
         }
     }

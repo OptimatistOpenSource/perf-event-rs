@@ -10,7 +10,7 @@ struct {
 
 use crate::infra::{SliceExt, Vla};
 use crate::sampling::record::namespaces::Namespace;
-use crate::sampling::record::sample_id;
+use crate::sampling::record::SampleId;
 
 #[repr(C)]
 struct Sized1 {
@@ -21,11 +21,12 @@ struct Sized1 {
 #[repr(C)]
 pub struct Body {
     namespaces: Vla<u64, Namespace>,
-    sample_id: sample_id,
+    sample_id: SampleId,
 }
 
 macro_rules! sized1_get {
     ($name:ident,$ty:ty) => {
+        #[inline]
         pub fn $name(&self) -> $ty {
             &self.sized1().$name
         }
@@ -33,6 +34,7 @@ macro_rules! sized1_get {
 }
 
 impl Body {
+    #[inline]
     fn sized1(&self) -> &Sized1 {
         let ptr = self as *const _ as *const Sized1;
         unsafe { ptr.as_ref().unwrap() }
@@ -46,8 +48,8 @@ impl Body {
         vla.as_slice()
     }
 
-    pub fn sample_id(&self) -> &sample_id {
-        let ptr = unsafe { self.namespaces().follow_mem_ptr().add(1) } as *const sample_id;
+    pub fn sample_id(&self) -> &SampleId {
+        let ptr = unsafe { self.namespaces().follow_mem_ptr().add(1) } as *const SampleId;
         unsafe { ptr.as_ref() }.unwrap()
     }
 }

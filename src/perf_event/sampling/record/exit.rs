@@ -7,7 +7,7 @@ struct {
 };
 */
 
-use crate::sampling::record::sample_id;
+use crate::sampling::record::SampleId;
 
 #[repr(C)]
 #[derive(Debug)]
@@ -17,5 +17,5 @@ pub struct Body {
     pub tid: u32,
     pub ptid: u32,
     pub time: u64,
-    pub sample_id: sample_id,
+    pub sample_id: SampleId,
 }

@@ -8,7 +8,7 @@ struct {
 */
 
 use crate::infra::{ConstPtrExt, SliceExt, ZeroTerminated};
-use crate::sampling::record::sample_id;
+use crate::sampling::record::SampleId;
 
 #[repr(C)]
 pub struct Body;
@@ -24,18 +24,14 @@ impl Body {
         unsafe { ptr.as_ref() }.unwrap()
     }
 
-    pub fn comm(&self) -> &ZeroTerminated<u8> {
+    pub fn comm(&self) -> &[u8] {
         let ptr = unsafe { (self.tid() as *const u32).add(1) } as *const u8;
-        unsafe { ZeroTerminated::from_ref(ptr.as_ref().unwrap()) }
+        let zt = unsafe { ZeroTerminated::from_ref(ptr.as_ref().unwrap()) };
+        zt.as_slice()
     }
 
-    pub fn sample_id(&self) -> &sample_id {
-        let ptr = unsafe {
-            self.comm()
-                .as_slice()
-                .follow_mem_ptr()
-                .align_as_ptr::<sample_id>()
-        };
+    pub fn sample_id(&self) -> &SampleId {
+        let ptr = unsafe { self.comm().follow_mem_ptr().align_as_ptr::<SampleId>() };
         unsafe { ptr.as_ref() }.unwrap()
     }
 }
