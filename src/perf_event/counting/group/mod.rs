@@ -14,6 +14,9 @@ use std::io::{ErrorKind, Read};
 use std::os::fd::AsRawFd;
 use std::{io, slice};
 
+pub use guard::*;
+pub use result::*;
+
 pub struct CountingGroup {
     pid: pid_t,
     cpu: i32,
