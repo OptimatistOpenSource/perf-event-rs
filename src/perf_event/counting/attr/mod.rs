@@ -1,3 +1,6 @@
+mod extra_config;
+
+use crate::counting::attr::extra_config::ExtraConfig;
 use crate::perf_event::RawAttr;
 use crate::{Event, EventScope};
 use std::fmt::Debug;
@@ -7,41 +10,12 @@ pub struct Attr {
     raw_attr: RawAttr,
 }
 
-#[derive(Debug)]
-pub struct AttrOtherConfig {
-    pub inherit: bool,
-    pub pinned: bool,
-    pub exclusive: bool,
-
-    pub inherit_stat: bool,
-    pub enable_on_exec: bool,
-
-    pub inherit_thread: bool,
-    pub remove_on_exec: bool,
-}
-
-impl Default for AttrOtherConfig {
-    fn default() -> Self {
-        Self {
-            inherit: true,
-            pinned: false,
-            exclusive: false,
-
-            inherit_stat: true,
-            enable_on_exec: false,
-
-            inherit_thread: false,
-            remove_on_exec: false,
-        }
-    }
-}
-
 impl Attr {
     // TODO: more options are needed
     pub fn new(
         event: impl Into<Event>,
         scopes: impl IntoIterator<Item = EventScope>,
-        other_config: AttrOtherConfig,
+        extra_config: ExtraConfig,
     ) -> Self {
         use crate::syscall::bindings::*;
 
@@ -92,9 +66,9 @@ impl Attr {
         };
 
         raw_attr.set_disabled(1);
-        raw_attr.set_inherit(other_config.inherit as _);
-        raw_attr.set_pinned(other_config.pinned as _);
-        raw_attr.set_exclusive(other_config.exclusive as _);
+        raw_attr.set_inherit(extra_config.inherit as _);
+        raw_attr.set_pinned(extra_config.pinned as _);
+        raw_attr.set_exclusive(extra_config.exclusive as _);
 
         raw_attr.set_exclude_user(1);
         raw_attr.set_exclude_kernel(1);
@@ -104,8 +78,8 @@ impl Attr {
         raw_attr.set_mmap(0); // not use in counting mode
         raw_attr.set_comm(0); // ditto
         raw_attr.set_freq(0); // ditto
-        raw_attr.set_inherit_stat(other_config.inherit_stat as _);
-        raw_attr.set_enable_on_exec(other_config.enable_on_exec as _);
+        raw_attr.set_inherit_stat(extra_config.inherit_stat as _);
+        raw_attr.set_enable_on_exec(extra_config.enable_on_exec as _);
         raw_attr.set_task(0); // not use in counting mode
         raw_attr.set_watermark(0); // ditto
         raw_attr.set_precise_ip(0); // ditto
@@ -134,9 +108,9 @@ impl Attr {
         #[cfg(feature = "kernel-5.12")]
         raw_attr.set_build_id(0); // ditto
         #[cfg(feature = "kernel-5.13")]
-        raw_attr.set_inherit_thread(other_config.inherit_thread as _);
+        raw_attr.set_inherit_thread(extra_config.inherit_thread as _);
         #[cfg(feature = "kernel-5.13")]
-        raw_attr.set_remove_on_exec(other_config.remove_on_exec as _);
+        raw_attr.set_remove_on_exec(extra_config.remove_on_exec as _);
         #[cfg(feature = "kernel-5.13")]
         raw_attr.set_sigtrap(0); // not use in counting mode
 
