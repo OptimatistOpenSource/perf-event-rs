@@ -144,16 +144,6 @@ impl Counting {
         todo!()
     }
 
-    // TODO: sampling mode only
-    pub fn pause_output(&self) -> io::Result<()> {
-        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PAUSE_OUTPUT, 1i32)
-    }
-
-    // TODO: sampling mode only
-    pub fn resume_output(&self) -> io::Result<()> {
-        self.perf_event_ioctl_with_arg(syscall::bindings::perf_event_ioctls_PAUSE_OUTPUT, 0i32)
-    }
-
     // TODO: tracing mode only
     pub fn query_bpf(&self) -> io::Result<()> {
         //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_QUERY_BPF)

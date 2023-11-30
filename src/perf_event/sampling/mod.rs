@@ -55,6 +55,14 @@ impl Sampling {
         ioctl_wrapped::<()>(&self.file, perf_event_ioctls_DISABLE, None)
     }
 
+    pub fn pause(&self) -> io::Result<()> {
+        ioctl_wrapped(&self.file, perf_event_ioctls_PAUSE_OUTPUT, Some(1i32))
+    }
+
+    pub fn resume(&self) -> io::Result<()> {
+        ioctl_wrapped(&self.file, perf_event_ioctls_PAUSE_OUTPUT, Some(0i32))
+    }
+
     pub fn next_sample(&mut self) -> Option<Record> {
         let metapage =
             unsafe { (self.mmap.as_mut_ptr() as *mut perf_event_mmap_page).as_mut() }.unwrap();
