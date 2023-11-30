@@ -2,8 +2,8 @@ use crate::counting::{Attr, Counting, CountingGroup};
 use crate::infra::WrapResult;
 use crate::{BuildError, Builder};
 
+// TODO
 impl Builder {
-    // TODO
     pub fn build_counting(&self, attr: &Attr) -> Result<Counting, BuildError> {
         match self {
             Self {
