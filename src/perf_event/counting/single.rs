@@ -1,5 +1,5 @@
 use crate::counting::Attr;
-use crate::infra::WrapResult;
+use crate::infra::{ArrayExt, WrapResult};
 use crate::syscall;
 use crate::syscall::bindings::{read_format_body, read_format_header};
 use crate::syscall::{ioctl_wrapped, perf_event_open};
@@ -46,7 +46,7 @@ impl Counting {
             body: read_format_body, // This group has only one member
         }
 
-        let mut buf = [0_u8; std::mem::size_of::<read_format>()];
+        let mut buf = unsafe { <[u8; std::mem::size_of::<read_format>()]>::uninit() };
         self.file.read_exact(&mut buf)?;
 
         let read_format = {
