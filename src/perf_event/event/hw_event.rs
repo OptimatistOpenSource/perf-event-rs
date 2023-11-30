@@ -8,7 +8,7 @@ pub enum CacheOp {
 }
 
 impl CacheOp {
-    fn into_u64(self) -> u64 {
+    const fn into_u64(self) -> u64 {
         use CacheOp::*;
         let id = match self {
             Read => perf_hw_cache_op_id_PERF_COUNT_HW_CACHE_OP_READ,
@@ -25,7 +25,7 @@ pub enum CacheOpResult {
 }
 
 impl CacheOpResult {
-    fn into_u64(self) -> u64 {
+    const fn into_u64(self) -> u64 {
         use CacheOpResult::*;
         let id = match self {
             Access => perf_hw_cache_op_result_id_PERF_COUNT_HW_CACHE_RESULT_ACCESS,
@@ -56,7 +56,7 @@ pub enum HwEvent {
 }
 
 impl HwEvent {
-    pub(crate) fn is_cache_event(&self) -> bool {
+    pub(crate) const fn is_cache_event(&self) -> bool {
         use HwEvent::*;
         matches!(
             self,
@@ -69,9 +69,9 @@ impl HwEvent {
                 | CacheNode(..)
         )
     }
-    pub(crate) fn into_u64(self) -> u64 {
+    pub(crate) const fn into_u64(self) -> u64 {
         use HwEvent::*;
-        fn calc_cache_config(id: u64, op: u64, op_result: u64) -> u64 {
+        const fn calc_cache_config(id: u64, op: u64, op_result: u64) -> u64 {
             id | (op << 8) | (op_result << 16)
         }
         match self {

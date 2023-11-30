@@ -21,7 +21,7 @@ struct Sized1 {
 }
 
 #[repr(C)]
-pub(crate) struct Body;
+pub struct Body;
 
 macro_rules! sized1_get {
     ($name:ident,$ty:ty) => {

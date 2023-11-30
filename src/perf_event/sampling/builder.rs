@@ -5,12 +5,12 @@ impl Builder {
     // TODO
     pub fn build_sampling(&self, attr: &Attr) -> Result<Sampling, BuildError> {
         match self {
-            Builder {
+            Self {
                 pid: None,
                 cpu: None,
                 ..
             } => Err(BuildError::PidAndCpuNotSet),
-            Builder {
+            Self {
                 pid: Some(pid),
                 cpu: Some(cpu),
                 ..

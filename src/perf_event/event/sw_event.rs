@@ -17,7 +17,7 @@ pub enum SwEvent {
 }
 
 impl SwEvent {
-    pub(crate) fn into_u64(self) -> u64 {
+    pub(crate) const fn into_u64(self) -> u64 {
         use SwEvent::*;
         let config = match self {
             CpuClock => perf_sw_ids_PERF_COUNT_SW_CPU_CLOCK,

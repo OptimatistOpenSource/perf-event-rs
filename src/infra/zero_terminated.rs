@@ -9,8 +9,8 @@ pub struct ZeroTerminated<T> {
 }
 
 impl<T> ZeroTerminated<T> {
-    pub unsafe fn from_ref(r: &T) -> &ZeroTerminated<T> {
-        let ptr = r as *const _ as *const ZeroTerminated<T>;
+    pub unsafe fn from_ref(r: &T) -> &Self {
+        let ptr = r as *const _ as *const Self;
         ptr.as_ref().unwrap()
     }
 

@@ -54,7 +54,7 @@ pub struct Builder {
 }
 
 impl Builder {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             pid: None,
             cpu: None,
@@ -62,7 +62,7 @@ impl Builder {
         }
     }
 
-    pub fn calling_process(mut self) -> Self {
+    pub const fn calling_process(mut self) -> Self {
         self.pid = Some(0);
         self
     }
@@ -79,7 +79,7 @@ impl Builder {
         .wrap_err()
     }
 
-    pub fn any_process(mut self) -> Self {
+    pub const fn any_process(mut self) -> Self {
         self.pid = Some(0);
         self
     }
@@ -95,7 +95,7 @@ impl Builder {
         .wrap_err()
     }
 
-    pub fn any_cpu(mut self) -> Self {
+    pub const fn any_cpu(mut self) -> Self {
         self.cpu = Some(-1);
         self
     }

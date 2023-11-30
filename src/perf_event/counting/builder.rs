@@ -6,12 +6,12 @@ impl Builder {
     // TODO
     pub fn build_counting(&self, attr: &Attr) -> Result<Counting, BuildError> {
         match self {
-            Builder {
+            Self {
                 pid: None,
                 cpu: None,
                 ..
             } => Err(BuildError::PidAndCpuNotSet),
-            Builder {
+            Self {
                 pid: Some(pid),
                 cpu: Some(cpu),
                 ..
@@ -24,12 +24,12 @@ impl Builder {
 
     pub fn build_counting_group(&self) -> Result<CountingGroup, BuildError> {
         match self {
-            Builder {
+            Self {
                 pid: None,
                 cpu: None,
                 ..
             } => Err(BuildError::PidAndCpuNotSet),
-            Builder {
+            Self {
                 pid: Some(pid),
                 cpu: Some(cpu),
                 ..

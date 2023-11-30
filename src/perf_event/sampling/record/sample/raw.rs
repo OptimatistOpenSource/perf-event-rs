@@ -68,7 +68,7 @@ struct Sized1 {
 
 #[repr(C)]
 #[derive(Debug)]
-pub(crate) struct Sized2 {
+struct Sized2 {
     // TODO:
     //weight: perf_sample_weight,
     pub data_src: u64,
@@ -83,7 +83,7 @@ pub(crate) struct Sized2 {
 }
 
 #[repr(C)]
-pub(crate) struct Body;
+pub struct Body;
 
 macro_rules! sized1_get {
     ($name:ident,$ty:ty) => {
@@ -163,12 +163,13 @@ impl Body {
     }
 
     fn sized2(&self) -> &Sized2 {
-        let ptr = if let Some(dyn_size) = self.dyn_size() {
-            let dyn_size_ptr = dyn_size as *const u64;
-            unsafe { dyn_size_ptr.add(1).align_as_ptr::<Sized2>() }
-        } else {
-            unsafe { self.data_2().follow_mem_ptr().align_as_ptr::<Sized2>() }
-        };
+        let ptr = self.dyn_size().map_or_else(
+            || unsafe { self.data_2().follow_mem_ptr().align_as_ptr::<Sized2>() },
+            |dyn_size| {
+                let dyn_size_ptr = dyn_size as *const u64;
+                unsafe { dyn_size_ptr.add(1).align_as_ptr::<Sized2>() }
+            },
+        );
         unsafe { ptr.as_ref().unwrap() }
     }
     // TODO:

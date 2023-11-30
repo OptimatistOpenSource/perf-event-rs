@@ -13,7 +13,7 @@ use std::{io, slice};
 #[derive(Debug)]
 #[allow(non_camel_case_types)]
 /// read_format body in PERF_FORMAT_GROUP
-pub(crate) struct read_format_body {
+pub struct read_format_body {
     pub event_count: u64, // u64 value;
     pub event_id: u64,    // u64 id;
 
@@ -26,7 +26,7 @@ pub(crate) struct read_format_body {
 #[derive(Debug, Clone)]
 #[allow(non_camel_case_types)]
 /// read_format header in PERF_FORMAT_GROUP
-pub(crate) struct read_format_header {
+pub struct read_format_header {
     pub members_len: u64,  // u64 nr;
     pub time_enabled: u64, // u64 time_enabled;
     pub time_running: u64, // u64 time_running;
@@ -55,7 +55,7 @@ pub struct CountingGroup {
 }
 
 impl CountingGroup {
-    pub(crate) unsafe fn new(pid: pid_t, cpu: i32) -> Self {
+    pub(crate) const unsafe fn new(pid: pid_t, cpu: i32) -> Self {
         Self {
             pid,
             cpu,
@@ -138,38 +138,41 @@ impl CountingGroup {
     }
 
     pub fn enable(&self) -> io::Result<()> {
-        if let Some(leader) = self.leader() {
-            ioctl_wrapped(
-                &leader.file,
-                syscall::bindings::perf_event_ioctls_ENABLE,
-                Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
-            )
-        } else {
-            Err(io::Error::new(ErrorKind::Other, "Group has no members"))
-        }
+        self.leader().map_or_else(
+            || Err(io::Error::new(ErrorKind::Other, "Group has no members")),
+            |leader| {
+                ioctl_wrapped(
+                    &leader.file,
+                    syscall::bindings::perf_event_ioctls_ENABLE,
+                    Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
+                )
+            },
+        )
     }
 
     pub fn disable(&self) -> io::Result<()> {
-        if let Some(leader) = self.leader() {
-            ioctl_wrapped(
-                &leader.file,
-                syscall::bindings::perf_event_ioctls_DISABLE,
-                Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
-            )
-        } else {
-            Err(io::Error::new(ErrorKind::Other, "Group has no members"))
-        }
+        self.leader().map_or_else(
+            || Err(io::Error::new(ErrorKind::Other, "Group has no members")),
+            |leader| {
+                ioctl_wrapped(
+                    &leader.file,
+                    syscall::bindings::perf_event_ioctls_DISABLE,
+                    Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
+                )
+            },
+        )
     }
 
     pub fn reset_count(&self) -> io::Result<()> {
-        if let Some(leader) = self.leader() {
-            ioctl_wrapped(
-                &leader.file,
-                syscall::bindings::perf_event_ioctls_RESET,
-                Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
-            )
-        } else {
-            Err(io::Error::new(ErrorKind::Other, "Group has no members"))
-        }
+        self.leader().map_or_else(
+            || Err(io::Error::new(ErrorKind::Other, "Group has no members")),
+            |leader| {
+                ioctl_wrapped(
+                    &leader.file,
+                    syscall::bindings::perf_event_ioctls_RESET,
+                    Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
+                )
+            },
+        )
     }
 }

@@ -177,15 +177,15 @@ impl Attr {
     /// # Safety
     /// The `raw_attr` argument must be a properly initialized
     /// `perf_event_attr` struct for counting mode.
-    pub unsafe fn from_raw(raw_attr: RawAttr) -> Self {
+    pub const unsafe fn from_raw(raw_attr: RawAttr) -> Self {
         Self { raw_attr }
     }
 
-    pub fn into_raw(self) -> RawAttr {
+    pub const fn into_raw(self) -> RawAttr {
         self.raw_attr
     }
 
-    pub fn as_raw(&self) -> &RawAttr {
+    pub const fn as_raw(&self) -> &RawAttr {
         &self.raw_attr
     }
 }
