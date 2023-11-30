@@ -4,4 +4,7 @@ mod infra;
 mod perf_event;
 mod syscall;
 
+#[allow(dead_code)]
+mod test;
+
 pub use perf_event::*;

@@ -1,15 +1,10 @@
 use crate::sampling::record::{Record, RecordBody};
 use crate::sampling::{Attr, ExtraRecord, OverflowBy};
+use crate::test::cpu_workload;
 use crate::{Builder, EventScope, SwEvent};
 
-fn workload() {
-    for _ in 0..10000000 {
-        std::hint::black_box(0);
-    }
-}
-
 #[test]
-fn test() {
+fn test_basic() {
     let builder = Builder::new().calling_process().any_cpu();
     let attr = {
         let event = SwEvent::CpuClock;
@@ -20,7 +15,7 @@ fn test() {
     let sampling = builder.build_sampling(&attr).unwrap();
 
     sampling.enable().unwrap();
-    workload();
+    cpu_workload();
     sampling.disable().unwrap();
 
     let mut sample_count = 0_usize;
@@ -47,7 +42,7 @@ fn test_all_records() {
     let sampling = builder.build_sampling(&attr).unwrap();
 
     sampling.enable().unwrap();
-    workload();
+    cpu_workload();
     sampling.disable().unwrap();
 
     let mut sample_count = 0_usize;
@@ -75,7 +70,7 @@ fn test_enable_disable() {
 
     assert!(sampling.next_sample().is_none());
     sampling.enable().unwrap();
-    workload();
+    cpu_workload();
     sampling.disable().unwrap();
 
     {
@@ -86,11 +81,11 @@ fn test_enable_disable() {
         assert!(sample_count > 0);
     }
 
-    workload();
+    cpu_workload();
     assert!(sampling.next_sample().is_none());
 
     sampling.enable().unwrap();
-    workload();
+    cpu_workload();
     assert!(sampling.next_sample().is_some());
 }
 
@@ -107,7 +102,7 @@ fn test_pause_resume() {
 
     assert!(sampling.next_sample().is_none());
     sampling.enable().unwrap();
-    workload();
+    cpu_workload();
     sampling.pause().unwrap();
 
     {
@@ -118,10 +113,10 @@ fn test_pause_resume() {
         assert!(sample_count > 0);
     }
 
-    workload();
+    cpu_workload();
     assert!(sampling.next_sample().is_none());
 
     sampling.resume().unwrap();
-    workload();
+    cpu_workload();
     assert!(sampling.next_sample().is_some());
 }
