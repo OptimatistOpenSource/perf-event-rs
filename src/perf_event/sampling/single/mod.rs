@@ -10,6 +10,7 @@ use memmap::{MmapMut, MmapOptions};
 use std::fs::File;
 use std::io;
 use std::os::fd::FromRawFd;
+use crate::syscall;
 
 pub struct Sampling {
     pub(crate) mmap: MmapMut,
@@ -61,6 +62,16 @@ impl Sampling {
 
     pub fn next_sample(&mut self) -> Option<Record> {
         next_sample(self)
+    }
+
+    pub fn event_id(&self) -> io::Result<u64> {
+        let mut id = 0_u64;
+        ioctl_wrapped(
+            &self.file,
+            syscall::bindings::perf_event_ioctls_ID,
+            Some(&mut id),
+        )?;
+        Ok(id)
     }
 }
 
