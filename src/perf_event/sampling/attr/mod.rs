@@ -1,5 +1,8 @@
+mod extra_record;
+
 use crate::perf_event::RawAttr;
 use crate::{Event, EventScope};
+pub use extra_record::*;
 use std::fmt::Debug;
 
 pub enum OverflowBy {
@@ -10,37 +13,6 @@ pub enum OverflowBy {
 #[derive(Debug)]
 pub struct Attr {
     raw_attr: RawAttr,
-}
-
-#[derive(Debug)]
-pub enum ExtraRecord {
-    Mmap,
-    Mmap2,
-    ContextSwitch,
-    Namespaces,
-    Ksymbol,
-    BpfEvent,
-    #[cfg(feature = "kernel-5.7")]
-    Cgroup,
-    #[cfg(feature = "kernel-5.8")]
-    TextPoke,
-}
-
-impl ExtraRecord {
-    pub fn all() -> Vec<Self> {
-        vec![
-            Self::Mmap,
-            Self::Mmap2,
-            Self::ContextSwitch,
-            Self::Namespaces,
-            Self::Ksymbol,
-            Self::BpfEvent,
-            #[cfg(feature = "kernel-5.7")]
-            Self::Cgroup,
-            #[cfg(feature = "kernel-5.8")]
-            Self::TextPoke,
-        ]
-    }
 }
 
 impl Attr {
