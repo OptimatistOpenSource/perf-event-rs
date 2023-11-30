@@ -10,13 +10,13 @@ pub struct MemberResult {
 }
 
 #[derive(Debug)]
-pub struct GroupCountingResult {
+pub struct CountingGroupResult {
     pub time_enabled: u64,
     pub time_running: u64,
     pub member_results: HashMap<u64, MemberResult>,
 }
 
-impl GroupCountingResult {
+impl CountingGroupResult {
     pub(crate) fn from_raw(header: &read_format_header, body: &[read_format_body]) -> Self {
         Self {
             time_enabled: header.time_enabled,

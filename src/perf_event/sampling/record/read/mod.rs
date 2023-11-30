@@ -1,4 +1,4 @@
-use crate::counting::GroupCountingResult;
+use crate::counting::CountingGroupResult;
 use crate::sampling::record::SampleId;
 
 mod raw;
@@ -7,7 +7,7 @@ mod raw;
 pub struct Body {
     pub pid: u32,
     pub tid: u32,
-    pub values: GroupCountingResult,
+    pub values: CountingGroupResult,
     pub sample_id: SampleId,
 }
 
@@ -23,7 +23,7 @@ impl Body {
         Self {
             pid: *raw.pid(),
             tid: *raw.tid(),
-            values: GroupCountingResult::from_raw(raw.values_header(), raw.values_body()),
+            values: CountingGroupResult::from_raw(raw.values_header(), raw.values_body()),
             sample_id: raw.sample_id().clone(),
         }
     }

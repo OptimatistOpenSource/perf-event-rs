@@ -1,4 +1,4 @@
-use crate::counting::GroupCountingResult;
+use crate::counting::CountingGroupResult;
 
 mod raw;
 
@@ -15,7 +15,7 @@ pub struct Body {
     pub cpu: u32,
     pub res: u32,
     pub period: u64,
-    pub v: GroupCountingResult,
+    pub v: CountingGroupResult,
     pub ips: Vec<u64>,
     pub data_1: Vec<u8>,
     pub data_2: Vec<u8>,
@@ -50,7 +50,7 @@ impl Body {
             cpu: *raw.cpu(),
             res: *raw.res(),
             period: *raw.period(),
-            v: GroupCountingResult::from_raw(raw.v_header(), raw.v_body()),
+            v: CountingGroupResult::from_raw(raw.v_header(), raw.v_body()),
             ips: raw.ips().to_vec(),
             data_1: raw.data_1().to_vec(),
             data_2: raw.data_2().to_vec(),

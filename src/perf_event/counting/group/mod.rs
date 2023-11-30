@@ -49,7 +49,7 @@ impl CountingGroup {
         Ok(event_id)
     }
 
-    pub fn result(&mut self) -> io::Result<GroupCountingResult> {
+    pub fn result(&mut self) -> io::Result<CountingGroupResult> {
         let members_len = self.members.len();
 
         let Some(leader) = self.leader_mut() else {
@@ -78,7 +78,7 @@ impl CountingGroup {
             unsafe { slice::from_raw_parts(values_ptr, members_len) }
         };
 
-        GroupCountingResult::from_raw(header, body).wrap_ok()
+        CountingGroupResult::from_raw(header, body).wrap_ok()
     }
 
     pub fn enable(&self) -> io::Result<()> {
