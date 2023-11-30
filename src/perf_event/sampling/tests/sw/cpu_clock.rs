@@ -1,6 +1,6 @@
 use crate::sampling::record::{Record, RecordBody};
 use crate::sampling::{Attr, OverflowBy};
-use crate::{Builder, EventScope, HwEvent, SwEvent};
+use crate::{Builder, EventScope, SwEvent};
 
 fn workload() {
     for _ in 0..10000000 {
@@ -15,9 +15,9 @@ fn test() {
         let event = SwEvent::CpuClock;
         let scopes = [EventScope::User, EventScope::Host];
         let overflow_by = OverflowBy::Period(1000);
-        Attr::new(event, scopes, overflow_by)
+        Attr::new(event, scopes, overflow_by, [])
     };
-    let mut sampling = builder.build_sampling(&attr).unwrap();
+    let sampling = builder.build_sampling(&attr).unwrap();
 
     sampling.enable().unwrap();
     workload();

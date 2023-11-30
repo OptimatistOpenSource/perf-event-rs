@@ -12,12 +12,27 @@ pub struct Attr {
     raw_attr: RawAttr,
 }
 
+#[derive(Debug)]
+pub enum ExtraRecord {
+    Mmap,
+    Mmap2,
+    ContextSwitch,
+    Namespaces,
+    Ksymbol,
+    BpfEvent,
+    #[cfg(feature = "kernel-5.7")]
+    Cgroup,
+    #[cfg(feature = "kernel-5.8")]
+    TextPoke,
+}
+
 impl Attr {
     // TODO: more options are needed
     pub fn new(
         event: impl Into<Event>,
         scopes: impl IntoIterator<Item = EventScope>,
         overflow_by: OverflowBy,
+        gen_extra_record: impl IntoIterator<Item = ExtraRecord>,
     ) -> Self {
         use crate::syscall::bindings::*;
 
@@ -120,7 +135,7 @@ impl Attr {
         raw_attr.set_exclude_hv(1);
         raw_attr.set_exclude_idle(1);
 
-        raw_attr.set_mmap(0); // TODO
+        raw_attr.set_mmap(0);
         raw_attr.set_comm(0); // not use in sampling mode
         match overflow_by {
             OverflowBy::Freq(_) => raw_attr.set_freq(1),
@@ -139,20 +154,20 @@ impl Attr {
         raw_attr.set_exclude_callchain_kernel(1);
         raw_attr.set_exclude_callchain_user(1);
 
-        raw_attr.set_mmap2(0); // TODO
+        raw_attr.set_mmap2(0);
         raw_attr.set_comm_exec(0); // not use in sampling mode
         raw_attr.set_use_clockid(0); // TODO
-        raw_attr.set_context_switch(0); // TODO
+        raw_attr.set_context_switch(0);
         raw_attr.set_write_backward(0);
-        raw_attr.set_namespaces(0); // TODO
-        raw_attr.set_ksymbol(0); // TODO
-        raw_attr.set_bpf_event(0); // TODO
+        raw_attr.set_namespaces(0);
+        raw_attr.set_ksymbol(0);
+        raw_attr.set_bpf_event(0);
         #[cfg(feature = "kernel-5.4")]
         raw_attr.set_aux_output(0); // TODO
         #[cfg(feature = "kernel-5.7")]
-        raw_attr.set_cgroup(0); // TODO
+        raw_attr.set_cgroup(0);
         #[cfg(feature = "kernel-5.8")]
-        raw_attr.set_text_poke(0); // TODO
+        raw_attr.set_text_poke(0);
         #[cfg(feature = "kernel-5.12")]
         raw_attr.set_build_id(0); // TODO
         #[cfg(feature = "kernel-5.13")]
@@ -192,6 +207,19 @@ impl Attr {
                 raw_attr.config = ev.into_u64();
             }
         }
+
+        gen_extra_record.into_iter().for_each(|it| match it {
+            ExtraRecord::Mmap => raw_attr.set_mmap(1),
+            ExtraRecord::Mmap2 => raw_attr.set_mmap2(1),
+            ExtraRecord::ContextSwitch => raw_attr.set_context_switch(1),
+            ExtraRecord::Namespaces => raw_attr.set_namespaces(1),
+            ExtraRecord::Ksymbol => raw_attr.set_ksymbol(1),
+            ExtraRecord::BpfEvent => raw_attr.set_bpf_event(1),
+            #[cfg(feature = "kernel-5.7")]
+            ExtraRecord::Cgroup => raw_attr.set_cgroup(1),
+            #[cfg(feature = "kernel-5.8")]
+            ExtraRecord::TextPoke => raw_attr.set_text_poke(1),
+        });
 
         Self { raw_attr }
     }

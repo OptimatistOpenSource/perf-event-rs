@@ -7,6 +7,7 @@ pub struct Attr {
     raw_attr: RawAttr,
 }
 
+#[derive(Debug)]
 pub struct AttrOtherConfig {
     pub inherit: bool,
     pub pinned: bool,

@@ -11,7 +11,6 @@ struct {
 use crate::infra::ZeroTerminated;
 
 #[repr(C)]
-#[derive(Debug)]
 pub struct Body {
     pub pid: u32,
     pub tid: u32,

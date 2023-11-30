@@ -1,8 +1,6 @@
-use std::fmt::Debug;
 use std::marker::PhantomData;
 use std::slice;
 
-#[derive(Debug)]
 #[repr(C)]
 pub struct Vla<L, T> {
     len: L,

@@ -2,7 +2,6 @@ use std::marker::PhantomData;
 use std::ops::Not;
 use std::slice;
 
-#[derive(Debug)]
 #[repr(C)]
 pub struct ZeroTerminated<T> {
     pd: PhantomData<T>,

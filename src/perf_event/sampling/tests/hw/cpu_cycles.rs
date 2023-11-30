@@ -15,9 +15,9 @@ fn test() {
         let event = HwEvent::CpuCycles;
         let scopes = [EventScope::User, EventScope::Host];
         let overflow_by = OverflowBy::Period(1000);
-        Attr::new(event, scopes, overflow_by)
+        Attr::new(event, scopes, overflow_by, [])
     };
-    let mut sampling = builder.build_sampling(&attr).unwrap();
+    let sampling = builder.build_sampling(&attr).unwrap();
 
     sampling.enable().unwrap();
     workload();

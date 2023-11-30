@@ -70,10 +70,7 @@ struct Sized1 {
 }
 
 #[repr(C)]
-pub struct Body {
-    filename: ZeroTerminated<u8>,
-    sample_id: SampleId,
-}
+pub struct Body;
 
 macro_rules! sized1_get {
     ($name:ident,$ty:ty) => {
