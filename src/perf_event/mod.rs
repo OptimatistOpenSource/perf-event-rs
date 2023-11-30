@@ -3,7 +3,6 @@ pub mod counting;
 pub mod event;
 pub mod sampling;
 
-use crate::infra::WrapBox;
 use crate::syscall::bindings::perf_event_attr;
 pub use builder::*;
 pub use event::*;
