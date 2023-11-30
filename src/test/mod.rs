@@ -1,5 +1,5 @@
 pub fn cpu_workload() {
-    for _ in 0..10000000 {
+    for _ in 0..1000000 {
         std::hint::black_box(0);
     }
 }
