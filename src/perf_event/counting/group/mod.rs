@@ -1,52 +1,16 @@
+mod result;
+
 use crate::counting::{Attr, Counting};
 use crate::infra::VecExt;
 use crate::infra::WrapResult;
 use crate::syscall;
+use crate::syscall::bindings::{read_format_body, read_format_header};
 use crate::syscall::ioctl_wrapped;
 use libc::pid_t;
-use std::collections::HashMap;
+pub use result::*;
 use std::io::{ErrorKind, Read};
 use std::os::fd::AsRawFd;
 use std::{io, slice};
-
-#[repr(C)]
-#[derive(Debug)]
-#[allow(non_camel_case_types)]
-/// read_format body in PERF_FORMAT_GROUP
-pub struct read_format_body {
-    pub event_count: u64, // u64 value;
-    pub event_id: u64,    // u64 id;
-
-    /// only meaningful in sampling mode
-    #[cfg(feature = "kernel-6.0")]
-    pub event_lost: u64, // u64 lost;
-}
-
-#[repr(C)]
-#[derive(Debug, Clone)]
-#[allow(non_camel_case_types)]
-/// read_format header in PERF_FORMAT_GROUP
-pub struct read_format_header {
-    pub members_len: u64,  // u64 nr;
-    pub time_enabled: u64, // u64 time_enabled;
-    pub time_running: u64, // u64 time_running;
-                           // follows: struct { .. } values[nr];
-}
-
-#[derive(Debug)]
-pub struct GroupCountingMemberResult {
-    pub event_count: u64,
-    /// only meaningful in sampling mode
-    #[cfg(feature = "kernel-6.0")]
-    pub event_lost: u64,
-}
-
-#[derive(Debug)]
-pub struct GroupCountingResult {
-    pub time_enabled: u64,
-    pub time_running: u64,
-    pub member_results: HashMap<u64, GroupCountingMemberResult>,
-}
 
 pub struct CountingGroup {
     pid: pid_t,
@@ -108,33 +72,13 @@ impl CountingGroup {
             unsafe { ptr.as_ref().unwrap() }
         };
 
-        let values = {
+        let body = {
             let header_ptr = header as *const read_format_header;
             let values_ptr = unsafe { header_ptr.add(1) as *const read_format_body };
-            let values = unsafe { slice::from_raw_parts(values_ptr, members_len) };
-
-            values
-                .iter()
-                .map(|it| {
-                    (
-                        it.event_id,
-                        GroupCountingMemberResult {
-                            event_count: it.event_count,
-                            // only meaningful in sampling mode
-                            #[cfg(feature = "kernel-6.0")]
-                            event_lost: it.event_lost,
-                        },
-                    )
-                })
-                .collect::<HashMap<_, _>>()
+            unsafe { slice::from_raw_parts(values_ptr, members_len) }
         };
 
-        GroupCountingResult {
-            time_enabled: header.time_enabled,
-            time_running: header.time_running,
-            member_results: values,
-        }
-        .wrap_ok()
+        GroupCountingResult::from_raw(header, body).wrap_ok()
     }
 
     pub fn enable(&self) -> io::Result<()> {

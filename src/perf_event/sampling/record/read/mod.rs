@@ -1,4 +1,4 @@
-use crate::counting::{GroupCountingMemberResult, GroupCountingResult};
+use crate::counting::GroupCountingResult;
 use crate::sampling::record::SampleId;
 
 mod raw;
@@ -23,24 +23,7 @@ impl Body {
         Self {
             pid: *raw.pid(),
             tid: *raw.tid(),
-            values: GroupCountingResult {
-                time_enabled: raw.values_header().time_enabled,
-                time_running: raw.values_header().time_running,
-                member_results: raw
-                    .values_body()
-                    .iter()
-                    .map(|it| {
-                        (
-                            it.event_id,
-                            GroupCountingMemberResult {
-                                event_count: it.event_count,
-                                #[cfg(feature = "kernel-6.0")]
-                                event_lost: it.event_lost,
-                            },
-                        )
-                    })
-                    .collect(),
-            },
+            values: GroupCountingResult::from_raw(raw.values_header(), raw.values_body()),
             sample_id: raw.sample_id().clone(),
         }
     }

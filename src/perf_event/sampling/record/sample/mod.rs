@@ -1,4 +1,4 @@
-use crate::counting::{GroupCountingMemberResult, GroupCountingResult};
+use crate::counting::GroupCountingResult;
 
 mod raw;
 
@@ -50,24 +50,7 @@ impl Body {
             cpu: *raw.cpu(),
             res: *raw.res(),
             period: *raw.period(),
-            v: GroupCountingResult {
-                time_enabled: raw.v_header().time_enabled,
-                time_running: raw.v_header().time_running,
-                member_results: raw
-                    .v_body()
-                    .iter()
-                    .map(|it| {
-                        (
-                            it.event_id,
-                            GroupCountingMemberResult {
-                                event_count: it.event_count,
-                                #[cfg(feature = "kernel-6.0")]
-                                event_lost: it.event_lost,
-                            },
-                        )
-                    })
-                    .collect(),
-            },
+            v: GroupCountingResult::from_raw(raw.v_header(), raw.v_body()),
             ips: raw.ips().to_vec(),
             data_1: raw.data_1().to_vec(),
             data_2: raw.data_2().to_vec(),
