@@ -12,6 +12,7 @@ struct {
 use crate::infra::{ConstPtrExt, SliceExt, ZeroTerminated};
 use crate::sampling::record::sample_id;
 
+#[repr(C)]
 struct Sized1 {
     pub addr: u64,
     pub len: u32,

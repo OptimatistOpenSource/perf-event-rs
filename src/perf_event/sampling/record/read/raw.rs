@@ -11,6 +11,7 @@ use crate::infra::{ConstPtrExt, SliceExt};
 use crate::sampling::record::sample_id;
 use std::slice;
 
+#[repr(C)]
 struct Sized1 {
     pub pid: u32,
     pub tid: u32,

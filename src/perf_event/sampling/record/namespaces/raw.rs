@@ -12,6 +12,7 @@ use crate::infra::{SliceExt, Vla};
 use crate::sampling::record::namespaces::Namespace;
 use crate::sampling::record::sample_id;
 
+#[repr(C)]
 struct Sized1 {
     pid: u32,
     tid: u32,
