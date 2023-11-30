@@ -51,8 +51,7 @@ use std::fmt::{Debug, Formatter};
 use std::slice;
 
 #[repr(C)]
-#[derive(Debug)]
-pub(crate) struct Sized1 {
+struct Sized1 {
     sample_id: u64,
     ip: u64,
     pid: u32,
@@ -102,8 +101,9 @@ macro_rules! sized2_get {
     };
 }
 
+// TODO: rm unnecessary alignment
 impl Body {
-    pub fn sized1(&self) -> &Sized1 {
+    fn sized1(&self) -> &Sized1 {
         let ptr = self as *const _ as *const Sized1;
         unsafe { ptr.as_ref().unwrap() }
     }
