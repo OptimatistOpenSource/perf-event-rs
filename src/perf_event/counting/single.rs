@@ -1,6 +1,7 @@
-use crate::counting::{read_format_body, read_format_header, Attr};
+use crate::counting::Attr;
 use crate::infra::WrapResult;
 use crate::syscall;
+use crate::syscall::bindings::{read_format_body, read_format_header};
 use crate::syscall::{ioctl_wrapped, perf_event_open};
 use std::fs::File;
 use std::io;

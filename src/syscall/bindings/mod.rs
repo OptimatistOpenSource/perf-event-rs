@@ -8,6 +8,8 @@
 #[allow(clippy::all, clippy::nursery, clippy::cargo_common_metadata)]
 mod bindgen; // TODO: bindings may differ between kernel versions
 mod r#impl;
+mod read_format;
 
 pub use bindgen::*;
 pub use r#impl::*;
+pub use read_format::*;
