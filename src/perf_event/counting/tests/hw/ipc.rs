@@ -6,7 +6,7 @@ use crate::{Builder, EventScope, HwEvent};
 fn test_basic() {
     let builder = Builder::new().calling_process().any_cpu();
     let mut group = builder.build_counting_group().unwrap();
-    let cpu_cycles_gurad = group
+    let cpu_cycles_guard = group
         .add_member({
             let event = HwEvent::CpuCycles;
             let scopes = [EventScope::User, EventScope::Host];
@@ -22,7 +22,7 @@ fn test_basic() {
         .unwrap();
     {
         let result = group.result().unwrap();
-        let cpu_cycles = result.member_count(&cpu_cycles_gurad).unwrap();
+        let cpu_cycles = result.member_count(&cpu_cycles_guard).unwrap();
         dbg!(cpu_cycles);
         assert_eq!(cpu_cycles, 0);
         let instructions = result.member_count(&instructions_guard).unwrap();
@@ -30,13 +30,13 @@ fn test_basic() {
         assert_eq!(instructions, 0);
     };
 
-    group.enable().unwrap();
+    let mut group = group.enable().unwrap();
     cpu_workload();
     group.disable().unwrap();
 
     let rate = {
         let events = group.result().unwrap();
-        let cpu_cycles = events.member_count(&cpu_cycles_gurad).unwrap();
+        let cpu_cycles = events.member_count(&cpu_cycles_guard).unwrap();
         dbg!(cpu_cycles);
         assert!(cpu_cycles > 0);
         let instructions = events.member_count(&instructions_guard).unwrap();
@@ -76,7 +76,7 @@ fn test_enable_disable() {
         assert_eq!(instructions, 0);
     };
 
-    group.enable().unwrap();
+    let mut group = group.enable().unwrap();
     cpu_workload();
     group.disable().unwrap();
 
@@ -118,7 +118,7 @@ fn test_reset_count() {
         })
         .unwrap();
 
-    group.enable().unwrap();
+    let mut group = group.enable().unwrap();
     cpu_workload();
     group.disable().unwrap();
 

@@ -1,3 +1,4 @@
+mod fixed;
 mod guard;
 mod result;
 
@@ -12,9 +13,10 @@ use libc::pid_t;
 pub use result::*;
 use std::io::{ErrorKind, Read};
 use std::os::fd::AsRawFd;
-use std::sync::{Arc,  RwLock, RwLockReadGuard, RwLockWriteGuard};
+use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 use std::{io, slice};
 
+use crate::counting::group::fixed::FixedCountingGroup;
 pub use guard::*;
 pub use result::*;
 
@@ -22,7 +24,7 @@ pub struct CountingGroup {
     pid: pid_t,
     cpu: i32,
     leader: Option<Arc<RwLock<Counting>>>,
-    members_len: usize,
+    pub(crate) members_len: usize,
 }
 
 impl CountingGroup {
@@ -96,7 +98,7 @@ impl CountingGroup {
         CountingGroupResult::from_raw(header, body).wrap_ok()
     }
 
-    pub fn enable(&self) -> io::Result<()> {
+    pub fn enable(self) -> io::Result<FixedCountingGroup> {
         self.leader().map_or_else(
             || Err(io::Error::new(ErrorKind::Other, "Group has no members")),
             |leader| {
@@ -106,32 +108,8 @@ impl CountingGroup {
                     Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
                 )
             },
-        )
-    }
+        )?;
 
-    pub fn disable(&self) -> io::Result<()> {
-        self.leader().map_or_else(
-            || Err(io::Error::new(ErrorKind::Other, "Group has no members")),
-            |leader| {
-                ioctl_wrapped(
-                    &leader.file,
-                    syscall::bindings::perf_event_ioctls_DISABLE,
-                    Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
-                )
-            },
-        )
-    }
-
-    pub fn reset_count(&self) -> io::Result<()> {
-        self.leader().map_or_else(
-            || Err(io::Error::new(ErrorKind::Other, "Group has no members")),
-            |leader| {
-                ioctl_wrapped(
-                    &leader.file,
-                    syscall::bindings::perf_event_ioctls_RESET,
-                    Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
-                )
-            },
-        )
+        FixedCountingGroup::new(self).wrap_ok()
     }
 }

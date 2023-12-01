@@ -31,7 +31,7 @@ fn test_basic() {
         assert_eq!(page_faults, 0);
     };
 
-    group.enable().unwrap();
+    let mut group = group.enable().unwrap();
     mem_workload();
     group.disable().unwrap();
 
@@ -77,7 +77,7 @@ fn test_enable_disable() {
         assert_eq!(page_faults, 0);
     };
 
-    group.enable().unwrap();
+    let mut group = group.enable().unwrap();
     mem_workload();
     group.disable().unwrap();
 
@@ -122,7 +122,7 @@ fn test_reset_count() {
         })
         .unwrap();
 
-    group.enable().unwrap();
+    let mut group = group.enable().unwrap();
     mem_workload();
     group.disable().unwrap();
 

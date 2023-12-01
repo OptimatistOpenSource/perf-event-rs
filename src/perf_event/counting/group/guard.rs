@@ -3,7 +3,7 @@ use std::io;
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 pub struct CountingGuard {
-    pub counting: Arc<RwLock<Counting>>,
+    counting: Arc<RwLock<Counting>>,
 }
 
 impl CountingGuard {
