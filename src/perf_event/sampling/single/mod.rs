@@ -1,8 +1,8 @@
-mod next_sample;
+mod next_record;
 
 use crate::infra::WrapResult;
 use crate::sampling::record::*;
-use crate::sampling::single::next_sample::next_sample;
+use crate::sampling::single::next_record::next_record;
 use crate::sampling::Attr;
 use crate::syscall;
 use crate::syscall::bindings::*;
@@ -60,8 +60,8 @@ impl Sampling {
         ioctl_wrapped(&self.file, perf_event_ioctls_PAUSE_OUTPUT, Some(0i32))
     }
 
-    pub fn next_sample(&mut self) -> Option<Record> {
-        next_sample(self)
+    pub fn next_record(&mut self) -> Option<Record> {
+        next_record(self)
     }
 
     pub fn event_id(&self) -> io::Result<u64> {
@@ -79,6 +79,6 @@ impl Iterator for Sampling {
     type Item = Record;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.next_sample()
+        self.next_record()
     }
 }

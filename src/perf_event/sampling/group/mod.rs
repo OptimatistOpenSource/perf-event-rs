@@ -1,76 +1,51 @@
+mod fixed;
 mod guard;
+mod inner;
 
-use crate::sampling::{Attr, Sampling};
-use crate::syscall;
-use crate::syscall::ioctl_wrapped;
+use crate::infra::WrapResult;
+use crate::sampling::group::fixed::FixedSamplingGroup;
+use crate::sampling::group::guard::SamplingGuard;
+use crate::sampling::group::inner::Inner;
+use crate::sampling::record::Record;
+use crate::sampling::Attr;
 use libc::pid_t;
 use std::io;
-use std::io::ErrorKind;
-use std::os::fd::AsRawFd;
-use crate::infra::WrapResult;
-use crate::sampling::group::guard::SamplingGuard;
+use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 pub struct SamplingGroup {
     pid: pid_t,
     cpu: i32,
-    members: Vec<Sampling>, // members[0] is the group leader, if it exists.
+    inner: Arc<RwLock<Inner>>,
 }
 
 impl SamplingGroup {
-    pub(crate) const unsafe fn new(pid: pid_t, cpu: i32) -> Self {
+    pub(crate) unsafe fn new(pid: pid_t, cpu: i32) -> Self {
         Self {
             pid,
             cpu,
-            members: vec![],
+            inner: Arc::new(RwLock::new(Inner::new())),
         }
     }
 
-    fn leader(&self) -> Option<&Sampling> {
-        self.members.get(0)
+    fn inner(&self) -> RwLockReadGuard<'_, Inner> {
+        self.inner.read().unwrap()
     }
 
-    fn leader_mut(&mut self) -> Option<&mut Sampling> {
-        self.members.get_mut(0)
+    fn inner_mut(&self) -> RwLockWriteGuard<'_, Inner> {
+        self.inner.write().unwrap()
     }
 
     pub fn add_member(&mut self, attr: &Attr) -> io::Result<SamplingGuard> {
-        let member = match self.leader() {
-            None => unsafe { Sampling::new(attr, self.pid, self.cpu, -1, 0) },
-            Some(leader) => {
-                let group_fd = leader.file.as_raw_fd();
-                unsafe { Sampling::new(attr, self.pid, self.cpu, group_fd, 0) }
-            }
-        }?;
-
-        let event_id = member.event_id()?;
-        self.members.push(member);
-
-        SamplingGuard::new(event_id).wrap_ok()
+        let event_id = self.inner_mut().add_member(self.pid, self.cpu, attr)?;
+        SamplingGuard::new(event_id, self.inner.clone()).wrap_ok()
     }
 
-    pub fn enable(&self) -> io::Result<()> {
-        self.leader().map_or_else(
-            || Err(io::Error::new(ErrorKind::Other, "Group has no members")),
-            |leader| {
-                ioctl_wrapped(
-                    &leader.file,
-                    syscall::bindings::perf_event_ioctls_ENABLE,
-                    Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
-                )
-            },
-        )
+    pub fn enable(self) -> io::Result<FixedSamplingGroup> {
+        self.inner().enable()?;
+        FixedSamplingGroup::new(self.inner).wrap_ok()
     }
 
-    pub fn disable(&self) -> io::Result<()> {
-        self.leader().map_or_else(
-            || Err(io::Error::new(ErrorKind::Other, "Group has no members")),
-            |leader| {
-                ioctl_wrapped(
-                    &leader.file,
-                    syscall::bindings::perf_event_ioctls_DISABLE,
-                    Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
-                )
-            },
-        )
+    pub fn next_record(&self, guard: &SamplingGuard) -> Option<Record> {
+        self.inner_mut().next_record(guard.event_id())
     }
 }

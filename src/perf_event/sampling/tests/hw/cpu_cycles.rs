@@ -68,7 +68,7 @@ fn test_enable_disable() {
     };
     let mut sampling = builder.build_sampling(&attr).unwrap();
 
-    assert!(sampling.next_sample().is_none());
+    assert!(sampling.next_record().is_none());
     sampling.enable().unwrap();
     cpu_workload();
     sampling.disable().unwrap();
@@ -82,11 +82,11 @@ fn test_enable_disable() {
     }
 
     cpu_workload();
-    assert!(sampling.next_sample().is_none());
+    assert!(sampling.next_record().is_none());
 
     sampling.enable().unwrap();
     cpu_workload();
-    assert!(sampling.next_sample().is_some());
+    assert!(sampling.next_record().is_some());
 }
 
 #[test]
@@ -100,7 +100,7 @@ fn test_pause_resume() {
     };
     let mut sampling = builder.build_sampling(&attr).unwrap();
 
-    assert!(sampling.next_sample().is_none());
+    assert!(sampling.next_record().is_none());
     sampling.enable().unwrap();
     cpu_workload();
     sampling.pause().unwrap();
@@ -114,9 +114,9 @@ fn test_pause_resume() {
     }
 
     cpu_workload();
-    assert!(sampling.next_sample().is_none());
+    assert!(sampling.next_record().is_none());
 
     sampling.resume().unwrap();
     cpu_workload();
-    assert!(sampling.next_sample().is_some());
+    assert!(sampling.next_record().is_some());
 }

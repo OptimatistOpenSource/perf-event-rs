@@ -4,7 +4,7 @@ use crate::sampling::Sampling;
 use crate::syscall::bindings::*;
 use std::slice;
 
-pub fn next_sample(sampling: &mut Sampling) -> Option<Record> {
+pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
     let metapage =
         unsafe { (sampling.mmap.as_mut_ptr() as *mut perf_event_mmap_page).as_mut() }.unwrap();
 
