@@ -22,7 +22,7 @@ pub struct CountingGroupResult {
 impl CountingGroupResult {
     pub fn member_count(&self, guard: &CountingGuard) -> io::Result<u64> {
         self.member_results
-            .get(&guard.as_counting().event_id()?)
+            .get(&guard.event_id())
             .unwrap()
             .event_count
             .wrap_ok()

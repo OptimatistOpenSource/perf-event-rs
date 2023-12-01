@@ -20,6 +20,7 @@ fn test_basic() {
             &Attr::new(event, scopes, Default::default())
         })
         .unwrap();
+
     {
         let result = group.result().unwrap();
         let cpu_cycles = result.member_count(&cpu_cycles_guard).unwrap();
@@ -94,6 +95,7 @@ fn test_enable_disable() {
     );
 
     group.enable().unwrap();
+    cpu_workload();
     let events = group.result().unwrap();
     assert!(events.member_count(&cpu_cycles_guard).unwrap() > cpu_cycles);
     assert!(events.member_count(&instructions_guard).unwrap() > instructions);

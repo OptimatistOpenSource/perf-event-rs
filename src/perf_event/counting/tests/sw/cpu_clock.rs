@@ -43,6 +43,7 @@ fn test_enable_disable() {
 
     assert_eq!(after, counting.result().unwrap().event_count);
     counting.enable().unwrap();
+    cpu_workload();
     assert!(after < counting.result().unwrap().event_count);
 }
 
@@ -64,5 +65,6 @@ fn test_reset_count() {
 
     counting.disable().unwrap();
     counting.reset_count().unwrap();
+    cpu_workload();
     assert_eq!(counting.result().unwrap().event_count, 0);
 }

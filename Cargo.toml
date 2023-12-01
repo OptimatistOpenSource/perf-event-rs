@@ -32,5 +32,6 @@ bindgen = "0.68.1"
 memmap = "0.7.0"
 libc = "0.2.148"
 page_size = "0.6.0"
+rand = "0.8.5"
 
 thiserror = "1.0.48"

@@ -96,8 +96,6 @@ fn test_enable_disable() {
 
     group.enable().unwrap();
     mem_workload();
-    mem_workload();
-    mem_workload();
     let events = group.result().unwrap();
     assert!(events.member_count(&cpu_clock_event_id).unwrap() > cpu_clock);
     assert!(events.member_count(&page_faults_event_id).unwrap() > page_faults);

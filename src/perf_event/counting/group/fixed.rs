@@ -1,58 +1,38 @@
-use crate::counting::{CountingGroup, CountingGroupResult};
-use crate::syscall;
-use crate::syscall::ioctl_wrapped;
+use crate::counting::group::inner::Inner;
+use crate::counting::CountingGroupResult;
 use std::io;
-use std::io::ErrorKind;
+use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 pub struct FixedCountingGroup {
-    group: CountingGroup,
+    inner: Arc<RwLock<Inner>>,
 }
 
 impl FixedCountingGroup {
-    pub(crate) const fn new(group: CountingGroup) -> Self {
-        Self { group }
+    pub(crate) const fn new(inner: Arc<RwLock<Inner>>) -> Self {
+        Self { inner }
     }
 
-    pub fn result(&mut self) -> io::Result<CountingGroupResult> {
-        self.group.result()
+    fn inner(&self) -> RwLockReadGuard<'_, Inner> {
+        self.inner.read().unwrap()
+    }
+
+    fn inner_mut(&self) -> RwLockWriteGuard<'_, Inner> {
+        self.inner.write().unwrap()
     }
 
     pub fn enable(&self) -> io::Result<()> {
-        self.group.leader().map_or_else(
-            || Err(io::Error::new(ErrorKind::Other, "Group has no members")),
-            |leader| {
-                ioctl_wrapped(
-                    &leader.file,
-                    syscall::bindings::perf_event_ioctls_ENABLE,
-                    Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
-                )
-            },
-        )
+        self.inner().enable()
     }
 
     pub fn disable(&self) -> io::Result<()> {
-        self.group.leader().map_or_else(
-            || Err(io::Error::new(ErrorKind::Other, "Group has no members")),
-            |leader| {
-                ioctl_wrapped(
-                    &leader.file,
-                    syscall::bindings::perf_event_ioctls_DISABLE,
-                    Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
-                )
-            },
-        )
+        self.inner().disable()
     }
 
     pub fn reset_count(&self) -> io::Result<()> {
-        self.group.leader().map_or_else(
-            || Err(io::Error::new(ErrorKind::Other, "Group has no members")),
-            |leader| {
-                ioctl_wrapped(
-                    &leader.file,
-                    syscall::bindings::perf_event_ioctls_RESET,
-                    Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
-                )
-            },
-        )
+        self.inner().reset_count()
+    }
+
+    pub fn result(&mut self) -> io::Result<CountingGroupResult> {
+        self.inner_mut().result()
     }
 }

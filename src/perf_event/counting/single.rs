@@ -17,7 +17,6 @@ pub struct CountingResult {
     pub event_count: u64,
     pub time_enabled: u64,
     pub time_running: u64,
-    pub event_id: u64,
 }
 
 impl Counting {
@@ -57,7 +56,6 @@ impl Counting {
             event_count: read_format.body.event_count,
             time_enabled: read_format.header.time_enabled,
             time_running: read_format.header.time_running,
-            event_id: read_format.body.event_id,
         }
         .wrap_ok()
     }
