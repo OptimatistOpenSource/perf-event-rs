@@ -142,3 +142,49 @@ fn test_reset_count() {
         assert_eq!(instructions, 0);
     };
 }
+
+#[test]
+fn test_guard() {
+    let builder = Builder::new().calling_process().any_cpu();
+    let mut group = builder.build_counting_group().unwrap();
+    let mut cpu_cycles_guard = group
+        .add_member({
+            let event = HwEvent::CpuCycles;
+            let scopes = [EventScope::User, EventScope::Host];
+            &Attr::new(event, scopes, Default::default())
+        })
+        .unwrap();
+    let mut instructions_guard = group
+        .add_member({
+            let event = HwEvent::Instructions;
+            let scopes = [EventScope::User, EventScope::Host];
+            &Attr::new(event, scopes, Default::default())
+        })
+        .unwrap();
+
+    {
+        let cpu_cycles = cpu_cycles_guard.result().unwrap().event_count;
+        dbg!(cpu_cycles);
+        assert_eq!(cpu_cycles, 0);
+        let instructions = instructions_guard.result().unwrap().event_count;
+        dbg!(instructions);
+        assert_eq!(instructions, 0);
+    };
+
+    let mut group = group.enable().unwrap();
+    cpu_workload();
+    group.disable().unwrap();
+
+    let rate = {
+        let cpu_cycles = cpu_cycles_guard.result().unwrap().event_count;
+        dbg!(cpu_cycles);
+        assert!(cpu_cycles > 0);
+        let instructions = instructions_guard.result().unwrap().event_count;
+        dbg!(instructions);
+        assert!(instructions > 0);
+
+        instructions as f64 / cpu_cycles as f64
+    };
+    dbg!(rate);
+    assert!(rate > 0_f64);
+}

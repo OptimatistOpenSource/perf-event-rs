@@ -142,3 +142,49 @@ fn test_reset_count() {
         assert_eq!(page_faults, 0);
     };
 }
+
+#[test]
+fn test_guard() {
+    let builder = Builder::new().calling_process().any_cpu();
+    let mut group = builder.build_counting_group().unwrap();
+    let mut cpu_clock_guard = group
+        .add_member({
+            let event = SwEvent::CpuClock;
+            let scopes = [EventScope::User, EventScope::Host];
+            &Attr::new(event, scopes, Default::default())
+        })
+        .unwrap();
+    let mut page_faults_guard = group
+        .add_member({
+            let event = SwEvent::PageFaults;
+            let scopes = [EventScope::User, EventScope::Host];
+            &Attr::new(event, scopes, Default::default())
+        })
+        .unwrap();
+
+    {
+        let cpu_clock = cpu_clock_guard.result().unwrap().event_count;
+        dbg!(cpu_clock);
+        assert_eq!(cpu_clock, 0);
+        let page_faults = page_faults_guard.result().unwrap().event_count;
+        dbg!(page_faults);
+        assert_eq!(page_faults, 0);
+    };
+
+    let mut group = group.enable().unwrap();
+    mem_workload();
+    group.disable().unwrap();
+
+    let rate = {
+        let cpu_clock = cpu_clock_guard.result().unwrap().event_count;
+        dbg!(cpu_clock);
+        assert!(cpu_clock > 0);
+        let page_faults = page_faults_guard.result().unwrap().event_count;
+        dbg!(page_faults);
+        assert!(page_faults > 0);
+
+        page_faults as f64 / cpu_clock as f64
+    };
+    dbg!(rate);
+    assert!(rate > 0_f64);
+}
