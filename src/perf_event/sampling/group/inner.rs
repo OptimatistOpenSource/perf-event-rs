@@ -30,12 +30,18 @@ impl Inner {
             .and_then(|id| self.members.get_mut(&id))
     }
 
-    pub fn add_member(&mut self, pid: pid_t, cpu: i32, attr: &Attr) -> io::Result<u64> {
+    pub fn add_member(
+        &mut self,
+        pid: pid_t,
+        cpu: i32,
+        attr: &Attr,
+        mmap_pages: usize,
+    ) -> io::Result<u64> {
         let member = self.leader().map_or_else(
-            || unsafe { Sampling::new(attr, pid, cpu, -1, 0) },
+            || unsafe { Sampling::new(attr, pid, cpu, -1, 0, mmap_pages) },
             |leader| {
                 let group_fd = leader.file.as_raw_fd();
-                unsafe { Sampling::new(attr, pid, cpu, group_fd, 0) }
+                unsafe { Sampling::new(attr, pid, cpu, group_fd, 0, mmap_pages) }
             },
         )?;
 

@@ -5,7 +5,11 @@ use crate::{Builder, EventScope, HwEvent};
 
 #[test]
 fn test_basic() {
-    let builder = Builder::new().calling_process().any_cpu();
+    let mmap_pages = 1 + (1 << 16);
+    let builder = Builder::new()
+        .calling_process()
+        .any_cpu()
+        .mmap_pages(mmap_pages);
     let attr = {
         let event = HwEvent::CpuCycles;
         let scopes = [EventScope::User, EventScope::Host];
@@ -32,7 +36,11 @@ fn test_basic() {
 
 #[test]
 fn test_all_records() {
-    let builder = Builder::new().calling_process().any_cpu();
+    let mmap_pages = 1 + (1 << 16);
+    let builder = Builder::new()
+        .calling_process()
+        .any_cpu()
+        .mmap_pages(mmap_pages);
     let attr = {
         let event = HwEvent::CpuCycles;
         let scopes = [EventScope::User, EventScope::Host];
@@ -59,7 +67,11 @@ fn test_all_records() {
 
 #[test]
 fn test_enable_disable() {
-    let builder = Builder::new().calling_process().any_cpu();
+    let mmap_pages = 1 + (1 << 16);
+    let builder = Builder::new()
+        .calling_process()
+        .any_cpu()
+        .mmap_pages(mmap_pages);
     let attr = {
         let event = HwEvent::CpuCycles;
         let scopes = [EventScope::User, EventScope::Host];
@@ -91,7 +103,11 @@ fn test_enable_disable() {
 
 #[test]
 fn test_pause_resume() {
-    let builder = Builder::new().calling_process().any_cpu();
+    let mmap_pages = 1 + (1 << 16);
+    let builder = Builder::new()
+        .calling_process()
+        .any_cpu()
+        .mmap_pages(mmap_pages);
     let attr = {
         let event = HwEvent::CpuCycles;
         let scopes = [EventScope::User, EventScope::Host];

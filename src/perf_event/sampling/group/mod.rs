@@ -15,14 +15,16 @@ use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 pub struct SamplingGroup {
     pid: pid_t,
     cpu: i32,
+    mmap_pages: usize,
     inner: Arc<RwLock<Inner>>,
 }
 
 impl SamplingGroup {
-    pub(crate) unsafe fn new(pid: pid_t, cpu: i32) -> Self {
+    pub(crate) unsafe fn new(pid: pid_t, cpu: i32, mmap_pages: usize) -> Self {
         Self {
             pid,
             cpu,
+            mmap_pages,
             inner: Arc::new(RwLock::new(Inner::new())),
         }
     }
@@ -36,7 +38,9 @@ impl SamplingGroup {
     }
 
     pub fn add_member(&mut self, attr: &Attr) -> io::Result<SamplingGuard> {
-        let event_id = self.inner_mut().add_member(self.pid, self.cpu, attr)?;
+        let event_id = self
+            .inner_mut()
+            .add_member(self.pid, self.cpu, attr, self.mmap_pages)?;
         SamplingGuard::new(event_id, self.inner.clone()).wrap_ok()
     }
 

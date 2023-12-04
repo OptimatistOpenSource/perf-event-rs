@@ -48,6 +48,7 @@ pub struct Builder {
     */
     pub(crate) pid: Option<i32>,
     pub(crate) cpu: Option<i32>,
+    pub(crate) mmap_pages: Option<usize>,
 
     #[allow(dead_code)]
     pub(crate) flags: Option<u64>, // TODO
@@ -58,6 +59,7 @@ impl Builder {
         Self {
             pid: None,
             cpu: None,
+            mmap_pages: None,
             flags: None,
         }
     }

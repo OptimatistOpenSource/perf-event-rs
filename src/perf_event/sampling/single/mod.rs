@@ -24,16 +24,16 @@ impl Sampling {
         cpu: i32,
         group_fd: i32,
         flags: u64,
+        mmap_pages: usize,
     ) -> io::Result<Self> {
         let i32 = unsafe { perf_event_open(attr.as_raw(), pid, cpu, group_fd, flags) };
         match i32 {
             -1 => Err(io::Error::last_os_error()),
             fd => {
                 let file = File::from_raw_fd(fd);
-                let pages = 1 + (1 << 16); // TODO
                 let mmap = unsafe {
                     MmapOptions::new()
-                        .len(page_size::get() * pages)
+                        .len(page_size::get() * mmap_pages)
                         .map_mut(&file)
                 }
                 .unwrap();
