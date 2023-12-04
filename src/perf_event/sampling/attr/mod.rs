@@ -112,16 +112,13 @@ impl Attr {
             branch_sample_type: 0, // TODO: Not all hardware supports this feature
             sample_regs_user: 0, // TODO
             sample_stack_user: 0, // TODO
-            clockid: match &extra_config.clockid {
-                None => 0,
-                Some(clockid) => match clockid {
-                    ClockId::Monotonic => CLOCK_MONOTONIC,
-                    ClockId::MonotonicRaw => CLOCK_MONOTONIC_RAW,
-                    ClockId::RealTime => CLOCK_REALTIME,
-                    ClockId::BootTime => CLOCK_BOOTTIME,
-                    ClockId::Tai => CLOCK_TAI,
-                },
-            } as _,
+            clockid: extra_config.clockid.as_ref().map_or(0, |id| match id {
+                ClockId::Monotonic => CLOCK_MONOTONIC,
+                ClockId::MonotonicRaw => CLOCK_MONOTONIC_RAW,
+                ClockId::RealTime => CLOCK_REALTIME,
+                ClockId::BootTime => CLOCK_BOOTTIME,
+                ClockId::Tai => CLOCK_TAI,
+            }) as _,
             sample_regs_intr: 0, // TODO
             aux_watermark: 0,    // TODO
             sample_max_stack: 0, // TODO

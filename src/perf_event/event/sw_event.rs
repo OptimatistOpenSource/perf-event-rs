@@ -33,7 +33,7 @@ impl SwEvent {
             BpfOutput => perf_sw_ids_PERF_COUNT_SW_BPF_OUTPUT,
             CgroupSwitches => perf_sw_ids_PERF_COUNT_SW_CGROUP_SWITCHES,
         };
-        config as u64
+        config as _
     }
 }
 

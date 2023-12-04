@@ -171,7 +171,7 @@ fn test_guard() {
         assert_eq!(page_faults, 0);
     };
 
-    let mut group = group.enable().unwrap();
+    let group = group.enable().unwrap();
     mem_workload();
     group.disable().unwrap();
 

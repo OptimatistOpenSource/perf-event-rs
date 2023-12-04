@@ -14,13 +14,13 @@ pub unsafe fn perf_event_open(
     flags: c_ulong,  //u64
 ) -> c_int {
     libc::syscall(
-        bindings::__NR_perf_event_open as libc::c_long,
+        bindings::__NR_perf_event_open as _,
         attr,
         pid,
         cpu,
         group_fd,
         flags,
-    ) as c_int
+    ) as _
 }
 
 /// # Safety

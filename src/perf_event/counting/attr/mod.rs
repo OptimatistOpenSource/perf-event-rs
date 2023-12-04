@@ -23,7 +23,7 @@ impl Attr {
 
         let mut raw_attr = RawAttr {
             type_: 0,
-            size: std::mem::size_of::<RawAttr>() as libc::__u32,
+            size: std::mem::size_of::<RawAttr>() as _,
             config: 0,
             __bindgen_anon_1: perf_event_attr__bindgen_ty_1::default(), // not use in counting mode
             sample_type: 0,                                             // ditto

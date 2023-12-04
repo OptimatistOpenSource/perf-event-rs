@@ -171,7 +171,7 @@ fn test_guard() {
         assert_eq!(instructions, 0);
     };
 
-    let mut group = group.enable().unwrap();
+    let group = group.enable().unwrap();
     cpu_workload();
     group.disable().unwrap();
 
