@@ -3,7 +3,8 @@ use std::time::Duration;
 
 pub fn cpu_workload() {
     for _ in 0..1000000 {
-        std::hint::black_box(0);
+        std::hint::black_box(rand::random::<usize>());
+        std::hint::black_box(rand::random::<usize>());
     }
 }
 
