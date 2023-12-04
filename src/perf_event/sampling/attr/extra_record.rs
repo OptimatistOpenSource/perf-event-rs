@@ -10,6 +10,7 @@ pub enum ExtraRecord {
     Cgroup,
     #[cfg(feature = "kernel-5.8")]
     TextPoke,
+    ForkAndExit,
 }
 
 impl ExtraRecord {
@@ -25,6 +26,7 @@ impl ExtraRecord {
             Self::Cgroup,
             #[cfg(feature = "kernel-5.8")]
             Self::TextPoke,
+            Self::ForkAndExit,
         ]
     }
 }

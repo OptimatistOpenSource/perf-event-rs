@@ -14,7 +14,7 @@ fn test_basic() {
         let event = SwEvent::CpuClock;
         let scopes = [EventScope::User, EventScope::Host];
         let overflow_by = OverflowBy::Period(1000);
-        Attr::new(event, scopes, overflow_by, [])
+        Attr::new(event, scopes, overflow_by, &Default::default(), [])
     };
     let sampling = builder.build_sampling(&attr).unwrap();
 
@@ -45,7 +45,13 @@ fn test_all_records() {
         let event = SwEvent::CpuClock;
         let scopes = [EventScope::User, EventScope::Host];
         let overflow_by = OverflowBy::Period(1000);
-        Attr::new(event, scopes, overflow_by, ExtraRecord::all())
+        Attr::new(
+            event,
+            scopes,
+            overflow_by,
+            &Default::default(),
+            ExtraRecord::all(),
+        )
     };
     let sampling = builder.build_sampling(&attr).unwrap();
 
@@ -76,7 +82,7 @@ fn test_enable_disable() {
         let event = SwEvent::CpuClock;
         let scopes = [EventScope::User, EventScope::Host];
         let overflow_by = OverflowBy::Period(1000);
-        Attr::new(event, scopes, overflow_by, [])
+        Attr::new(event, scopes, overflow_by, &Default::default(), [])
     };
     let mut sampling = builder.build_sampling(&attr).unwrap();
 
@@ -112,7 +118,7 @@ fn test_pause_resume() {
         let event = SwEvent::CpuClock;
         let scopes = [EventScope::User, EventScope::Host];
         let overflow_by = OverflowBy::Period(1000);
-        Attr::new(event, scopes, overflow_by, [])
+        Attr::new(event, scopes, overflow_by, &Default::default(), [])
     };
     let mut sampling = builder.build_sampling(&attr).unwrap();
 
@@ -148,7 +154,7 @@ fn test_ring_buffer() {
         let event = SwEvent::CpuClock;
         let scopes = [EventScope::User, EventScope::Host];
         let overflow_by = OverflowBy::Period(1);
-        Attr::new(event, scopes, overflow_by, [])
+        Attr::new(event, scopes, overflow_by, &Default::default(), [])
     };
     let mut sampling = builder.build_sampling(&attr).unwrap();
 

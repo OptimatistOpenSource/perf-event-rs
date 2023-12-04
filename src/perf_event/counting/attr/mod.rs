@@ -5,6 +5,8 @@ use crate::perf_event::RawAttr;
 use crate::{Event, EventScope};
 use std::fmt::Debug;
 
+pub use extra_config::*;
+
 #[derive(Debug)]
 pub struct Attr {
     raw_attr: RawAttr,

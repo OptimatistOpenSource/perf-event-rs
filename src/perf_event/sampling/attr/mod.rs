@@ -1,9 +1,13 @@
+mod extra_config;
 mod extra_record;
 
 use crate::perf_event::RawAttr;
 use crate::{Event, EventScope};
 pub use extra_record::*;
+use libc::{CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI};
 use std::fmt::Debug;
+
+pub use extra_config::*;
 
 pub enum OverflowBy {
     Period(u64),
@@ -21,13 +25,14 @@ impl Attr {
         event: impl Into<Event>,
         scopes: impl IntoIterator<Item = EventScope>,
         overflow_by: OverflowBy,
+        extra_config: &ExtraConfig,
         gen_extra_record: impl IntoIterator<Item = ExtraRecord>,
     ) -> Self {
         use crate::syscall::bindings::*;
 
         let mut raw_attr = RawAttr {
             type_: 0,
-            size: std::mem::size_of::<RawAttr>() as libc::__u32,
+            size: std::mem::size_of::<RawAttr>() as _,
             config: 0,
             __bindgen_anon_1: match overflow_by {
                 OverflowBy::Freq(f) => perf_event_attr__bindgen_ty_1 { sample_freq: f },
@@ -93,17 +98,33 @@ impl Attr {
             } as _,
             _bitfield_align_1: [],
             _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]), // set latter via raw_attr.set_...
-            __bindgen_anon_2: perf_event_attr__bindgen_ty_2::default(), // TODO
-            bp_type: 0,                                             // not use in sampling mode
+            __bindgen_anon_2: match &extra_config.wakeup {
+                Wakeup::Events(val) => perf_event_attr__bindgen_ty_2 {
+                    wakeup_events: *val,
+                },
+                Wakeup::Watermark(val) => perf_event_attr__bindgen_ty_2 {
+                    wakeup_watermark: *val,
+                },
+            },
+            bp_type: 0, // not use in sampling mode
             __bindgen_anon_3: perf_event_attr__bindgen_ty_3::default(), // ditto
             __bindgen_anon_4: perf_event_attr__bindgen_ty_4::default(), // ditto
             branch_sample_type: 0, // TODO: Not all hardware supports this feature
-            sample_regs_user: 0,   // TODO
-            sample_stack_user: 0,  // TODO
-            clockid: 0,            // TODO
-            sample_regs_intr: 0,   // TODO
-            aux_watermark: 0,      // TODO
-            sample_max_stack: 0,   // TODO
+            sample_regs_user: 0, // TODO
+            sample_stack_user: 0, // TODO
+            clockid: match &extra_config.clockid {
+                None => 0,
+                Some(clockid) => match clockid {
+                    ClockId::Monotonic => CLOCK_MONOTONIC,
+                    ClockId::MonotonicRaw => CLOCK_MONOTONIC_RAW,
+                    ClockId::RealTime => CLOCK_REALTIME,
+                    ClockId::BootTime => CLOCK_BOOTTIME,
+                    ClockId::Tai => CLOCK_TAI,
+                },
+            } as _,
+            sample_regs_intr: 0, // TODO
+            aux_watermark: 0,    // TODO
+            sample_max_stack: 0, // TODO
             __reserved_2: 0,
             #[cfg(feature = "kernel-5.5")]
             aux_sample_size: 0, // TODO
@@ -115,9 +136,9 @@ impl Attr {
         };
 
         raw_attr.set_disabled(1);
-        raw_attr.set_inherit(0); // FIX: this will lead to bad sampling
-        raw_attr.set_pinned(0); // TODO
-        raw_attr.set_exclusive(0); // TODO
+        raw_attr.set_inherit(0); // not use in sampling mode, enable this will lead to invalid argument
+        raw_attr.set_pinned(extra_config.pinned as _);
+        raw_attr.set_exclusive(extra_config.exclusive as _);
 
         raw_attr.set_exclude_user(1);
         raw_attr.set_exclude_kernel(1);
@@ -125,18 +146,26 @@ impl Attr {
         raw_attr.set_exclude_idle(1);
 
         raw_attr.set_mmap(0);
-        raw_attr.set_comm(0); // not use in sampling mode
-        match overflow_by {
-            OverflowBy::Freq(_) => raw_attr.set_freq(1),
-            _ => raw_attr.set_freq(0),
-        }
-        raw_attr.set_inherit_stat(0); // TODO
-        raw_attr.set_enable_on_exec(0); // TODO
-        raw_attr.set_task(0); // TODO
-        raw_attr.set_watermark(0); // TODO
-        raw_attr.set_precise_ip(0); // TODO
-        raw_attr.set_mmap_data(0); // TODO
-        raw_attr.set_sample_id_all(1); // TODO
+        raw_attr.set_comm(extra_config.comm as _);
+        raw_attr.set_freq(match overflow_by {
+            OverflowBy::Freq(_) => 1,
+            OverflowBy::Period(_) => 0,
+        });
+        raw_attr.set_inherit_stat(0); // `inherit_stat` requires `inherit` to be enabled
+        raw_attr.set_enable_on_exec(extra_config.enable_on_exec as _);
+        raw_attr.set_task(0);
+        raw_attr.set_watermark(match extra_config.wakeup {
+            Wakeup::Watermark(_) => 1,
+            Wakeup::Events(_) => 0,
+        });
+        raw_attr.set_precise_ip(match extra_config.precise_ip {
+            SampleIpSkid::Arbitrary => 0,
+            SampleIpSkid::Constant => 1,
+            SampleIpSkid::TryZero => 2,
+            SampleIpSkid::Zero => 3,
+        });
+        raw_attr.set_mmap_data(extra_config.mmap_data as _);
+        raw_attr.set_sample_id_all(1);
 
         raw_attr.set_exclude_host(1);
         raw_attr.set_exclude_guest(1);
@@ -144,27 +173,27 @@ impl Attr {
         raw_attr.set_exclude_callchain_user(1);
 
         raw_attr.set_mmap2(0);
-        raw_attr.set_comm_exec(0); // not use in sampling mode
-        raw_attr.set_use_clockid(0); // TODO
+        raw_attr.set_comm_exec(extra_config.comm_exec as _);
+        raw_attr.set_use_clockid(extra_config.clockid.is_some() as _);
         raw_attr.set_context_switch(0);
         raw_attr.set_write_backward(0);
         raw_attr.set_namespaces(0);
         raw_attr.set_ksymbol(0);
         raw_attr.set_bpf_event(0);
         #[cfg(feature = "kernel-5.4")]
-        raw_attr.set_aux_output(0); // TODO
+        raw_attr.set_aux_output(extra_config.aux_output as _);
         #[cfg(feature = "kernel-5.7")]
         raw_attr.set_cgroup(0);
         #[cfg(feature = "kernel-5.8")]
         raw_attr.set_text_poke(0);
         #[cfg(feature = "kernel-5.12")]
-        raw_attr.set_build_id(0); // TODO
+        raw_attr.set_build_id(extra_config.build_id as _);
         #[cfg(feature = "kernel-5.13")]
-        raw_attr.set_inherit_thread(0); // TODO
+        raw_attr.set_inherit_thread(0); // not use in sampling mode, enable this will lead to invalid argument
         #[cfg(feature = "kernel-5.13")]
-        raw_attr.set_remove_on_exec(0); // TODO
+        raw_attr.set_remove_on_exec(extra_config.remove_on_exec as _);
         #[cfg(feature = "kernel-5.13")]
-        raw_attr.set_sigtrap(0); // TODO
+        raw_attr.set_sigtrap(0); // not use in sampling mode, enable this will lead to invalid argument
 
         use EventScope::*;
         scopes.into_iter().for_each(|scope| match scope {
@@ -208,6 +237,7 @@ impl Attr {
             ExtraRecord::Cgroup => raw_attr.set_cgroup(1),
             #[cfg(feature = "kernel-5.8")]
             ExtraRecord::TextPoke => raw_attr.set_text_poke(1),
+            ExtraRecord::ForkAndExit => raw_attr.set_task(1),
         });
 
         Self { raw_attr }
