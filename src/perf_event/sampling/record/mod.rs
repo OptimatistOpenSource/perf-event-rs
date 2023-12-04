@@ -57,9 +57,9 @@ pub struct SampleId {
     pub pid: u32,
     pub tid: u32,
     pub time: u64,
-    pub id1: u64,
+    pub id_1: u64,
     pub stream_id: u64,
     pub cpu: u32,
     pub res: u32,
-    pub id2: u64,
+    pub id_2: u64,
 }

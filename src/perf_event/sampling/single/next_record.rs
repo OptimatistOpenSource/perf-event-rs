@@ -7,22 +7,25 @@ use std::slice;
 pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
     let metapage =
         unsafe { (sampling.mmap.as_mut_ptr() as *mut perf_event_mmap_page).as_mut() }.unwrap();
-
-    if metapage.data_tail == metapage.data_head {
-        return None;
-    }
+    let data_size = metapage.data_size;
+    let data_head = metapage.data_head % data_size;
+    let data_tail = metapage.data_tail;
 
     let ring_ptr = unsafe { sampling.mmap.as_mut_ptr().add(metapage.data_offset as _) };
 
-    let record_len = match metapage.data_tail as isize + 8 - metapage.data_size as isize {
+    if data_tail == data_head {
+        return None;
+    }
+
+    let record_len = match data_tail as isize + 8 - data_size as isize {
         left if left <= 0 => {
-            let offset = (metapage.data_tail + 6) as _;
+            let offset = (data_tail + 6) as _;
             let ptr = unsafe { ring_ptr.add(offset) } as *const u16;
             unsafe { *ptr }
         }
         1 => unsafe {
             let mut buf = <[u8; 2]>::uninit();
-            buf[0] = *(ring_ptr.add((metapage.data_size - 1) as _) as *const u8);
+            buf[0] = *(ring_ptr.add((data_size - 1) as _) as *const u8);
             buf[1] = *(ring_ptr as *const u8);
             std::mem::transmute(buf)
         },
@@ -32,13 +35,11 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
         },
     } as usize;
 
-    let record_buf = match metapage.data_tail as isize + record_len as isize
-        - metapage.data_size as isize
-    {
+    let record_buf = match data_tail as isize + record_len as isize - data_size as isize {
         left if left > 0 => {
             let ring_end_part = {
-                let start = metapage.data_tail as _;
-                let len = (metapage.data_size - metapage.data_tail) as usize;
+                let start = data_tail as _;
+                let len = (data_size - data_tail) as usize;
                 unsafe { slice::from_raw_parts(ring_ptr.add(start), len) }
             };
             let ring_start_part = unsafe { slice::from_raw_parts(ring_ptr, left as _) };
@@ -51,13 +52,13 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
                 .for_each(|(i, byte)| buf[i] = *byte);
             buf
         }
-        _ => unsafe { slice::from_raw_parts(ring_ptr.add(metapage.data_tail as _), record_len) }
-            .to_vec(),
+        _ => unsafe { slice::from_raw_parts(ring_ptr.add(data_tail as _), record_len) }.to_vec(),
     };
+
+    metapage.data_tail = (data_tail + record_len as u64) % data_size;
 
     let record_header =
         unsafe { (record_buf.as_ptr() as *const perf_event_header).as_ref() }.unwrap();
-
     #[allow(non_upper_case_globals)]
     let record_body = unsafe {
         let follow_mem_ptr = (record_header as *const perf_event_header).add(1) as *const _;
@@ -140,11 +141,6 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
             _ => unreachable!(),
         }
     };
-
-    match metapage.data_tail as isize + record_header.size as isize - metapage.data_size as isize {
-        offset if offset < 0 => metapage.data_tail += record_header.size as u64,
-        offset => metapage.data_tail = offset as _,
-    }
 
     Record {
         misc: record_header.misc,

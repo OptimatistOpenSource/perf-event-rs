@@ -136,7 +136,7 @@ impl Attr {
         raw_attr.set_watermark(0); // TODO
         raw_attr.set_precise_ip(0); // TODO
         raw_attr.set_mmap_data(0); // TODO
-        raw_attr.set_sample_id_all(0); // TODO
+        raw_attr.set_sample_id_all(1); // TODO
 
         raw_attr.set_exclude_host(1);
         raw_attr.set_exclude_guest(1);
