@@ -63,3 +63,11 @@ pub struct SampleId {
     pub res: u32,
     pub id_2: u64,
 }
+
+#[derive(Debug, Clone)]
+#[allow(clippy::enum_variant_names)]
+pub enum Abi {
+    AbiNone,
+    Abi32,
+    Abi64,
+}

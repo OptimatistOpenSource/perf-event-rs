@@ -92,9 +92,9 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
             perf_event_type_PERF_RECORD_READ => {
                 RecordBody::Read(read::Body::from_ptr(follow_mem_ptr).wrap_box())
             }
-            perf_event_type_PERF_RECORD_SAMPLE => {
-                RecordBody::Sample(sample::Body::from_ptr(follow_mem_ptr).wrap_box())
-            }
+            perf_event_type_PERF_RECORD_SAMPLE => RecordBody::Sample(
+                sample::Body::from_ptr(follow_mem_ptr, sampling.regs_len).wrap_box(),
+            ),
             perf_event_type_PERF_RECORD_MMAP2 => RecordBody::Mmap2(
                 mmap2::Body::from_ptr(follow_mem_ptr, record_header.misc).wrap_box(),
             ),

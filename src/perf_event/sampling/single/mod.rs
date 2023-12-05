@@ -15,6 +15,7 @@ use std::os::fd::FromRawFd;
 pub struct Sampling {
     pub(crate) mmap: MmapMut,
     pub(crate) file: File,
+    pub(crate) regs_len: usize,
 }
 
 impl Sampling {
@@ -38,7 +39,12 @@ impl Sampling {
                 }
                 .unwrap();
 
-                Self { mmap, file }
+                let regs_len = attr.as_raw().sample_regs_intr.count_ones() as _;
+                Self {
+                    mmap,
+                    file,
+                    regs_len,
+                }
             }
             .wrap_ok(),
         }

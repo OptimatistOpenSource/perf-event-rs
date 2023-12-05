@@ -60,9 +60,12 @@ impl Attr {
                     | perf_event_sample_format_PERF_SAMPLE_DATA_SRC
                     | perf_event_sample_format_PERF_SAMPLE_IDENTIFIER
                     | perf_event_sample_format_PERF_SAMPLE_TRANSACTION
-                    //| perf_event_sample_format_PERF_SAMPLE_REGS_INTR // TODO
                     | perf_event_sample_format_PERF_SAMPLE_PHYS_ADDR
                     | perf_event_sample_format_PERF_SAMPLE_AUX;
+
+                if extra_config.sample_regs_intr.is_some() {
+                    sample_type |= perf_event_sample_format_PERF_SAMPLE_REGS_INTR
+                }
 
                 #[cfg(feature = "kernel-5.7")]
                 {
@@ -119,7 +122,7 @@ impl Attr {
                 ClockId::BootTime => CLOCK_BOOTTIME,
                 ClockId::Tai => CLOCK_TAI,
             }) as _,
-            sample_regs_intr: 0, // TODO
+            sample_regs_intr: extra_config.sample_regs_intr.unwrap_or(0),
             aux_watermark: 0,    // TODO
             sample_max_stack: 0, // TODO
             __reserved_2: 0,

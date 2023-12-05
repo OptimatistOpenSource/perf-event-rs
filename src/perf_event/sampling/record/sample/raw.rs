@@ -45,7 +45,7 @@ struct {
 */
 
 use crate::debug_struct_fn;
-use crate::infra::{ConstPtrExt, SliceExt, Vla};
+use crate::infra::{ConstPtrExt, SliceExt, Vla, WrapOption};
 use crate::syscall::bindings::{read_format_body, read_format_header};
 use std::fmt::{Debug, Formatter};
 use std::slice;
@@ -73,9 +73,11 @@ struct Sized2 {
     //weight: perf_sample_weight,
     pub data_src: u64,
     pub transaction: u64,
-    // TODO:
-    //abi_2: u64,
-    //u64    regs[weight(mask)];
+}
+
+#[repr(C)]
+#[derive(Debug)]
+struct Sized3 {
     pub phys_addr: u64,
     pub cgroup: u64,
     pub data_page_size: u64,
@@ -99,6 +101,15 @@ macro_rules! sized2_get {
         #[inline]
         pub fn $name(&self) -> $ty {
             &self.sized2().$name
+        }
+    };
+}
+
+macro_rules! sized3_get {
+    ($name:ident,$ty:ty) => {
+        #[inline]
+        pub fn $name(&self, regs_len: usize) -> $ty {
+            &self.sized3(regs_len).$name
         }
     };
 }
@@ -176,19 +187,43 @@ impl Body {
     //sized2_get!(weight, &perf_sample_weight);
     sized2_get!(data_src, &u64);
     sized2_get!(transaction, &u64);
-    sized2_get!(phys_addr, &u64);
-    sized2_get!(cgroup, &u64);
-    sized2_get!(data_page_size, &u64);
-    sized2_get!(code_page_size, &u64);
 
-    pub fn data_3(&self) -> &[u8] {
+    pub fn abi_2_and_regs(&self, regs_len: usize) -> Option<(&u64, &[u64])> {
+        if regs_len == 0 {
+            return None;
+        }
+
         let sized2_ptr = self.sized2() as *const Sized2;
-        let len_ptr = unsafe { sized2_ptr.add(1) } as *const u64;
+        unsafe {
+            let abi_2_ptr = sized2_ptr.add(1) as *const u64;
+            let regs_ptr = abi_2_ptr.add(1);
+            let regs = slice::from_raw_parts(regs_ptr, regs_len);
+            (abi_2_ptr.as_ref().unwrap(), regs).wrap_some()
+        }
+    }
+
+    fn sized3(&self, regs_len: usize) -> &Sized3 {
+        let ptr = unsafe {
+            self.abi_2_and_regs(regs_len)
+                .map(|(_, regs)| regs.follow_mem_ptr() as *const Sized3)
+                .unwrap_or_else(|| (self.sized2() as *const Sized2).add(1) as *const Sized3)
+        };
+        unsafe { ptr.as_ref().unwrap() }
+    }
+    sized3_get!(phys_addr, &u64);
+    sized3_get!(cgroup, &u64);
+    sized3_get!(data_page_size, &u64);
+    sized3_get!(code_page_size, &u64);
+
+    pub fn data_3(&self, regs_len: usize) -> &[u8] {
+        let sized3_ptr = self.sized3(regs_len) as *const Sized3;
+        let len_ptr = unsafe { sized3_ptr.add(1) } as *const u64;
         let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
         vla.as_slice()
     }
 }
 
+// TODO
 impl Debug for Body {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         debug_struct_fn! {
@@ -217,11 +252,14 @@ impl Debug for Body {
                 //weight
                 data_src
                 transaction
+                /*
+                abi_2_and_regs
                 phys_addr
                 cgroup
                 data_page_size
                 code_page_size
                 data_3
+                */
         }
 
         Ok(())

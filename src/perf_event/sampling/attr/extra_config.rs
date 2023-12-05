@@ -18,6 +18,7 @@ pub struct ExtraConfig {
     pub clockid: Option<ClockId>,
     pub precise_ip: SampleIpSkid,
     pub wakeup: Wakeup,
+    pub sample_regs_intr: Option<u64>,
 }
 
 impl Default for ExtraConfig {
@@ -37,7 +38,8 @@ impl Default for ExtraConfig {
             build_id: false,
             #[cfg(feature = "kernel-5.13")]
             remove_on_exec: false,
-            wakeup: Events(0),
+            wakeup: Events(1),
+            sample_regs_intr: None,
         }
     }
 }

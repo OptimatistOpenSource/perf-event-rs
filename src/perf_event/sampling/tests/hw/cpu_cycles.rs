@@ -170,3 +170,24 @@ fn test_ring_buffer() {
 
     assert!(sample_count > 10100);
 }
+
+#[test]
+fn test_ring_buffer_2() {
+    let mmap_pages = 1 + 512;
+    let builder = Builder::new()
+        .calling_process()
+        .any_cpu()
+        .mmap_pages(mmap_pages);
+    let attr = {
+        let event = HwEvent::CpuCycles;
+        let scopes = [EventScope::User, EventScope::Host];
+        let overflow_by = OverflowBy::Period(1);
+        Attr::new(event, scopes, overflow_by, &Default::default(), [])
+    };
+    let mut sampling = builder.build_sampling(&attr).unwrap();
+
+    sampling.enable().unwrap();
+    cpu_workload();
+    let record = sampling.next_record();
+    dbg!(record);
+}

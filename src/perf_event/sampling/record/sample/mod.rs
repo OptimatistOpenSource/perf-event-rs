@@ -1,4 +1,6 @@
 use crate::counting::CountingGroupResult;
+use crate::sampling::record::Abi;
+use crate::syscall::bindings::*;
 
 mod raw;
 
@@ -22,22 +24,23 @@ pub struct Body {
     pub dyn_size: Option<u64>,
     pub data_src: u64,
     pub transaction: u64,
+    pub abi_2_and_regs: Option<(Abi, Vec<u64>)>,
     pub phys_addr: u64,
     pub cgroup: u64,
     pub data_page_size: u64,
     pub code_page_size: u64,
     pub data_3: Vec<u8>,
 }
-
+//perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_NONE
 type RawBody = raw::Body;
 
 impl Body {
-    pub unsafe fn from_ptr(ptr: *const u8) -> Self {
+    pub unsafe fn from_ptr(ptr: *const u8, regs_len: usize) -> Self {
         let raw = (ptr as *const RawBody).as_ref().unwrap();
-        Self::from_raw(raw)
+        Self::from_raw(raw, regs_len)
     }
 
-    unsafe fn from_raw(raw: &RawBody) -> Self {
+    unsafe fn from_raw(raw: &RawBody, regs_len: usize) -> Self {
         Self {
             sample_id: *raw.sample_id(),
             ip: *raw.ip(),
@@ -57,11 +60,21 @@ impl Body {
             dyn_size: raw.dyn_size().cloned(),
             data_src: *raw.data_src(),
             transaction: *raw.transaction(),
-            phys_addr: *raw.phys_addr(),
-            cgroup: *raw.cgroup(),
-            data_page_size: *raw.data_page_size(),
-            code_page_size: *raw.code_page_size(),
-            data_3: raw.data_3().to_vec(),
+            abi_2_and_regs: raw.abi_2_and_regs(regs_len).map(|(abi_2, regs)| {
+                #[allow(non_upper_case_globals)]
+                let abi_2 = match *abi_2 as _ {
+                    perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_NONE => Abi::AbiNone,
+                    perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_32 => Abi::Abi32,
+                    perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_64 => Abi::Abi64,
+                    _ => unreachable!(),
+                };
+                (abi_2, regs.to_vec())
+            }),
+            phys_addr: *raw.phys_addr(regs_len),
+            cgroup: *raw.cgroup(regs_len),
+            data_page_size: *raw.data_page_size(regs_len),
+            code_page_size: *raw.code_page_size(regs_len),
+            data_3: raw.data_3(regs_len).to_vec(),
         }
     }
 }
