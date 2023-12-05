@@ -5,6 +5,12 @@ use crate::syscall::bindings::*;
 mod raw;
 
 #[derive(Debug)]
+pub struct AbiAndRegs {
+    pub abi: Abi,
+    pub regs: Vec<u64>,
+}
+
+#[derive(Debug)]
 pub struct Body {
     pub sample_id: u64,
     pub ip: u64,
@@ -24,7 +30,7 @@ pub struct Body {
     pub dyn_size: Option<u64>,
     pub data_src: u64,
     pub transaction: u64,
-    pub abi_2_and_regs: Option<(Abi, Vec<u64>)>,
+    pub intr_abi_and_regs: Option<AbiAndRegs>,
     pub phys_addr: u64,
     pub cgroup: u64,
     pub data_page_size: u64,
@@ -60,15 +66,18 @@ impl Body {
             dyn_size: raw.dyn_size().cloned(),
             data_src: *raw.data_src(),
             transaction: *raw.transaction(),
-            abi_2_and_regs: raw.abi_2_and_regs().map(|(abi_2, regs)| {
+            intr_abi_and_regs: raw.intr_abi_and_regs().map(|(abi, regs)| {
                 #[allow(non_upper_case_globals)]
-                let abi_2 = match *abi_2 as _ {
+                let abi = match *abi as _ {
                     perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_NONE => Abi::AbiNone,
                     perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_32 => Abi::Abi32,
                     perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_64 => Abi::Abi64,
                     _ => unreachable!(),
                 };
-                (abi_2, regs.to_vec())
+                AbiAndRegs {
+                    abi,
+                    regs: regs.to_vec(),
+                }
             }),
             phys_addr: *raw.phys_addr(),
             cgroup: *raw.cgroup(),

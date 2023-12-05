@@ -193,23 +193,24 @@ impl Body {
     sized2_get!(data_src, &u64);
     sized2_get!(transaction, &u64);
 
-    pub fn abi_2_and_regs(&self) -> Option<(&u64, &[u64])> {
+    pub fn intr_abi_and_regs(&self) -> Option<(&u64, &[u64])> {
         if self.regs_len == 0 {
             return None;
         }
 
         let sized2_ptr = self.sized2() as *const Sized2;
         unsafe {
-            let abi_2_ptr = sized2_ptr.add(1) as *const u64;
-            let regs_ptr = abi_2_ptr.add(1);
+            let abi_ptr = sized2_ptr.add(1) as *const u64;
+            let abi = abi_ptr.as_ref().unwrap();
+            let regs_ptr = abi_ptr.add(1);
             let regs = slice::from_raw_parts(regs_ptr, self.regs_len);
-            (abi_2_ptr.as_ref().unwrap(), regs).wrap_some()
+            (abi, regs).wrap_some()
         }
     }
 
     fn sized3(&self) -> &Sized3 {
         let ptr = unsafe {
-            self.abi_2_and_regs()
+            self.intr_abi_and_regs()
                 .map(|(_, regs)| regs.follow_mem_ptr() as *const Sized3)
                 .unwrap_or_else(|| (self.sized2() as *const Sized2).add(1) as *const Sized3)
         };
@@ -257,7 +258,7 @@ impl Debug for Body {
                 //weight
                 data_src
                 transaction
-                abi_2_and_regs
+                intr_abi_and_regs
                 phys_addr
                 cgroup
                 data_page_size
