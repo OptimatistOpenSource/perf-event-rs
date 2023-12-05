@@ -85,8 +85,7 @@ struct Sized3 {
 }
 
 pub struct Body {
-    // TODO:
-    //user_regs_len: usize,
+    pub(crate) user_regs_len: usize,
     pub(crate) intr_regs_len: usize,
     pub(crate) ptr: *const u8,
 }
@@ -159,11 +158,27 @@ impl Body {
     // TODO:
     //bnr: u64,
     //lbr: Vla<u64, perf_branch_entry>,
-    //abi_1: u64,
-    //u64    regs[weight(mask)];
+
+    pub fn user_abi_and_regs(&self) -> Option<(&u64, &[u64])> {
+        if self.user_regs_len == 0 {
+            return None;
+        }
+
+        unsafe {
+            let abi_ptr = self.data_1().follow_mem_ptr().align_as_ptr::<u64>();
+            let abi = abi_ptr.as_ref().unwrap();
+            let regs_ptr = abi_ptr.add(1);
+            let regs = slice::from_raw_parts(regs_ptr, self.user_regs_len);
+            (abi, regs).wrap_some()
+        }
+    }
 
     pub fn data_2(&self) -> &[u8] {
-        let len_ptr = unsafe { self.data_1().follow_mem_ptr().align_as_ptr::<u64>() };
+        let len_ptr = unsafe {
+            self.user_abi_and_regs()
+                .map(|(_, regs)| regs.follow_mem_ptr())
+                .unwrap_or_else(|| self.data_1().follow_mem_ptr().align_as_ptr::<u64>())
+        };
         let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
         vla.as_slice()
     }

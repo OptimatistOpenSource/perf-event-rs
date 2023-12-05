@@ -26,6 +26,7 @@ pub struct Body {
     pub v: CountingGroupResult,
     pub ips: Vec<u64>,
     pub data_1: Vec<u8>,
+    pub user_abi_and_regs: Option<AbiAndRegs>,
     pub data_2: Vec<u8>,
     pub dyn_size: Option<u64>,
     pub data_src: u64,
@@ -41,8 +42,12 @@ pub struct Body {
 type RawBody = raw::Body;
 
 impl Body {
-    pub unsafe fn from_ptr(ptr: *const u8, intr_regs_len: usize) -> Self {
-        let raw = RawBody { intr_regs_len, ptr };
+    pub unsafe fn from_ptr(ptr: *const u8, user_regs_len: usize, intr_regs_len: usize) -> Self {
+        let raw = RawBody {
+            user_regs_len,
+            intr_regs_len,
+            ptr,
+        };
         Self::from_raw(raw)
     }
 
@@ -62,6 +67,19 @@ impl Body {
             v: CountingGroupResult::from_raw(raw.v_header(), raw.v_body()),
             ips: raw.ips().to_vec(),
             data_1: raw.data_1().to_vec(),
+            user_abi_and_regs: raw.user_abi_and_regs().map(|(abi, regs)| {
+                #[allow(non_upper_case_globals)]
+                let abi = match *abi as _ {
+                    perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_NONE => Abi::AbiNone,
+                    perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_32 => Abi::Abi32,
+                    perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_64 => Abi::Abi64,
+                    _ => unreachable!(),
+                };
+                AbiAndRegs {
+                    abi,
+                    regs: regs.to_vec(),
+                }
+            }),
             data_2: raw.data_2().to_vec(),
             dyn_size: raw.dyn_size().cloned(),
             data_src: *raw.data_src(),
