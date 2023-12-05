@@ -221,12 +221,14 @@ impl Body {
     sized3_get!(data_page_size, &u64);
     sized3_get!(code_page_size, &u64);
 
+    /*
     pub fn data_3(&self) -> &[u8] {
         let sized3_ptr = self.sized3() as *const Sized3;
         let len_ptr = unsafe { sized3_ptr.add(1) } as *const u64;
         let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
         vla.as_slice()
     }
+    */
 }
 
 // TODO
@@ -263,7 +265,7 @@ impl Debug for Body {
                 cgroup
                 data_page_size
                 code_page_size
-                data_3
+                //data_3
         }
 
         Ok(())

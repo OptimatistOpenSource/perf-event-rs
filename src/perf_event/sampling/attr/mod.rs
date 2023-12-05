@@ -55,13 +55,13 @@ impl Attr {
                     | perf_event_sample_format_PERF_SAMPLE_RAW
                     //| perf_event_sample_format_PERF_SAMPLE_BRANCH_STACK // TODO: Not all hardware supports this feature
                     //| perf_event_sample_format_PERF_SAMPLE_REGS_USER // TODO
-                    //| perf_event_sample_format_PERF_SAMPLE_STACK_USER // TODO
+                    | perf_event_sample_format_PERF_SAMPLE_STACK_USER
                     //| perf_event_sample_format_PERF_SAMPLE_WEIGHT // FIX: this will lead to "Invalid Argument"
                     | perf_event_sample_format_PERF_SAMPLE_DATA_SRC
                     | perf_event_sample_format_PERF_SAMPLE_IDENTIFIER
                     | perf_event_sample_format_PERF_SAMPLE_TRANSACTION
-                    | perf_event_sample_format_PERF_SAMPLE_PHYS_ADDR
-                    | perf_event_sample_format_PERF_SAMPLE_AUX;
+                    | perf_event_sample_format_PERF_SAMPLE_PHYS_ADDR;
+                    //| perf_event_sample_format_PERF_SAMPLE_AUX;
 
                 if extra_config.sample_regs_intr.is_some() {
                     sample_type |= perf_event_sample_format_PERF_SAMPLE_REGS_INTR

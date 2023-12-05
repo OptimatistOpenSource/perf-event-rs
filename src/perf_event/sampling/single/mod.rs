@@ -72,11 +72,7 @@ impl Sampling {
 
     pub fn event_id(&self) -> io::Result<u64> {
         let mut id = 0_u64;
-        ioctl_wrapped(
-            &self.file,
-            syscall::bindings::perf_event_ioctls_ID,
-            Some(&mut id),
-        )?;
+        ioctl_wrapped(&self.file, perf_event_ioctls_ID, Some(&mut id))?;
         Ok(id)
     }
 }

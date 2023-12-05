@@ -35,9 +35,9 @@ pub struct Body {
     pub cgroup: u64,
     pub data_page_size: u64,
     pub code_page_size: u64,
-    pub data_3: Vec<u8>,
+    //pub data_3: Vec<u8>,
 }
-//perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_NONE
+
 type RawBody = raw::Body;
 
 impl Body {
@@ -83,7 +83,7 @@ impl Body {
             cgroup: *raw.cgroup(),
             data_page_size: *raw.data_page_size(),
             code_page_size: *raw.code_page_size(),
-            data_3: raw.data_3().to_vec(),
+            //data_3: raw.data_3().to_vec(),
         }
     }
 }
