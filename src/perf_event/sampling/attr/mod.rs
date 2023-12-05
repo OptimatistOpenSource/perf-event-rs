@@ -61,7 +61,7 @@ impl Attr {
                     | perf_event_sample_format_PERF_SAMPLE_IDENTIFIER
                     | perf_event_sample_format_PERF_SAMPLE_TRANSACTION
                     | perf_event_sample_format_PERF_SAMPLE_PHYS_ADDR;
-                    //| perf_event_sample_format_PERF_SAMPLE_AUX;
+                //| perf_event_sample_format_PERF_SAMPLE_AUX;
 
                 if extra_config.sample_regs_intr.is_some() {
                     sample_type |= perf_event_sample_format_PERF_SAMPLE_REGS_INTR

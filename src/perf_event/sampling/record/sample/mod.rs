@@ -41,8 +41,8 @@ pub struct Body {
 type RawBody = raw::Body;
 
 impl Body {
-    pub unsafe fn from_ptr(ptr: *const u8, regs_len: usize) -> Self {
-        let raw = RawBody { regs_len, ptr };
+    pub unsafe fn from_ptr(ptr: *const u8, intr_regs_len: usize) -> Self {
+        let raw = RawBody { intr_regs_len, ptr };
         Self::from_raw(raw)
     }
 

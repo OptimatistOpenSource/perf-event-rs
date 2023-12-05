@@ -86,9 +86,8 @@ struct Sized3 {
 
 pub struct Body {
     // TODO:
-    //regs_user_len: usize,
-    //regs_intr_len: usize,
-    pub(crate) regs_len: usize,
+    //user_regs_len: usize,
+    pub(crate) intr_regs_len: usize,
     pub(crate) ptr: *const u8,
 }
 
@@ -194,7 +193,7 @@ impl Body {
     sized2_get!(transaction, &u64);
 
     pub fn intr_abi_and_regs(&self) -> Option<(&u64, &[u64])> {
-        if self.regs_len == 0 {
+        if self.intr_regs_len == 0 {
             return None;
         }
 
@@ -203,7 +202,7 @@ impl Body {
             let abi_ptr = sized2_ptr.add(1) as *const u64;
             let abi = abi_ptr.as_ref().unwrap();
             let regs_ptr = abi_ptr.add(1);
-            let regs = slice::from_raw_parts(regs_ptr, self.regs_len);
+            let regs = slice::from_raw_parts(regs_ptr, self.intr_regs_len);
             (abi, regs).wrap_some()
         }
     }
