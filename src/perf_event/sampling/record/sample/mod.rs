@@ -24,7 +24,7 @@ pub struct Body {
     pub res: u32,
     pub period: u64,
     pub v: CountingGroupResult,
-    pub ips: Vec<u64>,
+    pub ips: Option<Vec<u64>>,
     pub data_1: Vec<u8>,
     pub user_abi_and_regs: Option<AbiAndRegs>,
     pub data_2: Vec<u8>,
@@ -71,8 +71,7 @@ impl Body {
             res: *raw.res(),
             period: *raw.period(),
             v: CountingGroupResult::from_raw(raw.v_header(), raw.v_body()),
-            //ips: raw.ips().to_vec(),
-            ips: vec![],
+            ips: raw.ips().map(|it| it.to_vec()).ok(),
             //data_1: raw.data_1().to_vec(),
             data_1: vec![],
             user_abi_and_regs: raw.user_abi_and_regs().map(|(abi, regs)| {

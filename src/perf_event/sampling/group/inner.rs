@@ -25,6 +25,7 @@ impl Inner {
         self.leader_event_id.and_then(|id| self.members.get(&id))
     }
 
+    #[allow(dead_code)]
     fn leader_mut(&mut self) -> Option<&mut Sampling> {
         self.leader_event_id
             .and_then(|id| self.members.get_mut(&id))

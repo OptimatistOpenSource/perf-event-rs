@@ -31,6 +31,7 @@ impl CountingGroup {
         }
     }
 
+    #[allow(dead_code)]
     fn inner(&self) -> RwLockReadGuard<'_, Inner> {
         self.inner.read().unwrap()
     }

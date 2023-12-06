@@ -45,10 +45,9 @@ struct {
 */
 
 use crate::debug_struct_fn;
-use crate::infra::{ConstPtrExt, SliceExt, Vla, WrapOption, WrapResult};
+use crate::infra::{SliceExt, Vla, WrapOption, WrapResult};
 use crate::syscall::bindings::{read_format_body, read_format_header};
 use std::fmt::{Debug, Formatter};
-use std::ops::Not;
 use std::slice;
 
 #[repr(C)]
