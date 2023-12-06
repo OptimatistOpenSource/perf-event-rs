@@ -120,6 +120,8 @@ macro_rules! sized3_get {
 impl Body {
     #[inline]
     fn sized1(&self) -> &Sized1 {
+        //dbg!(std::mem::size_of::<Sized1>());
+        //dbg!(std::mem::size_of_val(self.v_body()));
         let ptr = self.ptr as *const _ as *const Sized1;
         unsafe { ptr.as_ref().unwrap() }
     }
@@ -143,18 +145,19 @@ impl Body {
         unsafe { slice::from_raw_parts(ptr, members_len) }
     }
 
-    pub fn ips(&self) -> &[u64] {
-        let len_ptr = unsafe { self.v_body().follow_mem_ptr() } as *const u64;
-        let vla: &Vla<u64, u64> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
-        vla.as_slice()
-    }
-
-    pub fn data_1(&self) -> &[u8] {
-        let len_ptr = unsafe { self.ips().follow_mem_ptr() } as *const u32;
-        let vla: &Vla<u32, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
-        vla.as_slice()
-    }
-
+    /*    pub fn ips(&self) -> &[u64] {
+            let len_ptr = unsafe { self.v_body().follow_mem_ptr() } as *const u64;
+            let vla: &Vla<u64, u64> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
+            vla.as_slice()
+        }
+    */
+ /*
+     pub fn data_1(&self) -> &[u8] {
+         let len_ptr = unsafe { self.ips().follow_mem_ptr() } as *const u32;
+         let vla: &Vla<u32, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
+         vla.as_slice()
+     }
+ */
     // TODO:
     //bnr: u64,
     //lbr: Vla<u64, perf_branch_entry>,
@@ -165,24 +168,24 @@ impl Body {
         }
 
         unsafe {
-            let abi_ptr = self.data_1().follow_mem_ptr().align_as_ptr::<u64>();
+            //let abi_ptr = self.data_1().follow_mem_ptr().align_as_ptr::<u64>();
+            let abi_ptr = self.v_body().follow_mem_ptr().align_as_ptr::<u64>();
             let abi = abi_ptr.as_ref().unwrap();
             let regs_ptr = abi_ptr.add(1);
             let regs = slice::from_raw_parts(regs_ptr, self.user_regs_len);
             (abi, regs).wrap_some()
         }
     }
-
-    pub fn data_2(&self) -> &[u8] {
-        let len_ptr = unsafe {
-            self.user_abi_and_regs()
-                .map(|(_, regs)| regs.follow_mem_ptr())
-                .unwrap_or_else(|| self.data_1().follow_mem_ptr().align_as_ptr::<u64>())
-        };
-        let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
-        vla.as_slice()
-    }
-
+    /*
+        pub fn data_2(&self) -> &[u8] {
+            let len_ptr = unsafe {
+                self.user_abi_and_regs()
+                    .map(|(_, regs)| regs.follow_mem_ptr())
+                    .unwrap_or_else(|| self.data_1().follow_mem_ptr().align_as_ptr::<u64>())
+            };
+            let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
+            vla.as_slice()
+        }
     pub fn dyn_size(&self) -> Option<&u64> {
         if self.data_2().is_empty() {
             None
@@ -191,15 +194,22 @@ impl Body {
             unsafe { ptr.as_ref() }
         }
     }
+    */
 
     fn sized2(&self) -> &Sized2 {
-        let ptr = self.dyn_size().map_or_else(
-            || unsafe { self.data_2().follow_mem_ptr().align_as_ptr::<Sized2>() },
-            |dyn_size| {
-                let dyn_size_ptr = dyn_size as *const u64;
-                unsafe { dyn_size_ptr.add(1).align_as_ptr::<Sized2>() }
-            },
-        );
+        /*        let ptr = self.dyn_size().map_or_else(
+                    || unsafe { self.data_2().follow_mem_ptr().align_as_ptr::<Sized2>() },
+                    |dyn_size| {
+                        let dyn_size_ptr = dyn_size as *const u64;
+                        unsafe { dyn_size_ptr.add(1).align_as_ptr::<Sized2>() }
+                    },
+                );
+        */
+        let ptr = unsafe {
+            self.user_abi_and_regs()
+                .map(|(_, regs)| regs.follow_mem_ptr() as *const Sized2)
+                .unwrap_or_else(|| self.v_body().follow_mem_ptr() as *const Sized2)
+        };
         unsafe { ptr.as_ref().unwrap() }
     }
     // TODO:
@@ -228,6 +238,9 @@ impl Body {
                 .map(|(_, regs)| regs.follow_mem_ptr() as *const Sized3)
                 .unwrap_or_else(|| (self.sized2() as *const Sized2).add(1) as *const Sized3)
         };
+        //dbg!(self.ptr);
+        //dbg!(ptr);
+        //dbg!(std::mem::size_of::<Sized3>());
         unsafe { ptr.as_ref().unwrap() }
     }
     sized3_get!(phys_addr, &u64);
@@ -266,10 +279,12 @@ impl Debug for Body {
                 period
                 v_header
                 v_body
+                /*
                 ips
                 data_1
                 data_2
                 dyn_size
+                */
                 // TODO:
                 //weight
                 data_src

@@ -65,23 +65,27 @@ impl Body {
             res: *raw.res(),
             period: *raw.period(),
             v: CountingGroupResult::from_raw(raw.v_header(), raw.v_body()),
-            ips: raw.ips().to_vec(),
-            data_1: raw.data_1().to_vec(),
+            //ips: raw.ips().to_vec(),
+            ips: vec![],
+            //data_1: raw.data_1().to_vec(),
+            data_1: vec![],
             user_abi_and_regs: raw.user_abi_and_regs().map(|(abi, regs)| {
                 #[allow(non_upper_case_globals)]
                 let abi = match *abi as _ {
                     perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_NONE => Abi::AbiNone,
                     perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_32 => Abi::Abi32,
                     perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_64 => Abi::Abi64,
-                    _ => unreachable!(),
+                    abi => unreachable!("ABI: {}", abi),
                 };
                 AbiAndRegs {
                     abi,
                     regs: regs.to_vec(),
                 }
             }),
-            data_2: raw.data_2().to_vec(),
-            dyn_size: raw.dyn_size().cloned(),
+            //data_2: raw.data_2().to_vec(),
+            data_2: vec![],
+            //dyn_size: raw.dyn_size().cloned(),
+            dyn_size: None,
             data_src: *raw.data_src(),
             transaction: *raw.transaction(),
             intr_abi_and_regs: raw.intr_abi_and_regs().map(|(abi, regs)| {
@@ -90,7 +94,7 @@ impl Body {
                     perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_NONE => Abi::AbiNone,
                     perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_32 => Abi::Abi32,
                     perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_64 => Abi::Abi64,
-                    _ => unreachable!(),
+                    abi => unreachable!("ABI: {}", abi),
                 };
                 AbiAndRegs {
                     abi,
