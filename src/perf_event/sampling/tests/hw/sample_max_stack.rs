@@ -3,11 +3,9 @@ use crate::sampling::{Attr, ExtraConfig, OverflowBy};
 use crate::test::cpu_workload;
 use crate::{Builder, EventScope, HwEvent};
 
-fn gen_attr(val: u16) -> Attr {
+fn gen_attr(sample_max_stack: u16) -> Attr {
     let mut extra_config = ExtraConfig::default();
-    extra_config.sample_regs_user = Some(val as _);
-    extra_config.sample_regs_intr = Some(val as _);
-    extra_config.sample_max_stack = Some(val);
+    extra_config.sample_max_stack = Some(sample_max_stack);
 
     let event = HwEvent::CpuCycles;
     let scopes = [EventScope::User, EventScope::Host];
