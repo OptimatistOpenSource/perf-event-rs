@@ -42,8 +42,14 @@ pub struct Body {
 type RawBody = raw::Body;
 
 impl Body {
-    pub unsafe fn from_ptr(ptr: *const u8, user_regs_len: usize, intr_regs_len: usize) -> Self {
+    pub unsafe fn from_ptr(
+        ptr: *const u8,
+        is_sample_callchain: bool,
+        user_regs_len: usize,
+        intr_regs_len: usize,
+    ) -> Self {
         let raw = RawBody {
+            is_sample_callchain,
             user_regs_len,
             intr_regs_len,
             ptr,

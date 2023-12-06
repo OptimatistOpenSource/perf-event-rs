@@ -47,7 +47,6 @@ impl Attr {
                     | perf_event_sample_format_PERF_SAMPLE_TIME
                     | perf_event_sample_format_PERF_SAMPLE_ADDR
                     | perf_event_sample_format_PERF_SAMPLE_READ
-                    //| perf_event_sample_format_PERF_SAMPLE_CALLCHAIN // TODO
                     | perf_event_sample_format_PERF_SAMPLE_ID
                     | perf_event_sample_format_PERF_SAMPLE_CPU
                     | perf_event_sample_format_PERF_SAMPLE_PERIOD
@@ -61,6 +60,10 @@ impl Attr {
                     | perf_event_sample_format_PERF_SAMPLE_TRANSACTION
                     | perf_event_sample_format_PERF_SAMPLE_PHYS_ADDR;
                 //| perf_event_sample_format_PERF_SAMPLE_AUX;
+
+                if extra_config.sample_max_stack.is_some() {
+                    sample_type |= perf_event_sample_format_PERF_SAMPLE_CALLCHAIN
+                }
 
                 if extra_config.sample_regs_user.is_some() {
                     sample_type |= perf_event_sample_format_PERF_SAMPLE_REGS_USER
@@ -126,8 +129,8 @@ impl Attr {
                 ClockId::Tai => CLOCK_TAI,
             }) as _,
             sample_regs_intr: extra_config.sample_regs_intr.unwrap_or(0),
-            aux_watermark: 0,    // TODO
-            sample_max_stack: 0, // TODO
+            aux_watermark: 0, // TODO
+            sample_max_stack: extra_config.sample_max_stack.unwrap_or(0),
             __reserved_2: 0,
             #[cfg(feature = "kernel-5.5")]
             aux_sample_size: 0, // TODO

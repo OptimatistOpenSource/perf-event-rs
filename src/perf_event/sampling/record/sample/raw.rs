@@ -45,9 +45,10 @@ struct {
 */
 
 use crate::debug_struct_fn;
-use crate::infra::{ConstPtrExt, SliceExt, Vla, WrapOption};
+use crate::infra::{ConstPtrExt, SliceExt, Vla, WrapOption, WrapResult};
 use crate::syscall::bindings::{read_format_body, read_format_header};
 use std::fmt::{Debug, Formatter};
+use std::ops::Not;
 use std::slice;
 
 #[repr(C)]
@@ -85,6 +86,7 @@ struct Sized3 {
 }
 
 pub struct Body {
+    pub(crate) is_sample_callchain: bool,
     pub(crate) user_regs_len: usize,
     pub(crate) intr_regs_len: usize,
     pub(crate) ptr: *const u8,
@@ -145,19 +147,24 @@ impl Body {
         unsafe { slice::from_raw_parts(ptr, members_len) }
     }
 
-    /*    pub fn ips(&self) -> &[u64] {
-            let len_ptr = unsafe { self.v_body().follow_mem_ptr() } as *const u64;
+    pub fn ips(&self) -> Result<&[u64], *const u64> {
+        let len_ptr = unsafe { self.v_body().follow_mem_ptr() } as *const u64;
+
+        if self.is_sample_callchain {
             let vla: &Vla<u64, u64> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
+            vla.as_slice().wrap_ok()
+        } else {
+            Err(len_ptr)
+        }
+    }
+
+    /*
+        pub fn data_1(&self) -> &[u8] {
+            let len_ptr = unsafe { self.ips().follow_mem_ptr() } as *const u32;
+            let vla: &Vla<u32, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
             vla.as_slice()
         }
     */
- /*
-     pub fn data_1(&self) -> &[u8] {
-         let len_ptr = unsafe { self.ips().follow_mem_ptr() } as *const u32;
-         let vla: &Vla<u32, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
-         vla.as_slice()
-     }
- */
     // TODO:
     //bnr: u64,
     //lbr: Vla<u64, perf_branch_entry>,
@@ -169,7 +176,10 @@ impl Body {
 
         unsafe {
             //let abi_ptr = self.data_1().follow_mem_ptr().align_as_ptr::<u64>();
-            let abi_ptr = self.v_body().follow_mem_ptr().align_as_ptr::<u64>();
+            let abi_ptr = match self.ips() {
+                Ok(ips) => ips.follow_mem_ptr(),
+                Err(ptr) => ptr,
+            };
             let abi = abi_ptr.as_ref().unwrap();
             let regs_ptr = abi_ptr.add(1);
             let regs = slice::from_raw_parts(regs_ptr, self.user_regs_len);

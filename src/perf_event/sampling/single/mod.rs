@@ -14,6 +14,7 @@ use std::os::fd::FromRawFd;
 pub struct Sampling {
     pub(crate) mmap: MmapMut,
     pub(crate) file: File,
+    pub(crate) is_sample_callchain: bool,
     pub(crate) user_regs_len: usize,
     pub(crate) intr_regs_len: usize,
 }
@@ -39,11 +40,13 @@ impl Sampling {
                 }
                 .unwrap();
 
+                let is_sample_callchain = attr.as_raw().sample_max_stack > 0;
                 let user_regs_len = attr.as_raw().sample_regs_user.count_ones() as _;
                 let intr_regs_len = attr.as_raw().sample_regs_intr.count_ones() as _;
                 Self {
                     mmap,
                     file,
+                    is_sample_callchain,
                     user_regs_len,
                     intr_regs_len,
                 }

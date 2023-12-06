@@ -95,6 +95,7 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
             perf_event_type_PERF_RECORD_SAMPLE => RecordBody::Sample(
                 sample::Body::from_ptr(
                     follow_mem_ptr,
+                    sampling.is_sample_callchain,
                     sampling.user_regs_len,
                     sampling.intr_regs_len,
                 )
