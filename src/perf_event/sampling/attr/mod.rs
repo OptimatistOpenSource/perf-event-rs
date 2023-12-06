@@ -79,10 +79,10 @@ impl Attr {
                     sample_type |= perf_event_sample_format_PERF_SAMPLE_DATA_PAGE_SIZE;
                     sample_type |= perf_event_sample_format_PERF_SAMPLE_CODE_PAGE_SIZE;
                 }
-                #[cfg(feature = "kernel-5.12")]
-                {
-                    sample_type |= perf_event_sample_format_PERF_SAMPLE_WEIGHT_STRUCT;
-                }
+                //#[cfg(feature = "kernel-5.12")]
+                //{
+                //    sample_type |= perf_event_sample_format_PERF_SAMPLE_WEIGHT_STRUCT;
+                //}
 
                 sample_type
             } as _, // TODO
