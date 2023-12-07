@@ -30,7 +30,8 @@ impl Sampling {
         flags: u64,
         mmap_pages: usize,
     ) -> io::Result<Self> {
-        let i32 = unsafe { perf_event_open(attr.as_raw(), pid, cpu, group_fd, flags) };
+        let raw_attr = attr.as_raw();
+        let i32 = unsafe { perf_event_open(raw_attr, pid, cpu, group_fd, flags) };
         match i32 {
             -1 => Err(io::Error::last_os_error()),
             fd => {
@@ -42,17 +43,19 @@ impl Sampling {
                 }
                 .unwrap();
 
-                let is_sample_stack_user = attr.as_raw().sample_stack_user > 0;
-                let is_sample_callchain = attr.as_raw().sample_max_stack > 0;
-                let is_sample_aux = attr.as_raw().aux_sample_size > 0;
                 let user_regs_len = attr.as_raw().sample_regs_user.count_ones() as _;
                 let intr_regs_len = attr.as_raw().sample_regs_intr.count_ones() as _;
+
+                let is_enable =
+                    |mask: perf_event_sample_format| (raw_attr.sample_type & mask as u64) > 0;
                 Self {
                     mmap,
                     file,
-                    is_sample_stack_user,
-                    is_sample_callchain,
-                    is_sample_aux,
+                    is_sample_stack_user: is_enable(
+                        perf_event_sample_format_PERF_SAMPLE_STACK_USER,
+                    ),
+                    is_sample_callchain: is_enable(perf_event_sample_format_PERF_SAMPLE_CALLCHAIN),
+                    is_sample_aux: is_enable(perf_event_sample_format_PERF_SAMPLE_AUX),
                     user_regs_len,
                     intr_regs_len,
                 }
