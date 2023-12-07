@@ -1,14 +1,10 @@
 use crate::counting::CountingGroupResult;
-use crate::sampling::record::Abi;
-use crate::syscall::bindings::*;
+use crate::sampling::record::sample::abi_and_regs::AbiAndRegs;
+use crate::sampling::record::sample::data_src::DataSrc;
 
+mod abi_and_regs;
+mod data_src;
 mod raw;
-
-#[derive(Debug)]
-pub struct AbiAndRegs {
-    pub abi: Abi,
-    pub regs: Vec<u64>,
-}
 
 #[derive(Debug)]
 pub struct Body {
@@ -28,7 +24,7 @@ pub struct Body {
     pub data_1: Vec<u8>,
     pub user_abi_and_regs: Option<AbiAndRegs>,
     pub data_2: Option<Vec<u8>>,
-    pub data_src: u64,
+    pub data_src: DataSrc,
     pub transaction: u64,
     pub intr_abi_and_regs: Option<AbiAndRegs>,
     pub phys_addr: u64,
@@ -76,40 +72,22 @@ impl Body {
             v: CountingGroupResult::from_raw(raw.v_header(), raw.v_body()),
             ips: raw.ips().map(|it| it.to_vec()).ok(),
             data_1: raw.data_1().to_vec(),
-            user_abi_and_regs: raw.user_abi_and_regs().ok().map(|(abi, regs)| {
-                #[allow(non_upper_case_globals)]
-                let abi = match *abi as _ {
-                    perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_NONE => Abi::AbiNone,
-                    perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_32 => Abi::Abi32,
-                    perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_64 => Abi::Abi64,
-                    abi => unreachable!("ABI: {}", abi),
-                };
-                AbiAndRegs {
-                    abi,
-                    regs: regs.to_vec(),
-                }
-            }),
+            user_abi_and_regs: raw
+                .user_abi_and_regs()
+                .ok()
+                .map(AbiAndRegs::from_raw),
             data_2: {
                 let dyn_size = raw.dyn_size().map(|it| *it).unwrap_or(0) as _;
                 raw.data_2()
                     .ok()
                     .map(|it| it.iter().take(dyn_size).cloned().collect())
             },
-            data_src: *raw.data_src(),
+            data_src: DataSrc::from_raw(*raw.data_src()),
             transaction: *raw.transaction(),
-            intr_abi_and_regs: raw.intr_abi_and_regs().map(|(abi, regs)| {
-                #[allow(non_upper_case_globals)]
-                let abi = match *abi as _ {
-                    perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_NONE => Abi::AbiNone,
-                    perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_32 => Abi::Abi32,
-                    perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_64 => Abi::Abi64,
-                    abi => unreachable!("ABI: {}", abi),
-                };
-                AbiAndRegs {
-                    abi,
-                    regs: regs.to_vec(),
-                }
-            }),
+            intr_abi_and_regs: raw
+                .user_abi_and_regs()
+                .ok()
+                .map(AbiAndRegs::from_raw),
             phys_addr: *raw.phys_addr(),
             cgroup: *raw.cgroup(),
             data_page_size: *raw.data_page_size(),
