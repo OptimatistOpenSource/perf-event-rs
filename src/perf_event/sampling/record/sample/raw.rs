@@ -45,7 +45,7 @@ struct {
 */
 
 use crate::debug_struct_fn;
-use crate::infra::{SliceExt, Vla, WrapOption, WrapResult};
+use crate::infra::{ConstPtrExt, SliceExt, Vla, WrapOption, WrapResult};
 use crate::syscall::bindings::{read_format_body, read_format_header};
 use std::fmt::{Debug, Formatter};
 use std::slice;
@@ -191,40 +191,31 @@ impl Body {
             }
         }
     }
-    /*
-        pub fn data_2(&self) -> &[u8] {
-            let len_ptr = unsafe {
-                self.user_abi_and_regs()
-                    .map(|(_, regs)| regs.follow_mem_ptr())
-                    .unwrap_or_else(|| self.data_1().follow_mem_ptr().align_as_ptr::<u64>())
-            };
-            let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
-            vla.as_slice()
-        }
-    pub fn dyn_size(&self) -> Option<&u64> {
+
+    pub fn data_2(&self) -> &[u8] {
+        let len_ptr = match self.user_abi_and_regs() {
+            Ok((_, regs)) => unsafe { regs.follow_mem_ptr() },
+            Err(ptr) => ptr,
+        };
+        let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
+        vla.as_slice()
+    }
+
+    pub fn dyn_size(&self) -> Result<&u64, *const u64> {
+        let ptr = unsafe { self.data_2().follow_mem_ptr() };
         if self.data_2().is_empty() {
-            None
+            Err(ptr as _)
         } else {
-            let ptr = unsafe { self.data_2().follow_mem_ptr().align_as_ptr::<u64>() };
-            unsafe { ptr.as_ref() }
+            unsafe { ptr.align_as_ptr::<u64>().as_ref().unwrap() }.wrap_ok()
         }
     }
-    */
 
     fn sized2(&self) -> &Sized2 {
-        /*        let ptr = self.dyn_size().map_or_else(
-                    || unsafe { self.data_2().follow_mem_ptr().align_as_ptr::<Sized2>() },
-                    |dyn_size| {
-                        let dyn_size_ptr = dyn_size as *const u64;
-                        unsafe { dyn_size_ptr.add(1).align_as_ptr::<Sized2>() }
-                    },
-                );
-        */
         unsafe {
-            let ptr = (match self.user_abi_and_regs() {
-                Ok((_, regs)) => regs.follow_mem_ptr(),
-                Err(ptr) => ptr,
-            }) as *const Sized2;
+            let ptr = match self.dyn_size() {
+                Ok(dyn_size) => (dyn_size as *const u64).add(1),
+                Err(ptr) => ptr.align_as_ptr::<u64>(),
+            } as *const Sized2;
 
             ptr.as_ref().unwrap()
         }
@@ -298,10 +289,8 @@ impl Debug for Body {
                 v_body
                 ips
                 data_1
-                /*
                 data_2
                 dyn_size
-                */
                 // TODO:
                 //weight
                 data_src

@@ -53,7 +53,7 @@ impl Attr {
                     | perf_event_sample_format_PERF_SAMPLE_STREAM_ID
                     | perf_event_sample_format_PERF_SAMPLE_RAW
                     //| perf_event_sample_format_PERF_SAMPLE_BRANCH_STACK // TODO: Not all hardware supports this feature
-                    //| perf_event_sample_format_PERF_SAMPLE_STACK_USER // TODO
+                    | perf_event_sample_format_PERF_SAMPLE_STACK_USER
                     //| perf_event_sample_format_PERF_SAMPLE_WEIGHT // FIX: this will lead to "Invalid Argument"
                     | perf_event_sample_format_PERF_SAMPLE_DATA_SRC
                     | perf_event_sample_format_PERF_SAMPLE_IDENTIFIER
@@ -64,6 +64,10 @@ impl Attr {
                 if extra_config.sample_max_stack.is_some() {
                     sample_type |= perf_event_sample_format_PERF_SAMPLE_CALLCHAIN
                 }
+
+                //if extra_config.sample_stack_user.is_some() {
+                //    sample_type |= perf_event_sample_format_PERF_SAMPLE_STACK_USER
+                //}
 
                 if extra_config.sample_regs_user.is_some() {
                     sample_type |= perf_event_sample_format_PERF_SAMPLE_REGS_USER
@@ -120,7 +124,8 @@ impl Attr {
             __bindgen_anon_4: perf_event_attr__bindgen_ty_4::default(), // ditto
             branch_sample_type: 0, // TODO: Not all hardware supports this feature
             sample_regs_user: extra_config.sample_regs_user.unwrap_or(0),
-            sample_stack_user: 0, // TODO
+            //sample_stack_user: extra_config.sample_stack_user.unwrap_or(0),
+            sample_stack_user: 0,
             clockid: extra_config.clockid.as_ref().map_or(0, |id| match id {
                 ClockId::Monotonic => CLOCK_MONOTONIC,
                 ClockId::MonotonicRaw => CLOCK_MONOTONIC_RAW,

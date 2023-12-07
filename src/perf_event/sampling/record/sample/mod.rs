@@ -28,7 +28,6 @@ pub struct Body {
     pub data_1: Vec<u8>,
     pub user_abi_and_regs: Option<AbiAndRegs>,
     pub data_2: Vec<u8>,
-    pub dyn_size: Option<u64>,
     pub data_src: u64,
     pub transaction: u64,
     pub intr_abi_and_regs: Option<AbiAndRegs>,
@@ -86,10 +85,10 @@ impl Body {
                     regs: regs.to_vec(),
                 }
             }),
-            //data_2: raw.data_2().to_vec(),
-            data_2: vec![],
-            //dyn_size: raw.dyn_size().cloned(),
-            dyn_size: None,
+            data_2: {
+                let dyn_size = raw.dyn_size().map(|it| *it).unwrap_or(0) as _;
+                raw.data_2().iter().take(dyn_size).cloned().collect()
+            },
             data_src: *raw.data_src(),
             transaction: *raw.transaction(),
             intr_abi_and_regs: raw.intr_abi_and_regs().map(|(abi, regs)| {
