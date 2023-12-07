@@ -15,9 +15,12 @@ pub struct ExtraConfig {
     #[cfg(feature = "linux-5.13")]
     pub remove_on_exec: bool,
 
+    pub sample_id_all: bool,
+
     pub clockid: Option<ClockId>,
     pub precise_ip: SampleIpSkid,
     pub wakeup: Wakeup,
+
     pub sample_max_stack: Option<u16>,
     pub sample_stack_user: Option<u32>,
     pub sample_regs_user: Option<u64>,
@@ -28,12 +31,10 @@ pub struct ExtraConfig {
 impl Default for ExtraConfig {
     fn default() -> Self {
         Self {
-            clockid: None,
             pinned: false,
             exclusive: false,
             comm: false,
             enable_on_exec: false,
-            precise_ip: SampleIpSkid::Arbitrary,
             mmap_data: false,
             comm_exec: false,
             #[cfg(feature = "linux-5.4")]
@@ -42,7 +43,13 @@ impl Default for ExtraConfig {
             build_id: false,
             #[cfg(feature = "linux-5.13")]
             remove_on_exec: false,
+
+            sample_id_all: false,
+
+            clockid: None,
+            precise_ip: SampleIpSkid::Arbitrary,
             wakeup: Events(1),
+
             sample_stack_user: None,
             sample_max_stack: None,
             sample_regs_user: None,

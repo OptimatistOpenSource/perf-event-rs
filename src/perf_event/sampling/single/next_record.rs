@@ -70,9 +70,9 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
                 let ptr = follow_mem_ptr as *const lost::Body;
                 RecordBody::Lost(ptr.read().wrap_box())
             }
-            perf_event_type_PERF_RECORD_COMM => {
-                RecordBody::Comm(comm::Body::from_ptr(follow_mem_ptr).wrap_box())
-            }
+            perf_event_type_PERF_RECORD_COMM => RecordBody::Comm(
+                comm::Body::from_ptr(follow_mem_ptr, sampling.is_sample_id_all).wrap_box(),
+            ),
             perf_event_type_PERF_RECORD_EXIT => {
                 let ptr = follow_mem_ptr as *const exit::Body;
                 RecordBody::Exit(ptr.read().wrap_box())
@@ -89,9 +89,9 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
                 let ptr = follow_mem_ptr as *const fork::Body;
                 RecordBody::Fork(ptr.read().wrap_box())
             }
-            perf_event_type_PERF_RECORD_READ => {
-                RecordBody::Read(read::Body::from_ptr(follow_mem_ptr).wrap_box())
-            }
+            perf_event_type_PERF_RECORD_READ => RecordBody::Read(
+                read::Body::from_ptr(follow_mem_ptr, sampling.is_sample_id_all).wrap_box(),
+            ),
             perf_event_type_PERF_RECORD_SAMPLE => RecordBody::Sample(
                 sample::Body::from_ptr(
                     follow_mem_ptr,
@@ -104,7 +104,12 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
                 .wrap_box(),
             ),
             perf_event_type_PERF_RECORD_MMAP2 => RecordBody::Mmap2(
-                mmap2::Body::from_ptr(follow_mem_ptr, record_header.misc).wrap_box(),
+                mmap2::Body::from_ptr(
+                    follow_mem_ptr,
+                    record_header.misc,
+                    sampling.is_sample_id_all,
+                )
+                .wrap_box(),
             ),
             perf_event_type_PERF_RECORD_AUX => {
                 let ptr = follow_mem_ptr as *const aux::Body;
@@ -126,22 +131,22 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
                 let ptr = follow_mem_ptr as *const switch_cpu_wide::Body;
                 RecordBody::SwitchCpuWide(ptr.read().wrap_box())
             }
-            perf_event_type_PERF_RECORD_NAMESPACES => {
-                RecordBody::Namespaces(namespaces::Body::from_ptr(follow_mem_ptr).wrap_box())
-            }
-            perf_event_type_PERF_RECORD_KSYMBOL => {
-                RecordBody::Ksymbol(ksymbol::Body::from_ptr(follow_mem_ptr).wrap_box())
-            }
+            perf_event_type_PERF_RECORD_NAMESPACES => RecordBody::Namespaces(
+                namespaces::Body::from_ptr(follow_mem_ptr, sampling.is_sample_id_all).wrap_box(),
+            ),
+            perf_event_type_PERF_RECORD_KSYMBOL => RecordBody::Ksymbol(
+                ksymbol::Body::from_ptr(follow_mem_ptr, sampling.is_sample_id_all).wrap_box(),
+            ),
             perf_event_type_PERF_RECORD_BPF_EVENT => {
                 let ptr = follow_mem_ptr as *const bpf_event::Body;
                 RecordBody::BpfEvent(ptr.read().wrap_box())
             }
-            perf_event_type_PERF_RECORD_CGROUP => {
-                RecordBody::Cgroup(cgroup::Body::from_ptr(follow_mem_ptr).wrap_box())
-            }
-            perf_event_type_PERF_RECORD_TEXT_POKE => {
-                RecordBody::TextPoke(text_poke::Body::from_ptr(follow_mem_ptr).wrap_box())
-            }
+            perf_event_type_PERF_RECORD_CGROUP => RecordBody::Cgroup(
+                cgroup::Body::from_ptr(follow_mem_ptr, sampling.is_sample_id_all).wrap_box(),
+            ),
+            perf_event_type_PERF_RECORD_TEXT_POKE => RecordBody::TextPoke(
+                text_poke::Body::from_ptr(follow_mem_ptr, sampling.is_sample_id_all).wrap_box(),
+            ),
             perf_event_type_PERF_RECORD_AUX_OUTPUT_HW_ID => {
                 let ptr = follow_mem_ptr as *const aux_output_hw_id::Body;
                 RecordBody::AuxOutputHwId(ptr.read().wrap_box())

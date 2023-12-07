@@ -14,9 +14,12 @@ use std::os::fd::FromRawFd;
 pub struct Sampling {
     pub(crate) mmap: MmapMut,
     pub(crate) file: File,
+
+    pub(crate) is_sample_id_all: bool,
     pub(crate) is_sample_stack_user: bool,
     pub(crate) is_sample_callchain: bool,
     pub(crate) is_sample_aux: bool,
+
     pub(crate) user_regs_len: usize,
     pub(crate) intr_regs_len: usize,
 }
@@ -31,6 +34,7 @@ impl Sampling {
         mmap_pages: usize,
     ) -> io::Result<Self> {
         let raw_attr = attr.as_raw();
+
         let i32 = unsafe { perf_event_open(raw_attr, pid, cpu, group_fd, flags) };
         match i32 {
             -1 => Err(io::Error::last_os_error()),
@@ -43,14 +47,16 @@ impl Sampling {
                 }
                 .unwrap();
 
-                let user_regs_len = attr.as_raw().sample_regs_user.count_ones() as _;
-                let intr_regs_len = attr.as_raw().sample_regs_intr.count_ones() as _;
+                let user_regs_len = raw_attr.sample_regs_user.count_ones() as _;
+                let intr_regs_len = raw_attr.sample_regs_intr.count_ones() as _;
 
                 let is_enable =
                     |mask: perf_event_sample_format| (raw_attr.sample_type & mask as u64) > 0;
+
                 Self {
                     mmap,
                     file,
+                    is_sample_id_all: raw_attr.sample_id_all() > 0,
                     is_sample_stack_user: is_enable(
                         perf_event_sample_format_PERF_SAMPLE_STACK_USER,
                     ),

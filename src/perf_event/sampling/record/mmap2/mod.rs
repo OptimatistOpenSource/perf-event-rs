@@ -26,18 +26,15 @@ pub struct Body {
     pub prot: u32,
     pub flags: u32,
     pub filename: CString,
-    pub sample_id: SampleId,
+    pub sample_id: Option<SampleId>,
 }
 
 type RawBody = raw::Body;
 
 impl Body {
-    pub unsafe fn from_ptr(ptr: *const u8, misc: u16) -> Self {
+    pub unsafe fn from_ptr(ptr: *const u8, misc: u16, sample_id_all: bool) -> Self {
         let raw = (ptr as *const RawBody).as_ref().unwrap();
-        Self::from_raw(raw, misc)
-    }
 
-    unsafe fn from_raw(raw: &RawBody, misc: u16) -> Self {
         Self {
             pid: *raw.pid(),
             tid: *raw.tid(),
@@ -61,7 +58,7 @@ impl Body {
             prot: *raw.prot(),
             flags: *raw.flags(),
             filename: CString::from_vec_unchecked(raw.filename().to_vec()),
-            sample_id: raw.sample_id().clone(),
+            sample_id: sample_id_all.then(|| raw.sample_id().clone()),
         }
     }
 }
