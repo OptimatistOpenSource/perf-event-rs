@@ -76,16 +76,16 @@ impl Attr {
                     sample_type |= perf_event_sample_format_PERF_SAMPLE_REGS_INTR
                 }
 
-                #[cfg(feature = "kernel-5.7")]
+                #[cfg(feature = "linux-5.7")]
                 {
                     sample_type |= perf_event_sample_format_PERF_SAMPLE_CGROUP;
                 }
-                #[cfg(feature = "kernel-5.11")]
+                #[cfg(feature = "linux-5.11")]
                 {
                     sample_type |= perf_event_sample_format_PERF_SAMPLE_DATA_PAGE_SIZE;
                     sample_type |= perf_event_sample_format_PERF_SAMPLE_CODE_PAGE_SIZE;
                 }
-                //#[cfg(feature = "kernel-5.12")]
+                //#[cfg(feature = "linux-5.12")]
                 //{
                 //    sample_type |= perf_event_sample_format_PERF_SAMPLE_WEIGHT_STRUCT;
                 //}
@@ -101,7 +101,7 @@ impl Attr {
                     | perf_event_read_format_PERF_FORMAT_ID
                     | perf_event_read_format_PERF_FORMAT_GROUP;
 
-                #[cfg(feature = "kernel-6.0")]
+                #[cfg(feature = "linux-6.0")]
                 {
                     read_format |= perf_event_read_format_PERF_FORMAT_LOST;
                 }
@@ -135,12 +135,12 @@ impl Attr {
             aux_watermark: 0, // TODO
             sample_max_stack: extra_config.sample_max_stack.unwrap_or(0),
             __reserved_2: 0,
-            #[cfg(feature = "kernel-5.5")]
+            #[cfg(feature = "linux-5.5")]
             aux_sample_size: 0, // TODO
             __reserved_3: 0,
-            #[cfg(feature = "kernel-5.13")]
+            #[cfg(feature = "linux-5.13")]
             sig_data: 0, // not use in sampling mode
-            #[cfg(feature = "kernel-6.2")]
+            #[cfg(feature = "linux-latest")]
             config3: 0, // TODO: missing docs in manual
         };
 
@@ -189,19 +189,19 @@ impl Attr {
         raw_attr.set_namespaces(0);
         raw_attr.set_ksymbol(0);
         raw_attr.set_bpf_event(0);
-        #[cfg(feature = "kernel-5.4")]
+        #[cfg(feature = "linux-5.4")]
         raw_attr.set_aux_output(extra_config.aux_output as _);
-        #[cfg(feature = "kernel-5.7")]
+        #[cfg(feature = "linux-5.7")]
         raw_attr.set_cgroup(0);
-        #[cfg(feature = "kernel-5.8")]
+        #[cfg(feature = "linux-5.8")]
         raw_attr.set_text_poke(0);
-        #[cfg(feature = "kernel-5.12")]
+        #[cfg(feature = "linux-5.12")]
         raw_attr.set_build_id(extra_config.build_id as _);
-        #[cfg(feature = "kernel-5.13")]
+        #[cfg(feature = "linux-5.13")]
         raw_attr.set_inherit_thread(0); // not use in sampling mode, enable this will lead to invalid argument
-        #[cfg(feature = "kernel-5.13")]
+        #[cfg(feature = "linux-5.13")]
         raw_attr.set_remove_on_exec(extra_config.remove_on_exec as _);
-        #[cfg(feature = "kernel-5.13")]
+        #[cfg(feature = "linux-5.13")]
         raw_attr.set_sigtrap(0); // not use in sampling mode, enable this will lead to invalid argument
 
         use EventScope::*;
@@ -242,9 +242,9 @@ impl Attr {
             ExtraRecord::Namespaces => raw_attr.set_namespaces(1),
             ExtraRecord::Ksymbol => raw_attr.set_ksymbol(1),
             ExtraRecord::BpfEvent => raw_attr.set_bpf_event(1),
-            #[cfg(feature = "kernel-5.7")]
+            #[cfg(feature = "linux-5.7")]
             ExtraRecord::Cgroup => raw_attr.set_cgroup(1),
-            #[cfg(feature = "kernel-5.8")]
+            #[cfg(feature = "linux-5.8")]
             ExtraRecord::TextPoke => raw_attr.set_text_poke(1),
             ExtraRecord::ForkAndExit => raw_attr.set_task(1),
         });

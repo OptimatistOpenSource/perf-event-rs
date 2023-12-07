@@ -30,7 +30,7 @@ impl Debug for perf_event_attr {
                 sample_max_stack
                 aux_sample_size
                 sig_data
-                #[cfg(feature = "kernel-6.2")]
+                #[cfg(feature = "linux-latest")]
                 config3
         }
 
@@ -75,19 +75,19 @@ impl Debug for perf_event_attr {
                 namespaces
                 ksymbol
                 bpf_event
-                #[cfg(feature = "kernel-5.4")]
+                #[cfg(feature = "linux-5.4")]
                 aux_output
-                #[cfg(feature = "kernel-5.7")]
+                #[cfg(feature = "linux-5.7")]
                 cgroup
-                #[cfg(feature = "kernel-5.8")]
+                #[cfg(feature = "linux-5.8")]
                 text_poke
-                #[cfg(feature = "kernel-5.12")]
+                #[cfg(feature = "linux-5.12")]
                 build_id
-                #[cfg(feature = "kernel-5.13")]
+                #[cfg(feature = "linux-5.13")]
                 inherit_thread
-                #[cfg(feature = "kernel-5.13")]
+                #[cfg(feature = "linux-5.13")]
                 remove_on_exec
-                #[cfg(feature = "kernel-5.13")]
+                #[cfg(feature = "linux-5.13")]
                 sigtrap
         }
 

@@ -8,7 +8,7 @@ use std::io;
 pub struct MemberResult {
     pub event_count: u64,
     /// only meaningful in sampling mode
-    #[cfg(feature = "kernel-6.0")]
+    #[cfg(feature = "linux-6.0")]
     pub event_lost: u64,
 }
 
@@ -40,7 +40,7 @@ impl CountingGroupResult {
                         MemberResult {
                             event_count: it.event_count,
                             // only meaningful in sampling mode
-                            #[cfg(feature = "kernel-6.0")]
+                            #[cfg(feature = "linux-6.0")]
                             event_lost: it.event_lost,
                         },
                     )

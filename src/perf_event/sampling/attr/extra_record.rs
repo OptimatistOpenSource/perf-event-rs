@@ -6,9 +6,9 @@ pub enum ExtraRecord {
     Namespaces,
     Ksymbol,
     BpfEvent,
-    #[cfg(feature = "kernel-5.7")]
+    #[cfg(feature = "linux-5.7")]
     Cgroup,
-    #[cfg(feature = "kernel-5.8")]
+    #[cfg(feature = "linux-5.8")]
     TextPoke,
     ForkAndExit,
 }
@@ -22,9 +22,9 @@ impl ExtraRecord {
             Self::Namespaces,
             Self::Ksymbol,
             Self::BpfEvent,
-            #[cfg(feature = "kernel-5.7")]
+            #[cfg(feature = "linux-5.7")]
             Self::Cgroup,
-            #[cfg(feature = "kernel-5.8")]
+            #[cfg(feature = "linux-5.8")]
             Self::TextPoke,
             Self::ForkAndExit,
         ]

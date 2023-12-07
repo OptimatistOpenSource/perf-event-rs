@@ -37,7 +37,7 @@ impl Attr {
                     | perf_event_read_format_PERF_FORMAT_GROUP;
 
                 // WARN: set for read_format align, event_lost should not be used.
-                #[cfg(feature = "kernel-6.0")]
+                #[cfg(feature = "linux-6.0")]
                 {
                     read_format |= perf_event_read_format_PERF_FORMAT_LOST;
                 }
@@ -58,12 +58,12 @@ impl Attr {
             aux_watermark: 0,                                       // ditto
             sample_max_stack: 0,                                    // ditto
             __reserved_2: 0,
-            #[cfg(feature = "kernel-5.5")]
+            #[cfg(feature = "linux-5.5")]
             aux_sample_size: 0, // not use in counting mode
             __reserved_3: 0,
-            #[cfg(feature = "kernel-5.13")]
+            #[cfg(feature = "linux-5.13")]
             sig_data: 0, // not use in counting mode
-            #[cfg(feature = "kernel-6.2")]
+            #[cfg(feature = "linux-latest")]
             config3: 0, // TODO: missing docs in manual
         };
 
@@ -101,19 +101,19 @@ impl Attr {
         raw_attr.set_namespaces(0); // ditto
         raw_attr.set_ksymbol(0); // ditto
         raw_attr.set_bpf_event(0); // ditto
-        #[cfg(feature = "kernel-5.4")]
+        #[cfg(feature = "linux-5.4")]
         raw_attr.set_aux_output(0); // ditto
-        #[cfg(feature = "kernel-5.7")]
+        #[cfg(feature = "linux-5.7")]
         raw_attr.set_cgroup(0); // ditto
-        #[cfg(feature = "kernel-5.8")]
+        #[cfg(feature = "linux-5.8")]
         raw_attr.set_text_poke(0); // ditto
-        #[cfg(feature = "kernel-5.12")]
+        #[cfg(feature = "linux-5.12")]
         raw_attr.set_build_id(0); // ditto
-        #[cfg(feature = "kernel-5.13")]
+        #[cfg(feature = "linux-5.13")]
         raw_attr.set_inherit_thread(extra_config.inherit_thread as _);
-        #[cfg(feature = "kernel-5.13")]
+        #[cfg(feature = "linux-5.13")]
         raw_attr.set_remove_on_exec(extra_config.remove_on_exec as _);
-        #[cfg(feature = "kernel-5.13")]
+        #[cfg(feature = "linux-5.13")]
         raw_attr.set_sigtrap(0); // not use in counting mode
 
         use EventScope::*;

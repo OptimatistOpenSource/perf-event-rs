@@ -7,7 +7,7 @@ pub struct read_format_body {
     pub event_id: u64,    // u64 id;
 
     /// only meaningful in sampling mode
-    #[cfg(feature = "kernel-6.0")]
+    #[cfg(feature = "linux-6.0")]
     pub event_lost: u64, // u64 lost;
 }
 

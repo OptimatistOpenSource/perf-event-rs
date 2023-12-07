@@ -12,18 +12,18 @@ build = "build.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = ["kernel-6.2"]
+default = ["linux-latest"]
 
-"kernel-6.2" = ["kernel-6.0"]
-"kernel-6.0" = ["kernel-5.13"]
-"kernel-5.13" = ["kernel-5.12"]
-"kernel-5.12" = ["kernel-5.11"]
-"kernel-5.11" = ["kernel-5.9"]
-"kernel-5.9" = ["kernel-5.8"]
-"kernel-5.8" = ["kernel-5.7"]
-"kernel-5.7" = ["kernel-5.5"]
-"kernel-5.5" = ["kernel-5.4"]
-"kernel-5.4" = []
+"linux-latest" = ["linux-6.0"]
+"linux-6.0" = ["linux-5.13"]
+"linux-5.13" = ["linux-5.12"]
+"linux-5.12" = ["linux-5.11"]
+"linux-5.11" = ["linux-5.9"]
+"linux-5.9" = ["linux-5.8"]
+"linux-5.8" = ["linux-5.7"]
+"linux-5.7" = ["linux-5.5"]
+"linux-5.5" = ["linux-5.4"]
+"linux-5.4" = []
 
 [build-dependencies]
 bindgen = "0.68.1"

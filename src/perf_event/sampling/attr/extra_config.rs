@@ -8,11 +8,11 @@ pub struct ExtraConfig {
     pub comm_exec: bool,
     pub enable_on_exec: bool,
     pub mmap_data: bool,
-    #[cfg(feature = "kernel-5.4")]
+    #[cfg(feature = "linux-5.4")]
     pub aux_output: bool,
-    #[cfg(feature = "kernel-5.12")]
+    #[cfg(feature = "linux-5.12")]
     pub build_id: bool,
-    #[cfg(feature = "kernel-5.13")]
+    #[cfg(feature = "linux-5.13")]
     pub remove_on_exec: bool,
 
     pub clockid: Option<ClockId>,
@@ -35,11 +35,11 @@ impl Default for ExtraConfig {
             precise_ip: SampleIpSkid::Arbitrary,
             mmap_data: false,
             comm_exec: false,
-            #[cfg(feature = "kernel-5.4")]
+            #[cfg(feature = "linux-5.4")]
             aux_output: false,
-            #[cfg(feature = "kernel-5.12")]
+            #[cfg(feature = "linux-5.12")]
             build_id: false,
-            #[cfg(feature = "kernel-5.13")]
+            #[cfg(feature = "linux-5.13")]
             remove_on_exec: false,
             wakeup: Events(1),
             sample_stack_user: None,
