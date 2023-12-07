@@ -72,9 +72,8 @@ impl Body {
             period: *raw.period(),
             v: CountingGroupResult::from_raw(raw.v_header(), raw.v_body()),
             ips: raw.ips().map(|it| it.to_vec()).ok(),
-            //data_1: raw.data_1().to_vec(),
-            data_1: vec![],
-            user_abi_and_regs: raw.user_abi_and_regs().map(|(abi, regs)| {
+            data_1: raw.data_1().to_vec(),
+            user_abi_and_regs: raw.user_abi_and_regs().ok().map(|(abi, regs)| {
                 #[allow(non_upper_case_globals)]
                 let abi = match *abi as _ {
                     perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_NONE => Abi::AbiNone,

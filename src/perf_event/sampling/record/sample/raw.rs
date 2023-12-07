@@ -157,32 +157,38 @@ impl Body {
         }
     }
 
-    /*
-        pub fn data_1(&self) -> &[u8] {
-            let len_ptr = unsafe { self.ips().follow_mem_ptr() } as *const u32;
-            let vla: &Vla<u32, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
-            vla.as_slice()
+    pub fn data_1(&self) -> &[u8] {
+        unsafe {
+            let len_ptr = match self.ips() {
+                Ok(ips) => ips.follow_mem_ptr(),
+                Err(ptr) => ptr,
+            } as *const u32;
+            // The values are padded with 0 to have 64-bit alignment.
+            let values_ptr = len_ptr.add(1) as *const u8;
+            slice::from_raw_parts(values_ptr, *len_ptr as _)
         }
-    */
+    }
+
     // TODO:
     //bnr: u64,
     //lbr: Vla<u64, perf_branch_entry>,
 
-    pub fn user_abi_and_regs(&self) -> Option<(&u64, &[u64])> {
-        if self.user_regs_len == 0 {
-            return None;
-        }
-
+    pub fn user_abi_and_regs(&self) -> Result<(&u64, &[u64]), *const u64> {
         unsafe {
-            //let abi_ptr = self.data_1().follow_mem_ptr().align_as_ptr::<u64>();
-            let abi_ptr = match self.ips() {
-                Ok(ips) => ips.follow_mem_ptr(),
-                Err(ptr) => ptr,
-            };
-            let abi = abi_ptr.as_ref().unwrap();
-            let regs_ptr = abi_ptr.add(1);
-            let regs = slice::from_raw_parts(regs_ptr, self.user_regs_len);
-            (abi, regs).wrap_some()
+            //let abi_ptr = match self.ips() {
+            //    Ok(ips) => ips.follow_mem_ptr(),
+            //    Err(ptr) => ptr,
+            //};
+            let abi_ptr = self.data_1().follow_mem_ptr() as *const u64;
+
+            if self.user_regs_len == 0 {
+                Err(abi_ptr)
+            } else {
+                let abi = abi_ptr.as_ref().unwrap();
+                let regs_ptr = abi_ptr.add(1);
+                let regs = slice::from_raw_parts(regs_ptr, self.user_regs_len);
+                (abi, regs).wrap_ok()
+            }
         }
     }
     /*
@@ -214,12 +220,14 @@ impl Body {
                     },
                 );
         */
-        let ptr = unsafe {
-            self.user_abi_and_regs()
-                .map(|(_, regs)| regs.follow_mem_ptr() as *const Sized2)
-                .unwrap_or_else(|| self.v_body().follow_mem_ptr() as *const Sized2)
-        };
-        unsafe { ptr.as_ref().unwrap() }
+        unsafe {
+            let ptr = (match self.user_abi_and_regs() {
+                Ok((_, regs)) => regs.follow_mem_ptr(),
+                Err(ptr) => ptr,
+            }) as *const Sized2;
+
+            ptr.as_ref().unwrap()
+        }
     }
     // TODO:
     //sized2_get!(weight, &perf_sample_weight);
@@ -247,9 +255,9 @@ impl Body {
                 .map(|(_, regs)| regs.follow_mem_ptr() as *const Sized3)
                 .unwrap_or_else(|| (self.sized2() as *const Sized2).add(1) as *const Sized3)
         };
-        //dbg!(self.ptr);
-        //dbg!(ptr);
-        //dbg!(std::mem::size_of::<Sized3>());
+
+        //let size = ptr as usize - self.ptr as usize + std::mem::size_of::<Sized3>();
+        //dbg!(size);
         unsafe { ptr.as_ref().unwrap() }
     }
     sized3_get!(phys_addr, &u64);
@@ -288,9 +296,9 @@ impl Debug for Body {
                 period
                 v_header
                 v_body
-                /*
                 ips
                 data_1
+                /*
                 data_2
                 dyn_size
                 */

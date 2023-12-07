@@ -51,7 +51,7 @@ impl Attr {
                     | perf_event_sample_format_PERF_SAMPLE_CPU
                     | perf_event_sample_format_PERF_SAMPLE_PERIOD
                     | perf_event_sample_format_PERF_SAMPLE_STREAM_ID
-                    //| perf_event_sample_format_PERF_SAMPLE_RAW
+                    | perf_event_sample_format_PERF_SAMPLE_RAW
                     //| perf_event_sample_format_PERF_SAMPLE_BRANCH_STACK // TODO: Not all hardware supports this feature
                     //| perf_event_sample_format_PERF_SAMPLE_STACK_USER // TODO
                     //| perf_event_sample_format_PERF_SAMPLE_WEIGHT // FIX: this will lead to "Invalid Argument"
