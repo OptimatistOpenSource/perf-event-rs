@@ -27,7 +27,7 @@ pub struct Body {
     pub ips: Option<Vec<u64>>,
     pub data_1: Vec<u8>,
     pub user_abi_and_regs: Option<AbiAndRegs>,
-    pub data_2: Vec<u8>,
+    pub data_2: Option<Vec<u8>>,
     pub data_src: u64,
     pub transaction: u64,
     pub intr_abi_and_regs: Option<AbiAndRegs>,
@@ -43,11 +43,13 @@ type RawBody = raw::Body;
 impl Body {
     pub unsafe fn from_ptr(
         ptr: *const u8,
+        is_sample_stack_user: bool,
         is_sample_callchain: bool,
         user_regs_len: usize,
         intr_regs_len: usize,
     ) -> Self {
         let raw = RawBody {
+            is_sample_stack_user,
             is_sample_callchain,
             user_regs_len,
             intr_regs_len,
@@ -87,7 +89,9 @@ impl Body {
             }),
             data_2: {
                 let dyn_size = raw.dyn_size().map(|it| *it).unwrap_or(0) as _;
-                raw.data_2().iter().take(dyn_size).cloned().collect()
+                raw.data_2()
+                    .ok()
+                    .map(|it| it.iter().take(dyn_size).cloned().collect())
             },
             data_src: *raw.data_src(),
             transaction: *raw.transaction(),

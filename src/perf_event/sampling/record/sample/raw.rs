@@ -85,6 +85,7 @@ struct Sized3 {
 }
 
 pub struct Body {
+    pub(crate) is_sample_stack_user: bool,
     pub(crate) is_sample_callchain: bool,
     pub(crate) user_regs_len: usize,
     pub(crate) intr_regs_len: usize,
@@ -192,18 +193,23 @@ impl Body {
         }
     }
 
-    pub fn data_2(&self) -> &[u8] {
+    pub fn data_2(&self) -> Result<&[u8], *const u64> {
         let len_ptr = match self.user_abi_and_regs() {
             Ok((_, regs)) => unsafe { regs.follow_mem_ptr() },
             Err(ptr) => ptr,
         };
-        let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
-        vla.as_slice()
+        if self.is_sample_stack_user {
+            let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
+            vla.as_slice().wrap_ok()
+        } else {
+            Err(len_ptr)
+        }
     }
 
     pub fn dyn_size(&self) -> Result<&u64, *const u64> {
-        let ptr = unsafe { self.data_2().follow_mem_ptr() };
-        if self.data_2().is_empty() {
+        let data_2 = self.data_2()?;
+        let ptr = unsafe { data_2.follow_mem_ptr() };
+        if data_2.is_empty() {
             Err(ptr as _)
         } else {
             unsafe { ptr.align_as_ptr::<u64>().as_ref().unwrap() }.wrap_ok()
