@@ -22,6 +22,7 @@ pub struct ExtraConfig {
     pub sample_stack_user: Option<u32>,
     pub sample_regs_user: Option<u64>,
     pub sample_regs_intr: Option<u64>,
+    pub aux_sample_size: Option<u32>,
 }
 
 impl Default for ExtraConfig {
@@ -46,6 +47,7 @@ impl Default for ExtraConfig {
             sample_max_stack: None,
             sample_regs_user: None,
             sample_regs_intr: None,
+            aux_sample_size: None,
         }
     }
 }

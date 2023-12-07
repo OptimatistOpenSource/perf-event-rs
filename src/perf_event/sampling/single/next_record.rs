@@ -97,6 +97,7 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
                     follow_mem_ptr,
                     sampling.is_sample_stack_user,
                     sampling.is_sample_callchain,
+                    sampling.is_sample_aux,
                     sampling.user_regs_len,
                     sampling.intr_regs_len,
                 )

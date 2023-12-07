@@ -58,7 +58,6 @@ impl Attr {
                     | perf_event_sample_format_PERF_SAMPLE_IDENTIFIER
                     | perf_event_sample_format_PERF_SAMPLE_TRANSACTION
                     | perf_event_sample_format_PERF_SAMPLE_PHYS_ADDR;
-                //| perf_event_sample_format_PERF_SAMPLE_AUX;
 
                 if extra_config.sample_stack_user.is_some() {
                     sample_type |= perf_event_sample_format_PERF_SAMPLE_STACK_USER
@@ -66,6 +65,10 @@ impl Attr {
 
                 if extra_config.sample_max_stack.is_some() {
                     sample_type |= perf_event_sample_format_PERF_SAMPLE_CALLCHAIN
+                }
+
+                if extra_config.aux_sample_size.is_some() {
+                    sample_type |= perf_event_sample_format_PERF_SAMPLE_AUX
                 }
 
                 if extra_config.sample_regs_user.is_some() {
@@ -136,7 +139,7 @@ impl Attr {
             sample_max_stack: extra_config.sample_max_stack.unwrap_or(0),
             __reserved_2: 0,
             #[cfg(feature = "linux-5.5")]
-            aux_sample_size: 0, // TODO
+            aux_sample_size: extra_config.aux_sample_size.unwrap_or(0),
             __reserved_3: 0,
             #[cfg(feature = "linux-5.13")]
             sig_data: 0, // not use in sampling mode

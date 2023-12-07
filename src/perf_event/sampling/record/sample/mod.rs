@@ -35,7 +35,7 @@ pub struct Body {
     pub cgroup: u64,
     pub data_page_size: u64,
     pub code_page_size: u64,
-    //pub data_3: Vec<u8>,
+    pub data_3: Option<Vec<u8>>,
 }
 
 type RawBody = raw::Body;
@@ -45,12 +45,14 @@ impl Body {
         ptr: *const u8,
         is_sample_stack_user: bool,
         is_sample_callchain: bool,
+        is_sample_aux: bool,
         user_regs_len: usize,
         intr_regs_len: usize,
     ) -> Self {
         let raw = RawBody {
             is_sample_stack_user,
             is_sample_callchain,
+            is_sample_aux,
             user_regs_len,
             intr_regs_len,
             ptr,
@@ -112,7 +114,7 @@ impl Body {
             cgroup: *raw.cgroup(),
             data_page_size: *raw.data_page_size(),
             code_page_size: *raw.code_page_size(),
-            //data_3: raw.data_3().to_vec(),
+            data_3: raw.data_3().ok().map(|it| it.to_vec()),
         }
     }
 }
