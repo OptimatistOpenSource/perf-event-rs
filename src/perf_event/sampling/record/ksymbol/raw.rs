@@ -14,10 +14,10 @@ use crate::sampling::record::SampleId;
 
 #[repr(C)]
 struct Sized1 {
-    pub addr: u64,
-    pub len: u32,
-    pub ksym_type: u16,
-    pub flags: u16,
+    addr: u64,
+    len: u32,
+    ksym_type: u16,
+    flags: u16,
 }
 
 #[repr(C)]

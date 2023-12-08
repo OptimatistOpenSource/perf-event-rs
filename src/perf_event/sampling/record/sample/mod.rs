@@ -42,16 +42,16 @@ type RawBody = raw::Body;
 impl Body {
     pub unsafe fn from_ptr(
         ptr: *const u8,
-        is_sample_stack_user: bool,
-        is_sample_callchain: bool,
-        is_sample_aux: bool,
+        sample_stack_user: bool,
+        sample_callchain: bool,
+        sample_aux: bool,
         user_regs_len: Option<usize>,
         intr_regs_len: Option<usize>,
     ) -> Self {
         let raw = RawBody {
-            is_sample_stack_user,
-            is_sample_callchain,
-            is_sample_aux,
+            sample_stack_user,
+            sample_callchain,
+            sample_aux,
             user_regs_len,
             intr_regs_len,
             ptr,

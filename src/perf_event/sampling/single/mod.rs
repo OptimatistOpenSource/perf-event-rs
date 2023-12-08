@@ -15,10 +15,10 @@ pub struct Sampling {
     pub(crate) mmap: MmapMut,
     pub(crate) file: File,
 
-    pub(crate) is_sample_id_all: bool,
-    pub(crate) is_sample_stack_user: bool,
-    pub(crate) is_sample_callchain: bool,
-    pub(crate) is_sample_aux: bool,
+    pub(crate) sample_id_all: bool,
+    pub(crate) sample_stack_user: bool,
+    pub(crate) sample_callchain: bool,
+    pub(crate) sample_aux: bool,
 
     pub(crate) user_regs_len: Option<usize>,
     pub(crate) intr_regs_len: Option<usize>,
@@ -58,10 +58,10 @@ impl Sampling {
                 Self {
                     mmap,
                     file,
-                    is_sample_id_all: raw_attr.sample_id_all() > 0,
-                    is_sample_stack_user: is_enabled(PERF_SAMPLE_STACK_USER),
-                    is_sample_callchain: is_enabled(PERF_SAMPLE_CALLCHAIN),
-                    is_sample_aux: is_enabled(PERF_SAMPLE_AUX),
+                    sample_id_all: raw_attr.sample_id_all() > 0,
+                    sample_stack_user: is_enabled(PERF_SAMPLE_STACK_USER),
+                    sample_callchain: is_enabled(PERF_SAMPLE_CALLCHAIN),
+                    sample_aux: is_enabled(PERF_SAMPLE_AUX),
                     user_regs_len,
                     intr_regs_len,
                 }

@@ -13,9 +13,9 @@ use std::slice;
 
 #[repr(C)]
 struct Sized1 {
-    pub pid: u32,
-    pub tid: u32,
-    pub values_header: read_format_header,
+    pid: u32,
+    tid: u32,
+    values_header: read_format_header,
 }
 
 #[repr(C)]

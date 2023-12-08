@@ -59,14 +59,14 @@ pub union anon_union {
 
 #[repr(C)]
 struct Sized1 {
-    pub pid: u32,
-    pub tid: u32,
-    pub addr: u64,
-    pub len: u64,
-    pub pgoff: u64,
-    pub anon_union: anon_union,
-    pub prot: u32,
-    pub flags: u32,
+    pid: u32,
+    tid: u32,
+    addr: u64,
+    len: u64,
+    pgoff: u64,
+    anon_union: anon_union,
+    prot: u32,
+    flags: u32,
 }
 
 #[repr(C)]

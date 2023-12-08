@@ -71,26 +71,26 @@ struct Sized1 {
 struct Sized2 {
     // TODO:
     //weight: perf_sample_weight,
-    pub data_src: u64,
-    pub transaction: u64,
+    data_src: u64,
+    transaction: u64,
 }
 
 #[repr(C)]
 #[derive(Debug, Clone)]
 struct Sized3 {
-    pub phys_addr: u64,
-    pub cgroup: u64,
-    pub data_page_size: u64,
-    pub code_page_size: u64,
+    phys_addr: u64,
+    cgroup: u64,
+    data_page_size: u64,
+    code_page_size: u64,
 }
 
 pub struct Body {
-    pub(crate) is_sample_stack_user: bool,
-    pub(crate) is_sample_callchain: bool,
-    pub(crate) is_sample_aux: bool,
-    pub(crate) user_regs_len: Option<usize>,
-    pub(crate) intr_regs_len: Option<usize>,
-    pub(crate) ptr: *const u8,
+    pub sample_stack_user: bool,
+    pub sample_callchain: bool,
+    pub sample_aux: bool,
+    pub user_regs_len: Option<usize>,
+    pub intr_regs_len: Option<usize>,
+    pub ptr: *const u8,
 }
 
 macro_rules! sized1_get {
@@ -151,7 +151,7 @@ impl Body {
     pub fn ips(&self) -> Result<&[u64], *const u64> {
         let len_ptr = unsafe { self.v_body().follow_mem_ptr() } as *const u64;
 
-        if self.is_sample_callchain {
+        if self.sample_callchain {
             let vla: &Vla<u64, u64> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
             vla.as_slice().wrap_ok()
         } else {
@@ -202,7 +202,7 @@ impl Body {
             Ok((_, regs)) => unsafe { regs.follow_mem_ptr() },
             Err(ptr) => ptr,
         };
-        if self.is_sample_stack_user {
+        if self.sample_stack_user {
             let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
             vla.as_slice().wrap_ok()
         } else {
@@ -271,7 +271,7 @@ impl Body {
     pub fn data_3(&self) -> Result<&[u8], *const u64> {
         unsafe {
             let len_ptr = (self.sized3() as *const Sized3).add(1) as *const u64;
-            if self.is_sample_aux {
+            if self.sample_aux {
                 let vla: &Vla<u64, u8> = Vla::from_ptr(len_ptr).as_ref().unwrap();
                 vla.as_slice().wrap_ok()
             } else {
