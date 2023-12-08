@@ -1,4 +1,4 @@
-use crate::infra::{ArrayExt, VecExt, WrapBox, WrapOption};
+use crate::infra::{SizedExt, VecExt, WrapBox, WrapOption};
 use crate::sampling::record::*;
 use crate::sampling::Sampling;
 use crate::syscall::bindings::*;
