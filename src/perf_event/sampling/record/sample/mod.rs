@@ -5,6 +5,7 @@ use crate::sampling::record::sample::data_src::DataSrc;
 mod abi_and_regs;
 mod data_src;
 mod raw;
+mod raw_v2;
 
 pub use abi_and_regs::*;
 pub use data_src::*;
