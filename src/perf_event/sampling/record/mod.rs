@@ -20,13 +20,13 @@ pub mod text_poke;
 pub mod throttle;
 pub mod unthrottle;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Record {
     pub misc: u16,
     pub body: RecordBody,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum RecordBody {
     Mmap(Box<mmap::Body>),
     Lost(Box<lost::Body>),

@@ -3,7 +3,7 @@ mod raw;
 use crate::sampling::record::SampleId;
 use std::ffi::CString;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Body {
     pub pid: u32,
     pub tid: u32,

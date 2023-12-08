@@ -20,7 +20,7 @@ impl Default for Builder {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Builder {
     /*
     pid == 0 and cpu == -1

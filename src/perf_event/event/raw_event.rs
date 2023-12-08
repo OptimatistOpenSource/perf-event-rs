@@ -1,6 +1,6 @@
 use crate::Event;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RawEvent {
     config: u64,
 }

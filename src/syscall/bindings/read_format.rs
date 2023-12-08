@@ -1,5 +1,5 @@
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[allow(non_camel_case_types)]
 /// read_format body in PERF_FORMAT_GROUP
 pub struct read_format_body {

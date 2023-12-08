@@ -1,6 +1,6 @@
 use crate::sampling::Wakeup::Events;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ExtraConfig {
     pub pinned: bool,
     pub exclusive: bool,
@@ -59,7 +59,7 @@ impl Default for ExtraConfig {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum SampleIpSkid {
     /// SAMPLE_IP can have arbitrary skid
     Arbitrary, // 0
@@ -72,7 +72,7 @@ pub enum SampleIpSkid {
     Zero, // 3
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ClockId {
     Monotonic,
     MonotonicRaw,
@@ -81,7 +81,7 @@ pub enum ClockId {
     Tai,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Wakeup {
     Events(u32),
     Watermark(u32),

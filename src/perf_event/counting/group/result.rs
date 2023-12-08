@@ -4,7 +4,7 @@ use crate::syscall::bindings::{read_format_body, read_format_header};
 use std::collections::HashMap;
 use std::io;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MemberResult {
     pub event_count: u64,
     /// only meaningful in sampling mode
@@ -12,7 +12,7 @@ pub struct MemberResult {
     pub event_lost: u64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CountingGroupResult {
     pub time_enabled: u64,
     pub time_running: u64,

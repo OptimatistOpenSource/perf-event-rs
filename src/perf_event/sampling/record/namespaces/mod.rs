@@ -9,7 +9,7 @@ pub struct Namespace {
     pub inode: u64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Body {
     pub pid: u32,
     pub tid: u32,

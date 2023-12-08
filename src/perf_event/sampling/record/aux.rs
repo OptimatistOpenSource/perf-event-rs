@@ -10,7 +10,7 @@ struct {
 use crate::sampling::record::SampleId;
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Body {
     pub aux_offset: u64,
     pub aux_size: u64,

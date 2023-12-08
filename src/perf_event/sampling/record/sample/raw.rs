@@ -67,7 +67,7 @@ struct Sized1 {
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Sized2 {
     // TODO:
     //weight: perf_sample_weight,
@@ -76,7 +76,7 @@ struct Sized2 {
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Sized3 {
     pub phys_addr: u64,
     pub cgroup: u64,

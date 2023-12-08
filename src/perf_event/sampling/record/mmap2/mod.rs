@@ -4,7 +4,7 @@ use std::ffi::CString;
 
 mod raw;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum AnonEnum {
     Normal {
         maj: u32,
@@ -15,7 +15,7 @@ pub enum AnonEnum {
     BuildId(Vec<u8>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Body {
     pub pid: u32,
     pub tid: u32,

@@ -6,7 +6,10 @@ mod abi_and_regs;
 mod data_src;
 mod raw;
 
-#[derive(Debug)]
+pub use abi_and_regs::*;
+pub use data_src::*;
+
+#[derive(Debug, Clone)]
 pub struct Body {
     pub sample_id: u64,
     pub ip: u64,
@@ -72,10 +75,7 @@ impl Body {
             v: CountingGroupResult::from_raw(raw.v_header(), raw.v_body()),
             ips: raw.ips().map(|it| it.to_vec()).ok(),
             data_1: raw.data_1().to_vec(),
-            user_abi_and_regs: raw
-                .user_abi_and_regs()
-                .ok()
-                .map(AbiAndRegs::from_raw),
+            user_abi_and_regs: raw.user_abi_and_regs().ok().map(AbiAndRegs::from_raw),
             data_2: {
                 let dyn_size = raw.dyn_size().map(|it| *it).unwrap_or(0) as _;
                 raw.data_2()
@@ -84,10 +84,7 @@ impl Body {
             },
             data_src: DataSrc::from_raw(*raw.data_src()),
             transaction: *raw.transaction(),
-            intr_abi_and_regs: raw
-                .user_abi_and_regs()
-                .ok()
-                .map(AbiAndRegs::from_raw),
+            intr_abi_and_regs: raw.user_abi_and_regs().ok().map(AbiAndRegs::from_raw),
             phys_addr: *raw.phys_addr(),
             cgroup: *raw.cgroup(),
             data_page_size: *raw.data_page_size(),

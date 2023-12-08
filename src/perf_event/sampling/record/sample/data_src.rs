@@ -1,6 +1,6 @@
 use crate::syscall::bindings::*;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MemOp {
     Na,
     Load,
@@ -9,7 +9,7 @@ pub enum MemOp {
     Exec,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MemLvl {
     Na,
     Hit,
@@ -27,7 +27,7 @@ pub enum MemLvl {
     Unc,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MemSnoop {
     Na,
     None,
@@ -36,13 +36,13 @@ pub enum MemSnoop {
     Hitm,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MemLock {
     Na,
     Locked,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MemDtlb {
     Na,
     Hit,
@@ -53,7 +53,7 @@ pub enum MemDtlb {
     Os,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DataSrc {
     pub mem_op: MemOp,
     pub mem_lvl: MemLvl,

@@ -9,7 +9,7 @@ struct {
 use crate::sampling::record::SampleId;
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Body {
     pub next_prev_pid: u32,
     pub next_prev_tid: u32,

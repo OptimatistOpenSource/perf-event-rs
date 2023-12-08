@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ExtraConfig {
     pub inherit: bool,
     pub pinned: bool,

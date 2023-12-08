@@ -14,7 +14,7 @@ pub enum OverflowBy {
     Freq(u64),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Attr {
     raw_attr: RawAttr,
 }

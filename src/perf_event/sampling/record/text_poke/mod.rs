@@ -2,7 +2,7 @@ use crate::sampling::record::SampleId;
 
 mod raw;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Body {
     pub addr: u64,
     pub old_len: u16,

@@ -9,7 +9,7 @@ struct {
 use crate::sampling::record::SampleId;
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Body {
     pub id: u64,
     pub lost: u64,

@@ -12,7 +12,7 @@ pub struct Counting {
     pub(crate) file: File,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CountingResult {
     pub event_count: u64,
     pub time_enabled: u64,

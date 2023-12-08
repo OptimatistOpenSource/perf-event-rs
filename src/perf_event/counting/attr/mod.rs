@@ -7,7 +7,7 @@ use std::fmt::Debug;
 
 pub use extra_config::*;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Attr {
     raw_attr: RawAttr,
 }

@@ -12,7 +12,7 @@ use crate::sampling::record::SampleId;
 use crate::syscall::bindings::BPF_TAG_SIZE;
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Body {
     pub r#type: u16,
     pub flags: u16,

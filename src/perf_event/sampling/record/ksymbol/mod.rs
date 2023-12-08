@@ -3,7 +3,7 @@ use std::ffi::CString;
 
 mod raw;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Body {
     pub addr: u64,
     pub len: u32,

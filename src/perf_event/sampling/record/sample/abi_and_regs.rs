@@ -1,7 +1,7 @@
 use crate::sampling::record::Abi;
 use crate::syscall::bindings::*;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AbiAndRegs {
     pub abi: Abi,
     pub regs: Vec<u64>,

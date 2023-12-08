@@ -3,7 +3,7 @@ use std::ffi::CString;
 mod raw;
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Body {
     pub pid: u32,
     pub tid: u32,
