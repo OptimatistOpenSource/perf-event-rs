@@ -2,7 +2,7 @@ use crate::counting::{Attr, Counting, CountingGroupResult};
 use crate::infra::VecExt;
 use crate::infra::WrapResult;
 use crate::syscall;
-use crate::syscall::bindings::{read_format_body, read_format_header};
+use crate::syscall::bindings::*;
 use crate::syscall::ioctl_wrapped;
 use libc::pid_t;
 use std::io::{ErrorKind, Read};
@@ -47,8 +47,8 @@ impl Inner {
             |leader| {
                 ioctl_wrapped(
                     &leader.file,
-                    syscall::bindings::perf_event_ioctls_ENABLE,
-                    Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
+                    syscall::bindings::PERF_EVENT_IOCTL_ENABLE,
+                    Some(syscall::bindings::PERF_IOC_FLAG_GROUP),
                 )
             },
         )
@@ -60,8 +60,8 @@ impl Inner {
             |leader| {
                 ioctl_wrapped(
                     &leader.file,
-                    syscall::bindings::perf_event_ioctls_DISABLE,
-                    Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
+                    syscall::bindings::PERF_EVENT_IOCTL_DISABLE,
+                    Some(syscall::bindings::PERF_IOC_FLAG_GROUP),
                 )
             },
         )
@@ -73,8 +73,8 @@ impl Inner {
             |leader| {
                 ioctl_wrapped(
                     &leader.file,
-                    syscall::bindings::perf_event_ioctls_RESET,
-                    Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
+                    PERF_EVENT_IOCTL_RESET,
+                    Some(PERF_IOC_FLAG_GROUP),
                 )
             },
         )

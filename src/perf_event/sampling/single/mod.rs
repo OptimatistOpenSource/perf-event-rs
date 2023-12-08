@@ -50,20 +50,18 @@ impl Sampling {
                 let is_enabled =
                     |mask: perf_event_sample_format| (raw_attr.sample_type & mask as u64) > 0;
 
-                let user_regs_len = is_enabled(perf_event_sample_format_PERF_SAMPLE_REGS_USER)
+                let user_regs_len = is_enabled(PERF_SAMPLE_REGS_USER)
                     .then(|| raw_attr.sample_regs_user.count_ones() as _);
-                let intr_regs_len = is_enabled(perf_event_sample_format_PERF_SAMPLE_REGS_INTR)
+                let intr_regs_len = is_enabled(PERF_SAMPLE_REGS_INTR)
                     .then(|| raw_attr.sample_regs_intr.count_ones() as _);
 
                 Self {
                     mmap,
                     file,
                     is_sample_id_all: raw_attr.sample_id_all() > 0,
-                    is_sample_stack_user: is_enabled(
-                        perf_event_sample_format_PERF_SAMPLE_STACK_USER,
-                    ),
-                    is_sample_callchain: is_enabled(perf_event_sample_format_PERF_SAMPLE_CALLCHAIN),
-                    is_sample_aux: is_enabled(perf_event_sample_format_PERF_SAMPLE_AUX),
+                    is_sample_stack_user: is_enabled(PERF_SAMPLE_STACK_USER),
+                    is_sample_callchain: is_enabled(PERF_SAMPLE_CALLCHAIN),
+                    is_sample_aux: is_enabled(PERF_SAMPLE_AUX),
                     user_regs_len,
                     intr_regs_len,
                 }
@@ -73,19 +71,19 @@ impl Sampling {
     }
 
     pub fn enable(&self) -> io::Result<()> {
-        ioctl_wrapped::<()>(&self.file, perf_event_ioctls_ENABLE, None)
+        ioctl_wrapped::<()>(&self.file, PERF_EVENT_IOCTL_ENABLE, None)
     }
 
     pub fn disable(&self) -> io::Result<()> {
-        ioctl_wrapped::<()>(&self.file, perf_event_ioctls_DISABLE, None)
+        ioctl_wrapped::<()>(&self.file, PERF_EVENT_IOCTL_DISABLE, None)
     }
 
     pub fn pause(&self) -> io::Result<()> {
-        ioctl_wrapped(&self.file, perf_event_ioctls_PAUSE_OUTPUT, Some(1i32))
+        ioctl_wrapped(&self.file, PERF_EVENT_IOCTL_PAUSE_OUTPUT, Some(1i32))
     }
 
     pub fn resume(&self) -> io::Result<()> {
-        ioctl_wrapped(&self.file, perf_event_ioctls_PAUSE_OUTPUT, Some(0i32))
+        ioctl_wrapped(&self.file, PERF_EVENT_IOCTL_PAUSE_OUTPUT, Some(0i32))
     }
 
     pub fn next_record(&mut self) -> Option<Record> {
@@ -94,7 +92,7 @@ impl Sampling {
 
     pub fn event_id(&self) -> io::Result<u64> {
         let mut id = 0_u64;
-        ioctl_wrapped(&self.file, perf_event_ioctls_ID, Some(&mut id))?;
+        ioctl_wrapped(&self.file, PERF_EVENT_IOCTL_ID, Some(&mut id))?;
         Ok(id)
     }
 }

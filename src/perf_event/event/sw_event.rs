@@ -20,18 +20,18 @@ impl SwEvent {
     pub(crate) const fn into_u64(self) -> u64 {
         use SwEvent::*;
         let config = match self {
-            CpuClock => perf_sw_ids_PERF_COUNT_SW_CPU_CLOCK,
-            TaskClock => perf_sw_ids_PERF_COUNT_SW_TASK_CLOCK,
-            PageFaults => perf_sw_ids_PERF_COUNT_SW_PAGE_FAULTS,
-            ContextSwitches => perf_sw_ids_PERF_COUNT_SW_CONTEXT_SWITCHES,
-            CpuMigrations => perf_sw_ids_PERF_COUNT_SW_CPU_MIGRATIONS,
-            PageFaultsMin => perf_sw_ids_PERF_COUNT_SW_PAGE_FAULTS_MIN,
-            PageFaultsMaj => perf_sw_ids_PERF_COUNT_SW_PAGE_FAULTS_MAJ,
-            AlignmentFaults => perf_sw_ids_PERF_COUNT_SW_ALIGNMENT_FAULTS,
-            EmulationFaults => perf_sw_ids_PERF_COUNT_SW_EMULATION_FAULTS,
-            Dummy => perf_sw_ids_PERF_COUNT_SW_DUMMY,
-            BpfOutput => perf_sw_ids_PERF_COUNT_SW_BPF_OUTPUT,
-            CgroupSwitches => perf_sw_ids_PERF_COUNT_SW_CGROUP_SWITCHES,
+            CpuClock => PERF_COUNT_SW_CPU_CLOCK,
+            TaskClock => PERF_COUNT_SW_TASK_CLOCK,
+            PageFaults => PERF_COUNT_SW_PAGE_FAULTS,
+            ContextSwitches => PERF_COUNT_SW_CONTEXT_SWITCHES,
+            CpuMigrations => PERF_COUNT_SW_CPU_MIGRATIONS,
+            PageFaultsMin => PERF_COUNT_SW_PAGE_FAULTS_MIN,
+            PageFaultsMaj => PERF_COUNT_SW_PAGE_FAULTS_MAJ,
+            AlignmentFaults => PERF_COUNT_SW_ALIGNMENT_FAULTS,
+            EmulationFaults => PERF_COUNT_SW_EMULATION_FAULTS,
+            Dummy => PERF_COUNT_SW_DUMMY,
+            BpfOutput => PERF_COUNT_SW_BPF_OUTPUT,
+            CgroupSwitches => PERF_COUNT_SW_CGROUP_SWITCHES,
         };
         config as _
     }

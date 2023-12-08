@@ -1,6 +1,6 @@
 use crate::sampling::record::Record;
 use crate::sampling::{Attr, Sampling};
-use crate::syscall;
+use crate::syscall::bindings::*;
 use crate::syscall::ioctl_wrapped;
 use libc::pid_t;
 use std::collections::HashMap;
@@ -61,8 +61,8 @@ impl Inner {
             |leader| {
                 ioctl_wrapped(
                     &leader.file,
-                    syscall::bindings::perf_event_ioctls_ENABLE,
-                    Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
+                    PERF_EVENT_IOCTL_ENABLE,
+                    Some(PERF_IOC_FLAG_GROUP),
                 )
             },
         )
@@ -74,8 +74,8 @@ impl Inner {
             |leader| {
                 ioctl_wrapped(
                     &leader.file,
-                    syscall::bindings::perf_event_ioctls_DISABLE,
-                    Some(syscall::bindings::perf_event_ioc_flags_PERF_IOC_FLAG_GROUP),
+                    PERF_EVENT_IOCTL_DISABLE,
+                    Some(PERF_IOC_FLAG_GROUP),
                 )
             },
         )

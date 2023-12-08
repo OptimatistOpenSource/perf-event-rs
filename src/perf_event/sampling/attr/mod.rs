@@ -42,55 +42,55 @@ impl Attr {
                 #[allow(unused_mut)]
                 #[allow(clippy::identity_op)] // for readable
                 let mut sample_type = 0
-                    | perf_event_sample_format_PERF_SAMPLE_IP
-                    | perf_event_sample_format_PERF_SAMPLE_TID
-                    | perf_event_sample_format_PERF_SAMPLE_TIME
-                    | perf_event_sample_format_PERF_SAMPLE_ADDR
-                    | perf_event_sample_format_PERF_SAMPLE_READ
-                    | perf_event_sample_format_PERF_SAMPLE_ID
-                    | perf_event_sample_format_PERF_SAMPLE_CPU
-                    | perf_event_sample_format_PERF_SAMPLE_PERIOD
-                    | perf_event_sample_format_PERF_SAMPLE_STREAM_ID
-                    | perf_event_sample_format_PERF_SAMPLE_RAW
-                    //| perf_event_sample_format_PERF_SAMPLE_BRANCH_STACK // TODO: Not all hardware supports this feature
-                    //| perf_event_sample_format_PERF_SAMPLE_WEIGHT // FIX: this will lead to "Invalid Argument"
-                    | perf_event_sample_format_PERF_SAMPLE_DATA_SRC
-                    | perf_event_sample_format_PERF_SAMPLE_IDENTIFIER
-                    | perf_event_sample_format_PERF_SAMPLE_TRANSACTION
-                    | perf_event_sample_format_PERF_SAMPLE_PHYS_ADDR;
+                    | PERF_SAMPLE_IP
+                    | PERF_SAMPLE_TID
+                    | PERF_SAMPLE_TIME
+                    | PERF_SAMPLE_ADDR
+                    | PERF_SAMPLE_READ
+                    | PERF_SAMPLE_ID
+                    | PERF_SAMPLE_CPU
+                    | PERF_SAMPLE_PERIOD
+                    | PERF_SAMPLE_STREAM_ID
+                    | PERF_SAMPLE_RAW
+                    //| PERF_SAMPLE_BRANCH_STACK // TODO: Not all hardware supports this feature
+                    //| PERF_SAMPLE_WEIGHT // FIX: this will lead to "Invalid Argument"
+                    | PERF_SAMPLE_DATA_SRC
+                    | PERF_SAMPLE_IDENTIFIER
+                    | PERF_SAMPLE_TRANSACTION
+                    | PERF_SAMPLE_PHYS_ADDR;
 
                 if extra_config.sample_stack_user.is_some() {
-                    sample_type |= perf_event_sample_format_PERF_SAMPLE_STACK_USER
+                    sample_type |= PERF_SAMPLE_STACK_USER
                 }
 
                 if extra_config.sample_max_stack.is_some() {
-                    sample_type |= perf_event_sample_format_PERF_SAMPLE_CALLCHAIN
+                    sample_type |= PERF_SAMPLE_CALLCHAIN
                 }
 
                 if extra_config.aux_sample_size.is_some() {
-                    sample_type |= perf_event_sample_format_PERF_SAMPLE_AUX
+                    sample_type |= PERF_SAMPLE_AUX
                 }
 
                 if extra_config.sample_regs_user.is_some() {
-                    sample_type |= perf_event_sample_format_PERF_SAMPLE_REGS_USER
+                    sample_type |= PERF_SAMPLE_REGS_USER
                 }
 
                 if extra_config.sample_regs_intr.is_some() {
-                    sample_type |= perf_event_sample_format_PERF_SAMPLE_REGS_INTR
+                    sample_type |= PERF_SAMPLE_REGS_INTR
                 }
 
                 #[cfg(feature = "linux-5.7")]
                 {
-                    sample_type |= perf_event_sample_format_PERF_SAMPLE_CGROUP;
+                    sample_type |= PERF_SAMPLE_CGROUP;
                 }
                 #[cfg(feature = "linux-5.11")]
                 {
-                    sample_type |= perf_event_sample_format_PERF_SAMPLE_DATA_PAGE_SIZE;
-                    sample_type |= perf_event_sample_format_PERF_SAMPLE_CODE_PAGE_SIZE;
+                    sample_type |= PERF_SAMPLE_DATA_PAGE_SIZE;
+                    sample_type |= PERF_SAMPLE_CODE_PAGE_SIZE;
                 }
                 //#[cfg(feature = "linux-5.12")]
                 //{
-                //    sample_type |= perf_event_sample_format_PERF_SAMPLE_WEIGHT_STRUCT;
+                //    sample_type |= PERF_SAMPLE_WEIGHT_STRUCT;
                 //}
 
                 sample_type
@@ -99,14 +99,14 @@ impl Attr {
                 #[allow(unused_mut)]
                 #[allow(clippy::identity_op)] // for readable
                 let mut read_format = 0
-                    | perf_event_read_format_PERF_FORMAT_TOTAL_TIME_ENABLED
-                    | perf_event_read_format_PERF_FORMAT_TOTAL_TIME_RUNNING
-                    | perf_event_read_format_PERF_FORMAT_ID
-                    | perf_event_read_format_PERF_FORMAT_GROUP;
+                    | PERF_FORMAT_TOTAL_TIME_ENABLED
+                    | PERF_FORMAT_TOTAL_TIME_RUNNING
+                    | PERF_FORMAT_ID
+                    | PERF_FORMAT_GROUP;
 
                 #[cfg(feature = "linux-6.0")]
                 {
-                    read_format |= perf_event_read_format_PERF_FORMAT_LOST;
+                    read_format |= PERF_FORMAT_LOST;
                 }
 
                 read_format
@@ -221,19 +221,19 @@ impl Attr {
 
         match event.into() {
             Event::Hw(ev) if ev.is_cache_event() => {
-                raw_attr.type_ = perf_type_id_PERF_TYPE_HW_CACHE;
+                raw_attr.type_ = PERF_TYPE_HW_CACHE;
                 raw_attr.config = ev.into_u64();
             }
             Event::Hw(ev) => {
-                raw_attr.type_ = perf_type_id_PERF_TYPE_HARDWARE;
+                raw_attr.type_ = PERF_TYPE_HARDWARE;
                 raw_attr.config = ev.into_u64();
             }
             Event::Sw(ev) => {
-                raw_attr.type_ = perf_type_id_PERF_TYPE_SOFTWARE;
+                raw_attr.type_ = PERF_TYPE_SOFTWARE;
                 raw_attr.config = ev.into_u64();
             }
             Event::Raw(ev) => {
-                raw_attr.type_ = perf_type_id_PERF_TYPE_RAW;
+                raw_attr.type_ = PERF_TYPE_RAW;
                 raw_attr.config = ev.into_u64();
             }
         }

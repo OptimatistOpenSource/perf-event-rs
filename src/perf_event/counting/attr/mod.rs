@@ -31,15 +31,15 @@ impl Attr {
                 #[allow(unused_mut)]
                 #[allow(clippy::identity_op)] // for readable
                 let mut read_format = 0
-                    | perf_event_read_format_PERF_FORMAT_TOTAL_TIME_ENABLED
-                    | perf_event_read_format_PERF_FORMAT_TOTAL_TIME_RUNNING
-                    | perf_event_read_format_PERF_FORMAT_ID
-                    | perf_event_read_format_PERF_FORMAT_GROUP;
+                    | PERF_FORMAT_TOTAL_TIME_ENABLED
+                    | PERF_FORMAT_TOTAL_TIME_RUNNING
+                    | PERF_FORMAT_ID
+                    | PERF_FORMAT_GROUP;
 
                 // WARN: set for read_format align, event_lost should not be used.
                 #[cfg(feature = "linux-6.0")]
                 {
-                    read_format |= perf_event_read_format_PERF_FORMAT_LOST;
+                    read_format |= PERF_FORMAT_LOST;
                 }
 
                 read_format
@@ -130,19 +130,19 @@ impl Attr {
 
         match event.into() {
             Event::Hw(ev) if ev.is_cache_event() => {
-                raw_attr.type_ = perf_type_id_PERF_TYPE_HW_CACHE;
+                raw_attr.type_ = PERF_TYPE_HW_CACHE;
                 raw_attr.config = ev.into_u64();
             }
             Event::Hw(ev) => {
-                raw_attr.type_ = perf_type_id_PERF_TYPE_HARDWARE;
+                raw_attr.type_ = PERF_TYPE_HARDWARE;
                 raw_attr.config = ev.into_u64();
             }
             Event::Sw(ev) => {
-                raw_attr.type_ = perf_type_id_PERF_TYPE_SOFTWARE;
+                raw_attr.type_ = PERF_TYPE_SOFTWARE;
                 raw_attr.config = ev.into_u64();
             }
             Event::Raw(ev) => {
-                raw_attr.type_ = perf_type_id_PERF_TYPE_RAW;
+                raw_attr.type_ = PERF_TYPE_RAW;
                 raw_attr.config = ev.into_u64();
             }
         }

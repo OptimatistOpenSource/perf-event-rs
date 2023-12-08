@@ -61,17 +61,13 @@ impl Counting {
     }
 
     pub fn enable(&self) -> io::Result<()> {
-        ioctl_wrapped::<()>(
-            &self.file,
-            syscall::bindings::perf_event_ioctls_ENABLE,
-            None,
-        )
+        ioctl_wrapped::<()>(&self.file, syscall::bindings::PERF_EVENT_IOCTL_ENABLE, None)
     }
 
     pub fn disable(&self) -> io::Result<()> {
         ioctl_wrapped::<()>(
             &self.file,
-            syscall::bindings::perf_event_ioctls_DISABLE,
+            syscall::bindings::PERF_EVENT_IOCTL_DISABLE,
             None,
         )
     }
@@ -79,19 +75,19 @@ impl Counting {
     /*
         // TODO
         pub fn refresh(&self) -> io::Result<()> {
-            //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_REFRESH)
+            //self.perf_event_ioctl(syscall::bindings::PERF_EVENT_IOCTL_REFRESH)
             todo!()
         }
     */
 
     pub fn reset_count(&self) -> io::Result<()> {
-        ioctl_wrapped::<()>(&self.file, syscall::bindings::perf_event_ioctls_RESET, None)
+        ioctl_wrapped::<()>(&self.file, syscall::bindings::PERF_EVENT_IOCTL_RESET, None)
     }
 
     pub fn update_period(&self, new: u64) -> io::Result<()> {
         ioctl_wrapped(
             &self.file,
-            syscall::bindings::perf_event_ioctls_PERIOD,
+            syscall::bindings::PERF_EVENT_IOCTL_PERIOD,
             Some(&new),
         )
     }
@@ -100,7 +96,7 @@ impl Counting {
         let raw_fd = new.as_raw_fd() as i64;
         ioctl_wrapped(
             &self.file,
-            syscall::bindings::perf_event_ioctls_SET_OUTPUT,
+            syscall::bindings::PERF_EVENT_IOCTL_SET_OUTPUT,
             Some(raw_fd),
         )
     }
@@ -108,7 +104,7 @@ impl Counting {
     pub fn ignore_output(&self) -> io::Result<()> {
         ioctl_wrapped(
             &self.file,
-            syscall::bindings::perf_event_ioctls_SET_OUTPUT,
+            syscall::bindings::PERF_EVENT_IOCTL_SET_OUTPUT,
             Some(-1i64),
         )
     }
@@ -117,7 +113,7 @@ impl Counting {
         let mut id = 0_u64;
         ioctl_wrapped(
             &self.file,
-            syscall::bindings::perf_event_ioctls_ID,
+            syscall::bindings::PERF_EVENT_IOCTL_ID,
             Some(&mut id),
         )?;
         Ok(id)
@@ -127,25 +123,25 @@ impl Counting {
 /*
     // TODO: tracing mode only
     pub fn set_filter(&self) -> io::Result<()> {
-        //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_FILTER)
+        //self.perf_event_ioctl(syscall::bindings::PERF_EVENT_IOCTL_SET_FILTER)
         todo!()
     }
 
     // TODO: tracing mode only
     pub fn set_bpf(&self) -> io::Result<()> {
-        //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_SET_BPF)
+        //self.perf_event_ioctl(syscall::bindings::PERF_EVENT_IOCTL_SET_BPF)
         todo!()
     }
 
     // TODO: tracing mode only
     pub fn query_bpf(&self) -> io::Result<()> {
-        //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_QUERY_BPF)
+        //self.perf_event_ioctl(syscall::bindings::PERF_EVENT_IOCTL_QUERY_BPF)
         todo!()
     }
 
     // TODO: breakpoint event only
     pub fn modify_attributes(&self) -> io::Result<()> {
-        //self.perf_event_ioctl(syscall::bindings::perf_event_ioctls_MODIFY_ATTRIBUTES)
+        //self.perf_event_ioctl(syscall::bindings::PERF_EVENT_IOCTL_MODIFY_ATTRIBUTES)
         todo!()
     }
 */

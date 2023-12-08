@@ -12,9 +12,9 @@ impl AbiAndRegs {
         let (abi, regs) = raw;
         #[allow(non_upper_case_globals)]
         let abi = match *abi as _ {
-            perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_NONE => Abi::AbiNone,
-            perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_32 => Abi::Abi32,
-            perf_sample_regs_abi_PERF_SAMPLE_REGS_ABI_64 => Abi::Abi64,
+            PERF_SAMPLE_REGS_ABI_NONE => Abi::AbiNone,
+            PERF_SAMPLE_REGS_ABI_32 => Abi::Abi32,
+            PERF_SAMPLE_REGS_ABI_64 => Abi::Abi64,
             abi => unreachable!("ABI: {}", abi),
         };
         Self {
