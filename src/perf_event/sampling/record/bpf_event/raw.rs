@@ -18,5 +18,11 @@ pub struct Body {
     pub flags: u16,
     pub id: u32,
     pub tag: [u8; BPF_TAG_SIZE as usize],
-    pub sample_id: SampleId,
+}
+
+impl Body {
+    pub unsafe fn sample_id(&self) -> &SampleId {
+        let ptr = (self as *const Self).add(1) as *const SampleId;
+        ptr.as_ref().unwrap()
+    }
 }

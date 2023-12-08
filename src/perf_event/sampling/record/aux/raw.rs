@@ -15,5 +15,11 @@ pub struct Body {
     pub aux_offset: u64,
     pub aux_size: u64,
     pub flags: u64,
-    pub sample_id: SampleId,
+}
+
+impl Body {
+    pub unsafe fn sample_id(&self) -> &SampleId {
+        let ptr = (self as *const Self).add(1) as *const SampleId;
+        ptr.as_ref().unwrap()
+    }
 }

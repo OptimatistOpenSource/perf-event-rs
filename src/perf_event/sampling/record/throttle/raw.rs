@@ -15,5 +15,11 @@ pub struct Body {
     pub time: u64,
     pub id: u64,
     pub stream_id: u64,
-    pub sample_id: SampleId,
+}
+
+impl Body {
+    pub unsafe fn sample_id(&self) -> &SampleId {
+        let ptr = (self as *const Self).add(1) as *const SampleId;
+        ptr.as_ref().unwrap()
+    }
 }
