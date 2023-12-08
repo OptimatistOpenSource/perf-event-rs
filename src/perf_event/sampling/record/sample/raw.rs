@@ -45,7 +45,7 @@ struct {
 */
 
 use crate::debug_struct_fn;
-use crate::infra::{ConstPtrExt, SliceExt, Vla, WrapOption, WrapResult};
+use crate::infra::{ConstPtrExt, SliceExt, Vla, WrapResult};
 use crate::syscall::bindings::{read_format_body, read_format_header};
 use std::fmt::{Debug, Formatter};
 use std::slice;
@@ -88,8 +88,8 @@ pub struct Body {
     pub(crate) is_sample_stack_user: bool,
     pub(crate) is_sample_callchain: bool,
     pub(crate) is_sample_aux: bool,
-    pub(crate) user_regs_len: usize,
-    pub(crate) intr_regs_len: usize,
+    pub(crate) user_regs_len: Option<usize>,
+    pub(crate) intr_regs_len: Option<usize>,
     pub(crate) ptr: *const u8,
 }
 
@@ -177,20 +177,23 @@ impl Body {
 
     pub fn user_abi_and_regs(&self) -> Result<(&u64, &[u64]), *const u64> {
         unsafe {
-            //let abi_ptr = match self.ips() {
-            //    Ok(ips) => ips.follow_mem_ptr(),
-            //    Err(ptr) => ptr,
-            //};
             let abi_ptr = self.data_1().follow_mem_ptr() as *const u64;
 
-            if self.user_regs_len == 0 {
-                Err(abi_ptr)
-            } else {
-                let abi = abi_ptr.as_ref().unwrap();
-                let regs_ptr = abi_ptr.add(1);
-                let regs = slice::from_raw_parts(regs_ptr, self.user_regs_len);
-                (abi, regs).wrap_ok()
-            }
+            self.user_regs_len.map_or_else(
+                || Err(abi_ptr),
+                |len| {
+                    let abi = abi_ptr.as_ref().unwrap();
+                    let regs_ptr = abi_ptr.add(1);
+                    /*
+                    From line 7387 of linux/kernel/events/core.c:
+                    If there are no regs to dump, notice it through
+                    first u64 being zero (PERF_SAMPLE_REGS_ABI_NONE).
+                    */
+                    let len = if *abi == 0 { 0 } else { len };
+                    let regs = slice::from_raw_parts(regs_ptr, len);
+                    (abi, regs).wrap_ok()
+                },
+            )
         }
     }
 
@@ -232,30 +235,32 @@ impl Body {
     sized2_get!(data_src, &u64);
     sized2_get!(transaction, &u64);
 
-    pub fn intr_abi_and_regs(&self) -> Option<(&u64, &[u64])> {
-        if self.intr_regs_len == 0 {
-            return None;
-        }
-
-        let sized2_ptr = self.sized2() as *const Sized2;
+    pub fn intr_abi_and_regs(&self) -> Result<(&u64, &[u64]), *const u64> {
         unsafe {
-            let abi_ptr = sized2_ptr.add(1) as *const u64;
-            let abi = abi_ptr.as_ref().unwrap();
-            let regs_ptr = abi_ptr.add(1);
-            let regs = slice::from_raw_parts(regs_ptr, self.intr_regs_len);
-            (abi, regs).wrap_some()
+            let abi_ptr = (self.sized2() as *const Sized2).add(1) as *const u64;
+            self.intr_regs_len.map_or_else(
+                || Err(abi_ptr),
+                |len| {
+                    let abi = abi_ptr.as_ref().unwrap();
+                    let regs_ptr = abi_ptr.add(1);
+                    /*
+                    From line 7387 of linux/kernel/events/core.c:
+                    If there are no regs to dump, notice it through
+                    first u64 being zero (PERF_SAMPLE_REGS_ABI_NONE).
+                    */
+                    let len = if *abi == 0 { 0 } else { len };
+                    let regs = slice::from_raw_parts(regs_ptr, len);
+                    (abi, regs).wrap_ok()
+                },
+            )
         }
     }
 
     fn sized3(&self) -> &Sized3 {
-        let ptr = unsafe {
-            self.intr_abi_and_regs()
-                .map(|(_, regs)| regs.follow_mem_ptr() as *const Sized3)
-                .unwrap_or_else(|| (self.sized2() as *const Sized2).add(1) as *const Sized3)
-        };
-
-        //let size = ptr as usize - self.ptr as usize + std::mem::size_of::<Sized3>();
-        //dbg!(size);
+        let ptr = match self.intr_abi_and_regs() {
+            Ok((_, regs)) => unsafe { regs.follow_mem_ptr() },
+            Err(ptr) => ptr,
+        } as *const Sized3;
         unsafe { ptr.as_ref().unwrap() }
     }
     sized3_get!(phys_addr, &u64);

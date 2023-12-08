@@ -20,8 +20,8 @@ pub struct Sampling {
     pub(crate) is_sample_callchain: bool,
     pub(crate) is_sample_aux: bool,
 
-    pub(crate) user_regs_len: usize,
-    pub(crate) intr_regs_len: usize,
+    pub(crate) user_regs_len: Option<usize>,
+    pub(crate) intr_regs_len: Option<usize>,
 }
 
 impl Sampling {
@@ -47,21 +47,23 @@ impl Sampling {
                 }
                 .unwrap();
 
-                let user_regs_len = raw_attr.sample_regs_user.count_ones() as _;
-                let intr_regs_len = raw_attr.sample_regs_intr.count_ones() as _;
-
-                let is_enable =
+                let is_enabled =
                     |mask: perf_event_sample_format| (raw_attr.sample_type & mask as u64) > 0;
+
+                let user_regs_len = is_enabled(perf_event_sample_format_PERF_SAMPLE_REGS_USER)
+                    .then(|| raw_attr.sample_regs_user.count_ones() as _);
+                let intr_regs_len = is_enabled(perf_event_sample_format_PERF_SAMPLE_REGS_INTR)
+                    .then(|| raw_attr.sample_regs_intr.count_ones() as _);
 
                 Self {
                     mmap,
                     file,
                     is_sample_id_all: raw_attr.sample_id_all() > 0,
-                    is_sample_stack_user: is_enable(
+                    is_sample_stack_user: is_enabled(
                         perf_event_sample_format_PERF_SAMPLE_STACK_USER,
                     ),
-                    is_sample_callchain: is_enable(perf_event_sample_format_PERF_SAMPLE_CALLCHAIN),
-                    is_sample_aux: is_enable(perf_event_sample_format_PERF_SAMPLE_AUX),
+                    is_sample_callchain: is_enabled(perf_event_sample_format_PERF_SAMPLE_CALLCHAIN),
+                    is_sample_aux: is_enabled(perf_event_sample_format_PERF_SAMPLE_AUX),
                     user_regs_len,
                     intr_regs_len,
                 }

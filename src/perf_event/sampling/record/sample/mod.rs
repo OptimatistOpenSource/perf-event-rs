@@ -45,8 +45,8 @@ impl Body {
         is_sample_stack_user: bool,
         is_sample_callchain: bool,
         is_sample_aux: bool,
-        user_regs_len: usize,
-        intr_regs_len: usize,
+        user_regs_len: Option<usize>,
+        intr_regs_len: Option<usize>,
     ) -> Self {
         let raw = RawBody {
             is_sample_stack_user,
@@ -84,7 +84,7 @@ impl Body {
             },
             data_src: DataSrc::from_raw(*raw.data_src()),
             transaction: *raw.transaction(),
-            intr_abi_and_regs: raw.user_abi_and_regs().ok().map(AbiAndRegs::from_raw),
+            intr_abi_and_regs: raw.intr_abi_and_regs().ok().map(AbiAndRegs::from_raw),
             phys_addr: *raw.phys_addr(),
             cgroup: *raw.cgroup(),
             data_page_size: *raw.data_page_size(),
