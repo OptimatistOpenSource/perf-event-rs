@@ -9,6 +9,7 @@ mod slice;
 mod vec;
 mod vla;
 mod zero_terminated;
+mod sized;
 
 pub use array::*;
 pub use option::*;
@@ -19,3 +20,4 @@ pub use slice::*;
 pub use vec::*;
 pub use vla::*;
 pub use zero_terminated::*;
+pub use sized::*;
