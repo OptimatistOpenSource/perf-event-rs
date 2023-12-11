@@ -5,7 +5,8 @@ use crate::{Builder, EventScope, HwEvent};
 
 fn gen_attr(sample_regs_intr: u64) -> Attr {
     let mut extra_config = ExtraConfig::default();
-    extra_config.sample_regs_intr = Some(sample_regs_intr);
+    extra_config.sample_record_fields.time = true;
+    extra_config.sample_record_fields.abi_and_regs_intr = Some(sample_regs_intr);
 
     let event = HwEvent::CpuCycles;
     let scopes = [EventScope::User, EventScope::Host];
@@ -32,8 +33,8 @@ fn test() {
         let mut last_time = 0;
         for Record { body, .. } in sampling {
             if let RecordBody::Sample(sample) = body {
-                assert!(sample.time >= last_time);
-                last_time = sample.time;
+                assert!(sample.time.unwrap() >= last_time);
+                last_time = sample.time.unwrap();
                 sample_count += 1;
             }
         }
