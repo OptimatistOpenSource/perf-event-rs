@@ -1,5 +1,5 @@
 use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Attr, ExtraConfig, ExtraRecord, OverflowBy};
+use crate::sampling::{Attr, ExtraConfig, OverflowBy};
 use crate::test::cpu_workload;
 use crate::{Builder, EventScope, HwEvent};
 
@@ -9,6 +9,7 @@ fn gen_builder(mmap_pages: usize) -> Builder {
         .any_cpu()
         .mmap_pages(mmap_pages)
 }
+
 fn gen_attr() -> Attr {
     let event = HwEvent::CpuCycles;
     let scopes = [EventScope::User, EventScope::Host];

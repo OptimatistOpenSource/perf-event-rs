@@ -13,7 +13,6 @@ fn gen_builder() -> Builder {
 
 fn gen_attr(sample_stack_user: u32) -> Attr {
     let mut extra_config = ExtraConfig::default();
-    extra_config.sample_record_fields.time = true;
     extra_config.sample_record_fields.data_stack_user = Some(sample_stack_user);
 
     let event = HwEvent::CpuCycles;
@@ -34,11 +33,9 @@ fn test() {
         sampling.disable().unwrap();
 
         let mut sample_count = 0_usize;
-        let mut last_time = 0;
         for Record { body, .. } in sampling {
-            if let RecordBody::Sample(sample) = body {
-                assert!(sample.time.unwrap() >= last_time);
-                last_time = sample.time.unwrap();
+            if let RecordBody::Sample(body) = body {
+                assert!(body.data_stack_user.is_some());
                 sample_count += 1;
             }
         }

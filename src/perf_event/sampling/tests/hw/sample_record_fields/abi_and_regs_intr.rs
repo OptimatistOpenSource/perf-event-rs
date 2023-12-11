@@ -11,10 +11,9 @@ fn gen_builder() -> Builder {
         .mmap_pages(mmap_pages)
 }
 
-fn gen_attr(sample_max_stack: u16) -> Attr {
+fn gen_attr(sample_regs_intr: u64) -> Attr {
     let mut extra_config = ExtraConfig::default();
-    extra_config.sample_record_fields.time = true;
-    extra_config.sample_record_fields.ips = Some(sample_max_stack);
+    extra_config.sample_record_fields.abi_and_regs_intr = Some(sample_regs_intr);
 
     let event = HwEvent::CpuCycles;
     let scopes = [EventScope::User, EventScope::Host];
@@ -34,11 +33,9 @@ fn test() {
         sampling.disable().unwrap();
 
         let mut sample_count = 0_usize;
-        let mut last_time = 0;
         for Record { body, .. } in sampling {
-            if let RecordBody::Sample(sample) = body {
-                assert!(sample.time.unwrap() >= last_time);
-                last_time = sample.time.unwrap();
+            if let RecordBody::Sample(body) = body {
+                assert!(body.abi_and_regs_intr.is_some());
                 sample_count += 1;
             }
         }
