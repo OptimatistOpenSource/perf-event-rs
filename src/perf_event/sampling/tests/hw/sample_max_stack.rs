@@ -3,6 +3,14 @@ use crate::sampling::{Attr, ExtraConfig, OverflowBy};
 use crate::test::cpu_workload;
 use crate::{Builder, EventScope, HwEvent};
 
+fn gen_builder() -> Builder {
+    let mmap_pages = 1 + 512;
+    Builder::new()
+        .calling_process()
+        .any_cpu()
+        .mmap_pages(mmap_pages)
+}
+
 fn gen_attr(sample_max_stack: u16) -> Attr {
     let mut extra_config = ExtraConfig::default();
     extra_config.sample_record_fields.time = true;
@@ -16,11 +24,7 @@ fn gen_attr(sample_max_stack: u16) -> Attr {
 
 #[test]
 fn test() {
-    let mmap_pages = 1 + 512;
-    let builder = Builder::new()
-        .calling_process()
-        .any_cpu()
-        .mmap_pages(mmap_pages);
+    let builder = gen_builder();
     for i in 1..7 {
         let attr = gen_attr(i);
         let sampling = builder.build_sampling(&attr).unwrap();

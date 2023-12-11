@@ -1,7 +1,7 @@
 use crate::sampling::record::{Record, RecordBody};
 use crate::sampling::{Attr, ExtraConfig, OverflowBy};
 use crate::test::cpu_workload;
-use crate::{Builder, EventScope, HwEvent};
+use crate::{Builder, EventScope, SwEvent};
 
 fn gen_builder() -> Builder {
     let mmap_pages = 1 + 512;
@@ -16,7 +16,7 @@ fn gen_attr(sample_stack_user: u32) -> Attr {
     extra_config.sample_record_fields.time = true;
     extra_config.sample_record_fields.data_stack_user = Some(sample_stack_user);
 
-    let event = HwEvent::CpuCycles;
+    let event = SwEvent::CpuClock;
     let scopes = [EventScope::User, EventScope::Host];
     let overflow_by = OverflowBy::Period(1000);
     Attr::new(event, scopes, overflow_by, &extra_config, [])
