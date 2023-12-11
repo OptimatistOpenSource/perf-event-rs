@@ -1,5 +1,6 @@
 mod extra_config;
 mod extra_record;
+mod sample_record_fields;
 
 use crate::perf_event::RawAttr;
 use crate::{Event, EventScope};
@@ -8,6 +9,8 @@ use libc::{CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME,
 use std::fmt::Debug;
 
 pub use extra_config::*;
+pub use extra_record::*;
+pub use sample_record_fields::*;
 
 pub enum OverflowBy {
     Period(u64),
@@ -29,6 +32,7 @@ impl Attr {
         gen_extra_record: impl IntoIterator<Item = ExtraRecord>,
     ) -> Self {
         use crate::syscall::bindings::*;
+        let sample_record_fields = &extra_config.sample_record_fields;
 
         let mut raw_attr = RawAttr {
             type_: 0,
@@ -38,63 +42,7 @@ impl Attr {
                 OverflowBy::Freq(f) => perf_event_attr__bindgen_ty_1 { sample_freq: f },
                 OverflowBy::Period(p) => perf_event_attr__bindgen_ty_1 { sample_period: p },
             },
-            sample_type: {
-                #[allow(unused_mut)]
-                #[allow(clippy::identity_op)] // for readable
-                let mut sample_type = 0
-                    | PERF_SAMPLE_IP
-                    | PERF_SAMPLE_TID
-                    | PERF_SAMPLE_TIME
-                    | PERF_SAMPLE_ADDR
-                    | PERF_SAMPLE_READ
-                    | PERF_SAMPLE_ID
-                    | PERF_SAMPLE_CPU
-                    | PERF_SAMPLE_PERIOD
-                    | PERF_SAMPLE_STREAM_ID
-                    | PERF_SAMPLE_RAW
-                    //| PERF_SAMPLE_BRANCH_STACK // TODO: Not all hardware supports this feature
-                    //| PERF_SAMPLE_WEIGHT // FIX: this will lead to "Invalid Argument"
-                    | PERF_SAMPLE_DATA_SRC
-                    | PERF_SAMPLE_IDENTIFIER
-                    | PERF_SAMPLE_TRANSACTION
-                    | PERF_SAMPLE_PHYS_ADDR;
-
-                if extra_config.sample_stack_user.is_some() {
-                    sample_type |= PERF_SAMPLE_STACK_USER
-                }
-
-                if extra_config.sample_max_stack.is_some() {
-                    sample_type |= PERF_SAMPLE_CALLCHAIN
-                }
-
-                if extra_config.aux_sample_size.is_some() {
-                    sample_type |= PERF_SAMPLE_AUX
-                }
-
-                if extra_config.sample_regs_user.is_some() {
-                    sample_type |= PERF_SAMPLE_REGS_USER
-                }
-
-                if extra_config.sample_regs_intr.is_some() {
-                    sample_type |= PERF_SAMPLE_REGS_INTR
-                }
-
-                #[cfg(feature = "linux-5.7")]
-                {
-                    sample_type |= PERF_SAMPLE_CGROUP;
-                }
-                #[cfg(feature = "linux-5.11")]
-                {
-                    sample_type |= PERF_SAMPLE_DATA_PAGE_SIZE;
-                    sample_type |= PERF_SAMPLE_CODE_PAGE_SIZE;
-                }
-                //#[cfg(feature = "linux-5.12")]
-                //{
-                //    sample_type |= PERF_SAMPLE_WEIGHT_STRUCT;
-                //}
-
-                sample_type
-            } as _, // TODO
+            sample_type: sample_record_fields.as_sample_type(),
             read_format: {
                 #[allow(unused_mut)]
                 #[allow(clippy::identity_op)] // for readable
@@ -125,8 +73,8 @@ impl Attr {
             __bindgen_anon_3: perf_event_attr__bindgen_ty_3::default(), // ditto
             __bindgen_anon_4: perf_event_attr__bindgen_ty_4::default(), // ditto
             branch_sample_type: 0, // TODO: Not all hardware supports this feature
-            sample_regs_user: extra_config.sample_regs_user.unwrap_or(0),
-            sample_stack_user: extra_config.sample_stack_user.unwrap_or(0),
+            sample_regs_user: sample_record_fields.abi_and_regs_user.unwrap_or(0),
+            sample_stack_user: sample_record_fields.data_stack_user.unwrap_or(0),
             clockid: extra_config.clockid.as_ref().map_or(0, |id| match id {
                 ClockId::Monotonic => CLOCK_MONOTONIC,
                 ClockId::MonotonicRaw => CLOCK_MONOTONIC_RAW,
@@ -134,12 +82,12 @@ impl Attr {
                 ClockId::BootTime => CLOCK_BOOTTIME,
                 ClockId::Tai => CLOCK_TAI,
             }) as _,
-            sample_regs_intr: extra_config.sample_regs_intr.unwrap_or(0),
+            sample_regs_intr: sample_record_fields.abi_and_regs_intr.unwrap_or(0),
             aux_watermark: 0, // TODO
-            sample_max_stack: extra_config.sample_max_stack.unwrap_or(0),
+            sample_max_stack: sample_record_fields.ips.unwrap_or(0),
             __reserved_2: 0,
             #[cfg(feature = "linux-5.5")]
-            aux_sample_size: extra_config.aux_sample_size.unwrap_or(0),
+            aux_sample_size: 0, // TODO
             __reserved_3: 0,
             #[cfg(feature = "linux-5.13")]
             sig_data: 0, // not use in sampling mode

@@ -1,3 +1,4 @@
+use crate::sampling::attr::sample_record_fields::SampleRecordFields;
 use crate::sampling::Wakeup::Events;
 
 #[derive(Debug, Clone)]
@@ -21,11 +22,7 @@ pub struct ExtraConfig {
     pub precise_ip: SampleIpSkid,
     pub wakeup: Wakeup,
 
-    pub sample_max_stack: Option<u16>,
-    pub sample_stack_user: Option<u32>,
-    pub sample_regs_user: Option<u64>,
-    pub sample_regs_intr: Option<u64>,
-    pub aux_sample_size: Option<u32>,
+    pub sample_record_fields: SampleRecordFields,
 }
 
 impl Default for ExtraConfig {
@@ -49,12 +46,7 @@ impl Default for ExtraConfig {
             clockid: None,
             precise_ip: SampleIpSkid::Arbitrary,
             wakeup: Events(1),
-
-            sample_stack_user: None,
-            sample_max_stack: None,
-            sample_regs_user: None,
-            sample_regs_intr: None,
-            aux_sample_size: None,
+            sample_record_fields: Default::default(),
         }
     }
 }

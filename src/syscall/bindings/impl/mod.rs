@@ -23,10 +23,10 @@ pub use perf_event_mmap_page__bindgen_ty_1::*;
 #[macro_export]
 macro_rules! debug_union {
     (
-        name: $name:ident
-        self: $self:ident
-        fmt: $f:ident
-        fields: $($(#[$attr:meta])* $field:ident)+
+        name: $name: ident
+        self: $self: ident
+        fmt: $f: ident
+        fields: $($(#[$attr: meta])* $field: ident)+
     ) => {{
         let mut ds = $f.debug_struct(stringify!($name));
         $(
@@ -40,33 +40,33 @@ macro_rules! debug_union {
 #[macro_export]
 macro_rules! debug_struct {
     (
-        name: $name:ident
-        self: $self:ident
-        fmt: $f:ident
-        fields: $($(#[$attr:meta])* $field:ident)+
-    ) => {
+        name: $name: ident
+        self: $self: ident
+        fmt: $f: ident
+        fields: $($(#[$attr: meta])* $field:ident)+
+    ) => {{
         let mut ds = $f.debug_struct(stringify!($name));
         $(
             $(#[$attr])*
             ds.field(stringify!($field), &$self.$field);
         )+
         ds.finish()?;
-    };
+    }};
 }
 
 #[macro_export]
 macro_rules! debug_struct_fn {
     (
-        name: $name:ident
-        self: $self:ident
-        fmt: $f:ident
-        fields: $($(#[$attr:meta])* $field:ident)+
-    ) => {
+        name: $name: ident
+        self: $self: ident
+        fmt: $f: ident
+        fields: $($(#[$attr: meta])* $field:ident)+
+    ) => {{
         let mut ds = $f.debug_struct(stringify!($name));
         $(
             $(#[$attr])*
             ds.field(stringify!($field), &$self.$field());
         )+
         ds.finish()?;
-    };
+    }};
 }
