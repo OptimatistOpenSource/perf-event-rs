@@ -43,7 +43,6 @@ struct {
   char   data[size];  /* if PERF_SAMPLE_AUX */
 };
 */
-#![allow(dead_code)]
 
 use crate::infra::{ConstPtrExt, SizedExt, SliceExt, Vla, WrapOption};
 use crate::syscall::bindings::*;
@@ -90,8 +89,17 @@ impl Body {
     gen_fn! { u64, addr      PERF_SAMPLE_ADDR       }
     gen_fn! { u64, id        PERF_SAMPLE_ID         }
     gen_fn! { u64, stream_id PERF_SAMPLE_STREAM_ID  }
-    gen_fn! { u32, cpu       PERF_SAMPLE_CPU        }
-    gen_fn! { u32, res       PERF_SAMPLE_CPU        }
+
+    pub unsafe fn cpu(&mut self) -> Option<&u32> {
+        if self.is_enabled(PERF_SAMPLE_CPU).not() {
+            return None;
+        }
+
+        let cpu_ptr = self.read_ptr as *const u32;
+        self.read_ptr = cpu_ptr.add(2) as _; // skip 32-bit res
+        cpu_ptr.as_ref()
+    }
+
     gen_fn! { u64, period    PERF_SAMPLE_PERIOD     }
 
     pub unsafe fn v(&mut self) -> Option<(&read_format_header, &[read_format_body])> {
