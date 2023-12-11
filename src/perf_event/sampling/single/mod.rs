@@ -15,13 +15,11 @@ pub struct Sampling {
     pub(crate) mmap: MmapMut,
     pub(crate) file: File,
 
+    pub(crate) sample_type: u64,
     pub(crate) sample_id_all: bool,
-    pub(crate) sample_stack_user: bool,
-    pub(crate) sample_callchain: bool,
-    pub(crate) sample_aux: bool,
 
-    pub(crate) user_regs_len: Option<usize>,
-    pub(crate) intr_regs_len: Option<usize>,
+    pub(crate) regs_user_len: usize,
+    pub(crate) regs_intr_len: usize,
 }
 
 impl Sampling {
@@ -47,23 +45,13 @@ impl Sampling {
                 }
                 .unwrap();
 
-                let is_enabled =
-                    |mask: perf_event_sample_format| (raw_attr.sample_type & mask as u64) > 0;
-
-                let user_regs_len = is_enabled(PERF_SAMPLE_REGS_USER)
-                    .then(|| raw_attr.sample_regs_user.count_ones() as _);
-                let intr_regs_len = is_enabled(PERF_SAMPLE_REGS_INTR)
-                    .then(|| raw_attr.sample_regs_intr.count_ones() as _);
-
                 Self {
                     mmap,
                     file,
+                    sample_type: raw_attr.sample_type,
                     sample_id_all: raw_attr.sample_id_all() > 0,
-                    sample_stack_user: is_enabled(PERF_SAMPLE_STACK_USER),
-                    sample_callchain: is_enabled(PERF_SAMPLE_CALLCHAIN),
-                    sample_aux: is_enabled(PERF_SAMPLE_AUX),
-                    user_regs_len,
-                    intr_regs_len,
+                    regs_user_len: raw_attr.sample_regs_user.count_ones() as _,
+                    regs_intr_len: raw_attr.sample_regs_intr.count_ones() as _,
                 }
             }
             .wrap_ok(),

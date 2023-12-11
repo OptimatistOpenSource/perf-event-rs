@@ -96,13 +96,11 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
                 RecordBody::Read(record.wrap_box())
             }
             PERF_RECORD_SAMPLE => {
-                let record = sample::Body::from_ptr(
+                let record = sample::BodyV2::from_ptr(
                     follow_mem_ptr,
-                    sampling.sample_stack_user,
-                    sampling.sample_callchain,
-                    sampling.sample_aux,
-                    sampling.user_regs_len,
-                    sampling.intr_regs_len,
+                    sampling.sample_type,
+                    sampling.regs_user_len,
+                    sampling.regs_intr_len,
                 );
                 RecordBody::Sample(record.wrap_box())
             }

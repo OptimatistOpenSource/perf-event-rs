@@ -10,6 +10,7 @@ mod body_v2;
 
 pub use abi_and_regs::*;
 pub use data_src::*;
+pub use body_v2::*;
 
 #[derive(Debug, Clone)]
 pub struct Body {
