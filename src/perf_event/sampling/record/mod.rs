@@ -36,7 +36,7 @@ pub enum RecordBody {
     Unthrottle(Box<unthrottle::Body>),
     Fork(Box<fork::Body>),
     Read(Box<read::Body>),
-    Sample(Box<sample::BodyV2>),
+    Sample(Box<sample::Body>),
     Mmap2(Box<mmap2::Body>),
     Aux(Box<aux::Body>),
     ItraceStart(Box<intrace_start::Body>),

@@ -5,39 +5,34 @@ use crate::sampling::record::sample::data_src::DataSrc;
 mod abi_and_regs;
 mod data_src;
 mod raw;
-mod raw_v2;
-mod body_v2;
 
 pub use abi_and_regs::*;
 pub use data_src::*;
-pub use body_v2::*;
 
 #[derive(Debug, Clone)]
 pub struct Body {
-    pub sample_id: u64,
-    pub ip: u64,
-    pub pid: u32,
-    pub tid: u32,
-    pub time: u64,
-    pub addr: u64,
-    pub id: u64,
-    pub stream_id: u64,
-    pub cpu: u32,
-    pub res: u32,
-    pub period: u64,
-    pub v: CountingGroupResult,
+    pub sample_id: Option<u64>,
+    pub ip: Option<u64>,
+    pub pid: Option<u32>,
+    pub tid: Option<u32>,
+    pub time: Option<u64>,
+    pub addr: Option<u64>,
+    pub id: Option<u64>,
+    pub stream_id: Option<u64>,
+    pub cpu: Option<u32>,
+    pub period: Option<u64>,
+    pub v: Option<CountingGroupResult>,
     pub ips: Option<Vec<u64>>,
-    pub data_1: Vec<u8>,
-    pub user_abi_and_regs: Option<AbiAndRegs>,
-    pub data_2: Option<Vec<u8>>,
-    pub data_src: DataSrc,
-    pub transaction: u64,
-    pub intr_abi_and_regs: Option<AbiAndRegs>,
-    pub phys_addr: u64,
-    pub cgroup: u64,
-    pub data_page_size: u64,
-    pub code_page_size: u64,
-    pub data_3: Option<Vec<u8>>,
+    pub data_raw: Option<Vec<u8>>,
+    pub abi_and_regs_user: Option<AbiAndRegs>,
+    pub data_stack_user: Option<Vec<u8>>,
+    pub data_src: Option<DataSrc>,
+    pub transaction: Option<u64>,
+    pub abi_and_regs_intr: Option<AbiAndRegs>,
+    pub phys_addr: Option<u64>,
+    pub cgroup: Option<u64>,
+    pub data_page_size: Option<u64>,
+    pub code_page_size: Option<u64>,
 }
 
 type RawBody = raw::Body;
@@ -45,54 +40,42 @@ type RawBody = raw::Body;
 impl Body {
     pub unsafe fn from_ptr(
         ptr: *const u8,
-        sample_stack_user: bool,
-        sample_callchain: bool,
-        sample_aux: bool,
-        user_regs_len: Option<usize>,
-        intr_regs_len: Option<usize>,
+        sample_type: u64,
+        regs_user_len: usize,
+        regs_intr_len: usize,
     ) -> Self {
-        let raw = RawBody {
-            sample_stack_user,
-            sample_callchain,
-            sample_aux,
-            user_regs_len,
-            intr_regs_len,
-            ptr,
+        let mut raw = RawBody {
+            read_ptr: ptr,
+            sample_type,
         };
-        Self::from_raw(raw)
-    }
 
-    unsafe fn from_raw(raw: RawBody) -> Self {
         Self {
-            sample_id: *raw.sample_id(),
-            ip: *raw.ip(),
-            pid: *raw.pid(),
-            tid: *raw.tid(),
-            time: *raw.time(),
-            addr: *raw.addr(),
-            id: *raw.id(),
-            stream_id: *raw.stream_id(),
-            cpu: *raw.cpu(),
-            res: *raw.res(),
-            period: *raw.period(),
-            v: CountingGroupResult::from_raw(raw.v_header(), raw.v_body()),
-            ips: raw.ips().map(|it| it.to_vec()).ok(),
-            data_1: raw.data_1().to_vec(),
-            user_abi_and_regs: raw.user_abi_and_regs().ok().map(AbiAndRegs::from_raw),
-            data_2: {
-                let dyn_size = raw.dyn_size().map(|it| *it).unwrap_or(0) as _;
-                raw.data_2()
-                    .ok()
-                    .map(|it| it.iter().take(dyn_size).cloned().collect())
-            },
-            data_src: DataSrc::from_raw(*raw.data_src()),
-            transaction: *raw.transaction(),
-            intr_abi_and_regs: raw.intr_abi_and_regs().ok().map(AbiAndRegs::from_raw),
-            phys_addr: *raw.phys_addr(),
-            cgroup: *raw.cgroup(),
-            data_page_size: *raw.data_page_size(),
-            code_page_size: *raw.code_page_size(),
-            data_3: raw.data_3().ok().map(|it| it.to_vec()),
+            sample_id: raw.sample_id().cloned(),
+            ip: raw.ip().cloned(),
+            pid: raw.pid().cloned(),
+            tid: raw.tid().cloned(),
+            time: raw.time().cloned(),
+            addr: raw.addr().cloned(),
+            id: raw.id().cloned(),
+            stream_id: raw.stream_id().cloned(),
+            cpu: raw.cpu().cloned(),
+            period: raw.period().cloned(),
+            v: raw.v().map(|(h, b)| CountingGroupResult::from_raw(h, b)),
+            ips: raw.ips().map(|it| it.to_vec()),
+            data_raw: raw.data_raw().map(|it| it.to_vec()),
+            abi_and_regs_user: raw
+                .abi_and_regs_user(regs_user_len)
+                .map(AbiAndRegs::from_raw),
+            data_stack_user: raw.data_stack_user().map(|it| it.to_vec()),
+            data_src: raw.data_src().cloned().map(DataSrc::from_raw),
+            transaction: raw.transaction().cloned(),
+            abi_and_regs_intr: raw
+                .abi_and_regs_intr(regs_intr_len)
+                .map(AbiAndRegs::from_raw),
+            phys_addr: raw.phys_addr().cloned(),
+            cgroup: raw.cgroup().cloned(),
+            data_page_size: raw.data_page_size().cloned(),
+            code_page_size: raw.code_page_size().cloned(),
         }
     }
 }
