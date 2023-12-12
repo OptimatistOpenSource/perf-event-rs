@@ -148,7 +148,8 @@ impl Attr {
         raw_attr.set_ksymbol(0);
         raw_attr.set_bpf_event(0);
         #[cfg(feature = "linux-5.4")]
-        raw_attr.set_aux_output(extra_config.aux_output as _);
+        //raw_attr.set_aux_output(extra_config.aux_output as _);
+        raw_attr.set_aux_output(0);
         #[cfg(feature = "linux-5.7")]
         raw_attr.set_cgroup(0);
         #[cfg(feature = "linux-5.8")]

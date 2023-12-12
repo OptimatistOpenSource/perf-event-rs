@@ -10,8 +10,8 @@ pub struct ExtraConfig {
     pub comm_exec: bool,
     pub enable_on_exec: bool,
     pub mmap_data: bool,
-    #[cfg(feature = "linux-5.4")]
-    pub aux_output: bool,
+    //#[cfg(feature = "linux-5.4")]
+    //pub aux_output: bool,
     #[cfg(feature = "linux-5.12")]
     pub build_id: bool,
     #[cfg(feature = "linux-5.13")]
@@ -36,8 +36,8 @@ impl Default for ExtraConfig {
             enable_on_exec: false,
             mmap_data: false,
             comm_exec: false,
-            #[cfg(feature = "linux-5.4")]
-            aux_output: false,
+            //#[cfg(feature = "linux-5.4")]
+            //aux_output: false,
             #[cfg(feature = "linux-5.12")]
             build_id: false,
             #[cfg(feature = "linux-5.13")]
