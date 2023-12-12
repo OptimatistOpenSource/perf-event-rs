@@ -6,14 +6,18 @@ use crate::sampling::Wakeup::Events;
 pub struct ExtraConfig {
     pub pinned: bool,
     pub exclusive: bool,
+    pub mmap_data: bool,
+
     pub comm: bool,
     pub comm_exec: bool,
-    pub enable_on_exec: bool,
-    pub mmap_data: bool,
+
     //#[cfg(feature = "linux-5.4")]
     //pub aux_output: bool,
+
     #[cfg(feature = "linux-5.12")]
     pub build_id: bool,
+
+    pub enable_on_exec: bool,
     #[cfg(feature = "linux-5.13")]
     pub remove_on_exec: bool,
 
@@ -32,14 +36,18 @@ impl Default for ExtraConfig {
         Self {
             pinned: false,
             exclusive: false,
-            comm: false,
-            enable_on_exec: false,
             mmap_data: false,
+
+            comm: false,
             comm_exec: false,
+
             //#[cfg(feature = "linux-5.4")]
             //aux_output: false,
+
             #[cfg(feature = "linux-5.12")]
             build_id: false,
+
+            enable_on_exec: false,
             #[cfg(feature = "linux-5.13")]
             remove_on_exec: false,
 
