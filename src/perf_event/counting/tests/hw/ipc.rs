@@ -1,25 +1,22 @@
-use crate::counting::Attr;
+use crate::counting::{Attr, CountingGroup};
 use crate::test::cpu_workload;
 use crate::{Builder, EventScope, HwEvent};
 
+fn gen_group() -> CountingGroup {
+    let builder = Builder::new().calling_process().any_cpu();
+    builder.build_counting_group().unwrap()
+}
+
+fn gen_attr(event: HwEvent) -> Attr {
+    let scopes = [EventScope::User, EventScope::Host];
+    Attr::new(event, scopes, Default::default())
+}
+
 #[test]
 fn test_basic() {
-    let builder = Builder::new().calling_process().any_cpu();
-    let mut group = builder.build_counting_group().unwrap();
-    let cpu_cycles_guard = group
-        .add_member({
-            let event = HwEvent::CpuCycles;
-            let scopes = [EventScope::User, EventScope::Host];
-            &Attr::new(event, scopes, Default::default())
-        })
-        .unwrap();
-    let instructions_guard = group
-        .add_member({
-            let event = HwEvent::Instructions;
-            let scopes = [EventScope::User, EventScope::Host];
-            &Attr::new(event, scopes, Default::default())
-        })
-        .unwrap();
+    let mut group = gen_group();
+    let cpu_cycles_guard = group.add_member(&gen_attr(HwEvent::CpuCycles)).unwrap();
+    let instructions_guard = group.add_member(&gen_attr(HwEvent::Instructions)).unwrap();
 
     {
         let result = group.result().unwrap();
@@ -52,22 +49,9 @@ fn test_basic() {
 
 #[test]
 fn test_enable_disable() {
-    let builder = Builder::new().calling_process().any_cpu();
-    let mut group = builder.build_counting_group().unwrap();
-    let cpu_cycles_guard = group
-        .add_member({
-            let event = HwEvent::CpuCycles;
-            let scopes = [EventScope::User, EventScope::Host];
-            &Attr::new(event, scopes, Default::default())
-        })
-        .unwrap();
-    let instructions_guard = group
-        .add_member({
-            let event = HwEvent::Instructions;
-            let scopes = [EventScope::User, EventScope::Host];
-            &Attr::new(event, scopes, Default::default())
-        })
-        .unwrap();
+    let mut group = gen_group();
+    let cpu_cycles_guard = group.add_member(&gen_attr(HwEvent::CpuCycles)).unwrap();
+    let instructions_guard = group.add_member(&gen_attr(HwEvent::Instructions)).unwrap();
 
     {
         let result = group.result().unwrap();
@@ -103,22 +87,9 @@ fn test_enable_disable() {
 
 #[test]
 fn test_reset_count() {
-    let builder = Builder::new().calling_process().any_cpu();
-    let mut group = builder.build_counting_group().unwrap();
-    let cpu_cycles_guard = group
-        .add_member({
-            let event = HwEvent::CpuCycles;
-            let scopes = [EventScope::User, EventScope::Host];
-            &Attr::new(event, scopes, Default::default())
-        })
-        .unwrap();
-    let instructions_guard = group
-        .add_member({
-            let event = HwEvent::Instructions;
-            let scopes = [EventScope::User, EventScope::Host];
-            &Attr::new(event, scopes, Default::default())
-        })
-        .unwrap();
+    let mut group = gen_group();
+    let cpu_cycles_guard = group.add_member(&gen_attr(HwEvent::CpuCycles)).unwrap();
+    let instructions_guard = group.add_member(&gen_attr(HwEvent::Instructions)).unwrap();
 
     let mut group = group.enable().unwrap();
     cpu_workload();
@@ -145,22 +116,9 @@ fn test_reset_count() {
 
 #[test]
 fn test_guard() {
-    let builder = Builder::new().calling_process().any_cpu();
-    let mut group = builder.build_counting_group().unwrap();
-    let mut cpu_cycles_guard = group
-        .add_member({
-            let event = HwEvent::CpuCycles;
-            let scopes = [EventScope::User, EventScope::Host];
-            &Attr::new(event, scopes, Default::default())
-        })
-        .unwrap();
-    let mut instructions_guard = group
-        .add_member({
-            let event = HwEvent::Instructions;
-            let scopes = [EventScope::User, EventScope::Host];
-            &Attr::new(event, scopes, Default::default())
-        })
-        .unwrap();
+    let mut group = gen_group();
+    let mut cpu_cycles_guard = group.add_member(&gen_attr(HwEvent::CpuCycles)).unwrap();
+    let mut instructions_guard = group.add_member(&gen_attr(HwEvent::Instructions)).unwrap();
 
     {
         let cpu_cycles = cpu_cycles_guard.result().unwrap().event_count;

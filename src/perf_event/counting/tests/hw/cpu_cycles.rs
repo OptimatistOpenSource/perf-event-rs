@@ -1,16 +1,20 @@
-use crate::counting::Attr;
+use crate::counting::{Attr, Counting};
 use crate::test::cpu_workload;
 use crate::{Builder, EventScope, HwEvent};
 
+fn gen_counting() -> Counting {
+    let builder = Builder::new().calling_process().any_cpu();
+
+    let event = HwEvent::CpuCycles;
+    let scopes = [EventScope::User, EventScope::Host];
+    let attr = Attr::new(event, scopes, Default::default());
+
+    builder.build_counting(&attr).unwrap()
+}
+
 #[test]
 fn test_basic() {
-    let builder = Builder::new().calling_process().any_cpu();
-    let attr = {
-        let event = HwEvent::CpuCycles;
-        let scopes = [EventScope::User, EventScope::Host];
-        Attr::new(event, scopes, Default::default())
-    };
-    let mut counting = builder.build_counting(&attr).unwrap();
+    let mut counting = gen_counting();
 
     let before = counting.result().unwrap().event_count;
     dbg!(before);
@@ -27,13 +31,7 @@ fn test_basic() {
 
 #[test]
 fn test_enable_disable() {
-    let builder = Builder::new().calling_process().any_cpu();
-    let attr = {
-        let event = HwEvent::CpuCycles;
-        let scopes = [EventScope::User, EventScope::Host];
-        Attr::new(event, scopes, Default::default())
-    };
-    let mut counting = builder.build_counting(&attr).unwrap();
+    let mut counting = gen_counting();
 
     counting.enable().unwrap();
     cpu_workload();
@@ -49,13 +47,7 @@ fn test_enable_disable() {
 
 #[test]
 fn test_reset_count() {
-    let builder = Builder::new().calling_process().any_cpu();
-    let attr = {
-        let event = HwEvent::CpuCycles;
-        let scopes = [EventScope::User, EventScope::Host];
-        Attr::new(event, scopes, Default::default())
-    };
-    let mut counting = builder.build_counting(&attr).unwrap();
+    let mut counting = gen_counting();
 
     counting.enable().unwrap();
     cpu_workload();
