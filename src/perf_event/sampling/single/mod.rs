@@ -74,6 +74,10 @@ impl Sampling {
         ioctl_wrapped(&self.file, PERF_EVENT_IOCTL_PAUSE_OUTPUT, Some(0i32))
     }
 
+    pub fn refresh(&self, refresh: i32) -> io::Result<()> {
+        ioctl_wrapped(&self.file, PERF_EVENT_IOCTL_REFRESH, Some(refresh))
+    }
+
     pub fn next_record(&mut self) -> Option<Record> {
         next_record(self)
     }
