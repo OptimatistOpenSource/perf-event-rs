@@ -1,6 +1,5 @@
 use crate::counting::CountingGroupResult;
 use crate::sampling::record::sample::abi_and_regs::AbiAndRegs;
-use crate::sampling::record::sample::data_src::DataSrc;
 
 mod abi_and_regs;
 mod data_src;

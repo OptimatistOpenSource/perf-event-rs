@@ -1,7 +1,7 @@
 mod attr;
 mod builder;
 mod group;
-mod record;
+pub mod record;
 mod single;
 #[cfg(test)]
 mod tests;

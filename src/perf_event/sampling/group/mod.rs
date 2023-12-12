@@ -3,14 +3,15 @@ mod guard;
 mod inner;
 
 use crate::infra::WrapResult;
-use crate::sampling::group::fixed::FixedSamplingGroup;
-use crate::sampling::group::guard::SamplingGuard;
 use crate::sampling::group::inner::Inner;
 use crate::sampling::record::Record;
 use crate::sampling::Attr;
 use libc::pid_t;
 use std::io;
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
+
+pub use fixed::*;
+pub use guard::*;
 
 pub struct SamplingGroup {
     pid: pid_t,
