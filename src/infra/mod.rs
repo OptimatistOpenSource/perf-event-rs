@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 mod r#box;
+mod infer;
 mod option;
 mod ptr;
 mod result;
@@ -10,6 +11,7 @@ mod vec;
 mod vla;
 mod zero_terminated;
 
+pub use infer::*;
 pub use option::*;
 pub use ptr::*;
 pub use r#box::*;

@@ -1,7 +1,8 @@
-use crate::infra::{SizedExt, VecExt, WrapBox, WrapOption};
+use crate::infra::{infer, SizedExt, WrapBox, WrapOption};
 use crate::sampling::record::*;
 use crate::sampling::Sampling;
 use crate::syscall::bindings::*;
+use std::alloc::{alloc, dealloc, Layout};
 use std::slice;
 
 pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
@@ -35,6 +36,7 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
         },
     } as usize;
 
+    let mut dealloc_record_buf = false;
     let record_buf = match data_tail as isize + record_len as isize - data_size as isize {
         left if left > 0 => {
             let ring_end_part = {
@@ -44,18 +46,22 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
             };
             let ring_start_part = unsafe { slice::from_raw_parts(ring_ptr, left as _) };
 
-            let mut buf = unsafe { Vec::with_len_uninit(record_len) };
+            let buf = unsafe {
+                let layout = Layout::array::<u8>(record_len).unwrap();
+                let ptr = alloc(layout);
+                dealloc_record_buf = true;
+                slice::from_raw_parts_mut(ptr, record_len)
+            };
             ring_end_part
                 .iter()
                 .chain(ring_start_part)
                 .enumerate()
                 .for_each(|(i, byte)| buf[i] = *byte);
-            buf
-        }
-        _ => unsafe { slice::from_raw_parts(ring_ptr.add(data_tail as _), record_len) }.to_vec(),
-    };
 
-    metapage.data_tail = (data_tail + record_len as u64) % data_size;
+            infer::<&[u8]>(buf)
+        }
+        _ => unsafe { slice::from_raw_parts(ring_ptr.add(data_tail as _), record_len) },
+    };
 
     let record_header =
         unsafe { (record_buf.as_ptr() as *const perf_event_header).as_ref() }.unwrap();
@@ -159,6 +165,16 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
             _ => unreachable!(),
         }
     };
+
+    if dealloc_record_buf {
+        let layout = Layout::array::<u8>(record_len).unwrap();
+        #[allow(clippy::as_ptr_cast_mut)]
+        unsafe {
+            dealloc(record_buf.as_ptr() as _, layout)
+        }
+    }
+
+    metapage.data_tail = (data_tail + record_len as u64) % data_size;
 
     Record {
         misc: record_header.misc,
