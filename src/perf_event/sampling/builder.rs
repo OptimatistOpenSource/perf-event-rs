@@ -5,7 +5,7 @@ use crate::{BuildError, Builder};
 
 // TODO
 impl Builder {
-    pub const fn ring_buffer_size(mut self, pages: usize) -> Self {
+    pub const fn ring_buffer_pages(mut self, pages: usize) -> Self {
         self.mmap_pages = Some(pages);
         self
     }

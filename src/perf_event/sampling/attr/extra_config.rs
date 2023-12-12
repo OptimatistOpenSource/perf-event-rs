@@ -1,4 +1,5 @@
 use crate::sampling::attr::sample_record_fields::SampleRecordFields;
+use crate::sampling::ExtraRecord;
 use crate::sampling::Wakeup::Events;
 
 #[derive(Debug, Clone)]
@@ -16,13 +17,14 @@ pub struct ExtraConfig {
     #[cfg(feature = "linux-5.13")]
     pub remove_on_exec: bool,
 
-    pub sample_id_all: bool,
-
     pub clockid: Option<ClockId>,
     pub precise_ip: SampleIpSkid,
     pub wakeup: Wakeup,
 
     pub sample_record_fields: SampleRecordFields,
+
+    pub extra_record_types: Vec<ExtraRecord>,
+    pub extra_record_with_sample_id: bool,
 }
 
 impl Default for ExtraConfig {
@@ -41,12 +43,14 @@ impl Default for ExtraConfig {
             #[cfg(feature = "linux-5.13")]
             remove_on_exec: false,
 
-            sample_id_all: false,
-
             clockid: None,
             precise_ip: SampleIpSkid::Arbitrary,
             wakeup: Events(1),
+
             sample_record_fields: Default::default(),
+
+            extra_record_types: vec![],
+            extra_record_with_sample_id: false,
         }
     }
 }

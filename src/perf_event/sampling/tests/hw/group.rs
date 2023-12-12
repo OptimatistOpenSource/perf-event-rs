@@ -7,14 +7,14 @@ fn gen_builder() -> Builder {
     Builder::new()
         .calling_process()
         .any_cpu()
-        .mmap_pages(1 + 512)
+        .ring_buffer_pages(1 + 512)
 }
 
 fn gen_attr(event: HwEvent) -> Attr {
     let scopes = [EventScope::User, EventScope::Host];
     let overflow_by = OverflowBy::Period(1000);
     let extra_config = ExtraConfig::default();
-    Attr::new(event, scopes, overflow_by, &extra_config, [])
+    Attr::new(event, scopes, overflow_by, &extra_config)
 }
 
 #[test]

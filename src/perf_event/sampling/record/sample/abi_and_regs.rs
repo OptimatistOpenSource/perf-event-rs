@@ -10,7 +10,6 @@ pub struct AbiAndRegs {
 impl AbiAndRegs {
     pub(crate) fn from_raw(raw: (&u64, &[u64])) -> Self {
         let (abi, regs) = raw;
-        #[allow(non_upper_case_globals)]
         let abi = match *abi as _ {
             PERF_SAMPLE_REGS_ABI_NONE => Abi::AbiNone,
             PERF_SAMPLE_REGS_ABI_32 => Abi::Abi32,

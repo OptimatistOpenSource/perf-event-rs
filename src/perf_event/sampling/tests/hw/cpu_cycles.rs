@@ -7,7 +7,7 @@ fn gen_builder(mmap_pages: usize) -> Builder {
     Builder::new()
         .calling_process()
         .any_cpu()
-        .mmap_pages(mmap_pages)
+        .ring_buffer_pages(mmap_pages)
 }
 
 fn gen_attr() -> Attr {
@@ -16,7 +16,7 @@ fn gen_attr() -> Attr {
     let overflow_by = OverflowBy::Period(1000);
     let mut extra_config = ExtraConfig::default();
     extra_config.sample_record_fields.time = true;
-    Attr::new(event, scopes, overflow_by, &extra_config, [])
+    Attr::new(event, scopes, overflow_by, &extra_config)
 }
 
 #[test]

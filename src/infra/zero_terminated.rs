@@ -1,7 +1,7 @@
+use crate::infra::SizedExt;
 use std::marker::PhantomData;
 use std::ops::Not;
 use std::slice;
-use crate::infra::SizedExt;
 
 #[repr(C)]
 pub struct ZeroTerminated<T> {

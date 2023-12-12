@@ -7,11 +7,12 @@ use crate::{Event, EventScope};
 pub use extra_record::*;
 use libc::{CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI};
 use std::fmt::Debug;
+use std::ops::Not;
 
+use crate::infra::SizedExt;
 pub use extra_config::*;
 pub use extra_record::*;
 pub use sample_record_fields::*;
-use crate::infra::SizedExt;
 
 pub enum OverflowBy {
     Period(u64),
@@ -29,7 +30,6 @@ impl Attr {
         scopes: impl IntoIterator<Item = EventScope>,
         overflow_by: OverflowBy,
         extra_config: &ExtraConfig,
-        gen_extra_record: impl IntoIterator<Item = ExtraRecord>,
     ) -> Self {
         use crate::syscall::bindings::*;
         let sample_record_fields = &extra_config.sample_record_fields;
@@ -125,7 +125,14 @@ impl Attr {
             SampleIpSkid::Zero => 3,
         });
         raw_attr.set_mmap_data(extra_config.mmap_data as _);
-        raw_attr.set_sample_id_all(1);
+
+        if extra_config.extra_record_with_sample_id
+            && extra_config.extra_record_types.is_empty().not()
+        {
+            raw_attr.set_sample_id_all(1);
+        } else {
+            raw_attr.set_sample_id_all(0);
+        }
 
         raw_attr.set_exclude_host(1);
         raw_attr.set_exclude_guest(1);
@@ -186,19 +193,22 @@ impl Attr {
             }
         }
 
-        gen_extra_record.into_iter().for_each(|it| match it {
-            ExtraRecord::Mmap => raw_attr.set_mmap(1),
-            ExtraRecord::Mmap2 => raw_attr.set_mmap2(1),
-            ExtraRecord::ContextSwitch => raw_attr.set_context_switch(1),
-            ExtraRecord::Namespaces => raw_attr.set_namespaces(1),
-            ExtraRecord::Ksymbol => raw_attr.set_ksymbol(1),
-            ExtraRecord::BpfEvent => raw_attr.set_bpf_event(1),
-            #[cfg(feature = "linux-5.7")]
-            ExtraRecord::Cgroup => raw_attr.set_cgroup(1),
-            #[cfg(feature = "linux-5.8")]
-            ExtraRecord::TextPoke => raw_attr.set_text_poke(1),
-            ExtraRecord::ForkAndExit => raw_attr.set_task(1),
-        });
+        extra_config
+            .extra_record_types
+            .iter()
+            .for_each(|it| match it {
+                ExtraRecord::Mmap => raw_attr.set_mmap(1),
+                ExtraRecord::Mmap2 => raw_attr.set_mmap2(1),
+                ExtraRecord::ContextSwitch => raw_attr.set_context_switch(1),
+                ExtraRecord::Namespaces => raw_attr.set_namespaces(1),
+                ExtraRecord::Ksymbol => raw_attr.set_ksymbol(1),
+                ExtraRecord::BpfEvent => raw_attr.set_bpf_event(1),
+                #[cfg(feature = "linux-5.7")]
+                ExtraRecord::Cgroup => raw_attr.set_cgroup(1),
+                #[cfg(feature = "linux-5.8")]
+                ExtraRecord::TextPoke => raw_attr.set_text_poke(1),
+                ExtraRecord::ForkAndExit => raw_attr.set_task(1),
+            });
 
         Self { raw_attr }
     }

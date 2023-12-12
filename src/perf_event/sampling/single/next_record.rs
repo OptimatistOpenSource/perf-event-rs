@@ -59,7 +59,6 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
 
     let record_header =
         unsafe { (record_buf.as_ptr() as *const perf_event_header).as_ref() }.unwrap();
-    #[allow(non_upper_case_globals)]
     let record_body = unsafe {
         let follow_mem_ptr = (record_header as *const perf_event_header).add(1) as *const _;
         match record_header.type_ {

@@ -8,7 +8,7 @@ fn gen_builder() -> Builder {
     Builder::new()
         .calling_process()
         .any_cpu()
-        .mmap_pages(mmap_pages)
+        .ring_buffer_pages(mmap_pages)
 }
 
 fn gen_attr(sample_max_stack: u16) -> Attr {
@@ -19,7 +19,7 @@ fn gen_attr(sample_max_stack: u16) -> Attr {
     let event = SwEvent::CpuClock;
     let scopes = [EventScope::User, EventScope::Host];
     let overflow_by = OverflowBy::Period(1000);
-    Attr::new(event, scopes, overflow_by, &extra_config, [])
+    Attr::new(event, scopes, overflow_by, &extra_config)
 }
 
 #[test]
