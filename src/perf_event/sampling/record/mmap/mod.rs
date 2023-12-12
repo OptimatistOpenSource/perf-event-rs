@@ -16,7 +16,7 @@ pub struct Body {
 type RawBody = raw::Body;
 
 impl Body {
-    pub unsafe fn from_ptr(ptr: *const u8) -> Self {
+    pub(crate) unsafe fn from_ptr(ptr: *const u8) -> Self {
         let raw = (ptr as *const RawBody).as_ref().unwrap();
         Self::from_raw(raw)
     }

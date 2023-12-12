@@ -37,7 +37,7 @@ pub struct Body {
 type RawBody = raw::Body;
 
 impl Body {
-    pub unsafe fn from_ptr(
+    pub(crate) unsafe fn from_ptr(
         ptr: *const u8,
         sample_type: u64,
         regs_user_len: usize,
