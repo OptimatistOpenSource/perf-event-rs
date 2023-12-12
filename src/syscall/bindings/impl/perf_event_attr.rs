@@ -3,7 +3,6 @@ use crate::{debug_struct, debug_struct_fn};
 use std::fmt::{Debug, Formatter};
 
 impl Debug for perf_event_attr {
-    // TODO: kernel version features
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         debug_struct! {
             name: perf_event_attr

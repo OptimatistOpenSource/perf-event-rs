@@ -1,6 +1,7 @@
 use std::marker::PhantomData;
 use std::ops::Not;
 use std::slice;
+use crate::infra::SizedExt;
 
 #[repr(C)]
 pub struct ZeroTerminated<T> {
@@ -19,7 +20,7 @@ impl<T> ZeroTerminated<T> {
 
         fn is_all_zero<T>(ptr: *const T) -> bool {
             let ptr = ptr as *const u8;
-            for i in 0..std::mem::size_of::<T>() {
+            for i in 0..T::size() {
                 if unsafe { *ptr.add(i) } != 0 {
                     return false;
                 }

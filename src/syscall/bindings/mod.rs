@@ -6,7 +6,7 @@
 #[allow(non_upper_case_globals)]
 #[allow(non_snake_case)]
 #[allow(clippy::all, clippy::nursery, clippy::cargo_common_metadata)]
-mod bindgen; // TODO: bindings may differ between kernel versions
+mod bindgen;
 mod r#impl;
 mod read_format;
 

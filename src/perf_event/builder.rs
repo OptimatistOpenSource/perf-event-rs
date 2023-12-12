@@ -8,8 +8,12 @@ pub enum BuildError {
     InvalidPid(String),
     #[error("CPU is invalid: {0}")]
     InvalidCpu(String),
-    #[error("PID and CPU are not set")]
-    PidAndCpuNotSet,
+    #[error("PID not set")]
+    PidNotSet,
+    #[error("CPU not set")]
+    CpuNotSet,
+    #[error("Ring buffer size not set")]
+    RingBufferSizeNotSet,
     #[error("Failed to perform perf_event_open: {0}")]
     SyscallFailed(io::Error),
 }

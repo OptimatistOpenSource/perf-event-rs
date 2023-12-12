@@ -5,18 +5,18 @@ use crate::{BuildError, Builder};
 
 // TODO
 impl Builder {
-    pub const fn mmap_pages(mut self, mmap_pages: usize) -> Self {
-        self.mmap_pages = Some(mmap_pages);
+    pub const fn ring_buffer_size(mut self, pages: usize) -> Self {
+        self.mmap_pages = Some(pages);
         self
     }
 
     pub fn build_sampling(&self, attr: &Attr) -> Result<Sampling, BuildError> {
         match self {
+            Self { pid: None, .. } => Err(BuildError::PidNotSet),
+            Self { cpu: None, .. } => Err(BuildError::CpuNotSet),
             Self {
-                pid: None,
-                cpu: None,
-                ..
-            } => Err(BuildError::PidAndCpuNotSet),
+                mmap_pages: None, ..
+            } => Err(BuildError::RingBufferSizeNotSet),
             Self {
                 pid: Some(pid),
                 cpu: Some(cpu),
@@ -24,24 +24,22 @@ impl Builder {
                 ..
             } => unsafe { Sampling::new(attr, *pid, *cpu, -1, 0, *mmap_pages) }
                 .map_err(BuildError::SyscallFailed),
-            _ => todo!(),
         }
     }
 
     pub fn build_sampling_group(&self) -> Result<SamplingGroup, BuildError> {
         match self {
+            Self { pid: None, .. } => Err(BuildError::PidNotSet),
+            Self { cpu: None, .. } => Err(BuildError::CpuNotSet),
             Self {
-                pid: None,
-                cpu: None,
-                ..
-            } => Err(BuildError::PidAndCpuNotSet),
+                mmap_pages: None, ..
+            } => Err(BuildError::RingBufferSizeNotSet),
             Self {
                 pid: Some(pid),
                 cpu: Some(cpu),
                 mmap_pages: Some(mmap_pages),
                 ..
             } => unsafe { SamplingGroup::new(*pid, *cpu, *mmap_pages) }.wrap_ok(),
-            _ => todo!(),
         }
     }
 }

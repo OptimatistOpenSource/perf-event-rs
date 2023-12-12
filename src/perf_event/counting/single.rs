@@ -72,14 +72,6 @@ impl Counting {
         )
     }
 
-    /*
-        // TODO
-        pub fn refresh(&self) -> io::Result<()> {
-            //self.perf_event_ioctl(syscall::bindings::PERF_EVENT_IOCTL_REFRESH)
-            todo!()
-        }
-    */
-
     pub fn reset_count(&self) -> io::Result<()> {
         ioctl_wrapped::<()>(&self.file, syscall::bindings::PERF_EVENT_IOCTL_RESET, None)
     }

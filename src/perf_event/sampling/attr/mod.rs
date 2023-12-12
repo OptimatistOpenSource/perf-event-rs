@@ -11,6 +11,7 @@ use std::fmt::Debug;
 pub use extra_config::*;
 pub use extra_record::*;
 pub use sample_record_fields::*;
+use crate::infra::SizedExt;
 
 pub enum OverflowBy {
     Period(u64),
@@ -23,7 +24,6 @@ pub struct Attr {
 }
 
 impl Attr {
-    // TODO: more options are needed
     pub fn new(
         event: impl Into<Event>,
         scopes: impl IntoIterator<Item = EventScope>,
@@ -36,7 +36,7 @@ impl Attr {
 
         let mut raw_attr = RawAttr {
             type_: 0,
-            size: std::mem::size_of::<RawAttr>() as _,
+            size: RawAttr::size() as _,
             config: 0,
             __bindgen_anon_1: match overflow_by {
                 OverflowBy::Freq(f) => perf_event_attr__bindgen_ty_1 { sample_freq: f },
