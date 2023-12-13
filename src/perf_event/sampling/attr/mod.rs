@@ -96,7 +96,15 @@ impl Attr {
         };
 
         raw_attr.set_disabled(1);
-        raw_attr.set_inherit(0); // not use in sampling mode, enable this will lead to invalid argument
+
+        /*
+        TODO:
+        From line 6402 of kernel/events/core.c:
+        Don't allow mmap() of inherited per-task counters. This would
+        create a performance issue due to all children writing to the
+        same rb.
+        */
+        raw_attr.set_inherit(extra_config.inherit as _);
         raw_attr.set_pinned(extra_config.pinned as _);
         raw_attr.set_exclusive(extra_config.exclusive as _);
 
@@ -111,7 +119,7 @@ impl Attr {
             OverflowBy::Freq(_) => 1,
             OverflowBy::Period(_) => 0,
         });
-        raw_attr.set_inherit_stat(0); // `inherit_stat` requires `inherit` to be enabled
+        raw_attr.set_inherit_stat(extra_config.inherit_stat as _); // `inherit_stat` requires `inherit` to be enabled
         raw_attr.set_enable_on_exec(extra_config.enable_on_exec as _);
         raw_attr.set_task(0);
         raw_attr.set_watermark(match extra_config.wakeup {
@@ -157,7 +165,7 @@ impl Attr {
         #[cfg(feature = "linux-5.12")]
         raw_attr.set_build_id(extra_config.build_id as _);
         #[cfg(feature = "linux-5.13")]
-        raw_attr.set_inherit_thread(0); // not use in sampling mode, enable this will lead to invalid argument
+        raw_attr.set_inherit_thread(extra_config.inherit_thread as _);
         #[cfg(feature = "linux-5.13")]
         raw_attr.set_remove_on_exec(extra_config.remove_on_exec as _);
         #[cfg(feature = "linux-5.13")]

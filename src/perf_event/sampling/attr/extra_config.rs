@@ -11,9 +11,12 @@ pub struct ExtraConfig {
     pub comm: bool,
     pub comm_exec: bool,
 
+    pub inherit: bool,
+    pub inherit_stat: bool,
+    pub inherit_thread: bool,
+
     //#[cfg(feature = "linux-5.4")]
     //pub aux_output: bool,
-
     #[cfg(feature = "linux-5.12")]
     pub build_id: bool,
 
@@ -41,9 +44,12 @@ impl Default for ExtraConfig {
             comm: false,
             comm_exec: false,
 
+            inherit: false,
+            inherit_stat: false,
+            inherit_thread: false,
+
             //#[cfg(feature = "linux-5.4")]
             //aux_output: false,
-
             #[cfg(feature = "linux-5.12")]
             build_id: false,
 

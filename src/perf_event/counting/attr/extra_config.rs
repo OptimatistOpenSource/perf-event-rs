@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ExtraConfig {
     pub pinned: bool,
     pub exclusive: bool,
@@ -10,21 +10,4 @@ pub struct ExtraConfig {
     pub enable_on_exec: bool,
     #[cfg(feature = "linux-5.13")]
     pub remove_on_exec: bool,
-}
-
-impl Default for ExtraConfig {
-    fn default() -> Self {
-        Self {
-            pinned: false,
-            exclusive: false,
-
-            inherit: false,
-            inherit_stat: false,
-            inherit_thread: false,
-
-            enable_on_exec: false,
-            #[cfg(feature = "linux-5.13")]
-            remove_on_exec: false,
-        }
-    }
 }
