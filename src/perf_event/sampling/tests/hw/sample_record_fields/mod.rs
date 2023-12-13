@@ -3,6 +3,7 @@ mod abi_and_regs_user;
 mod all;
 mod data_stack_user;
 mod ips;
+mod weight;
 
 use crate::sampling::record::{Record, RecordBody};
 use crate::sampling::{Attr, ExtraConfig, OverflowBy};

@@ -11,6 +11,7 @@ pub struct ExtraConfig {
     pub comm: bool,
     pub comm_exec: bool,
 
+    /// TODO: `inherit` can't be turned on when `sample_record_fields.v` is enabled
     pub inherit: bool,
     pub inherit_stat: bool,
     pub inherit_thread: bool,
