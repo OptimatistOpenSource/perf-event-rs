@@ -90,7 +90,7 @@ impl Attr {
             aux_sample_size: 0, // TODO
             __reserved_3: 0,
             #[cfg(feature = "linux-5.13")]
-            sig_data: 0, // not use in sampling mode
+            sig_data: extra_config.sigtrap.unwrap_or(0),
             #[cfg(feature = "linux-latest")]
             config3: 0, // TODO: missing docs in manual
         };
@@ -169,7 +169,7 @@ impl Attr {
         #[cfg(feature = "linux-5.13")]
         raw_attr.set_remove_on_exec(extra_config.remove_on_exec as _);
         #[cfg(feature = "linux-5.13")]
-        raw_attr.set_sigtrap(0); // not use in sampling mode, enable this will lead to invalid argument
+        raw_attr.set_sigtrap(extra_config.sigtrap.is_some() as _);
 
         use EventScope::*;
         scopes.into_iter().for_each(|scope| match scope {

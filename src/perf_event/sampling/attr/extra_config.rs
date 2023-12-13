@@ -27,6 +27,8 @@ pub struct ExtraConfig {
     pub clockid: Option<ClockId>,
     pub precise_ip: SampleIpSkid,
     pub wakeup: Wakeup,
+    /// Wrap `sig_data` with `Some` to enable sigtrap
+    pub sigtrap: Option<u64>,
 
     pub sample_record_fields: SampleRecordFields,
 
@@ -60,6 +62,7 @@ impl Default for ExtraConfig {
             clockid: None,
             precise_ip: SampleIpSkid::Arbitrary,
             wakeup: Events(1),
+            sigtrap: None,
 
             sample_record_fields: Default::default(),
 
