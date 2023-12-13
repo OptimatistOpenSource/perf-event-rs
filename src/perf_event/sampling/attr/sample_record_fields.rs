@@ -1,3 +1,4 @@
+use crate::sampling::record::sample::WeightRepr;
 use crate::syscall::bindings::*;
 
 /// Select the fields contained in `sample::Body`
@@ -25,6 +26,12 @@ pub struct SampleRecordFields {
     /// Wrap `sample_stack_user` with `Some` to enable this field
     pub data_stack_user: Option<u32>, // PERF_SAMPLE_STACK_USER
 
+    /// Some(WeightRepr::Full) for Weight::Full(u64)\
+    /// Some(WeightRepr::Vars) for Weight::Vars { ... }
+    // PERF_SAMPLE_WEIGHT when WeightRepr::Full
+    // PERF_SAMPLE_WEIGHT_STRUCT when WeightRepr::Vars
+    pub weight: Option<WeightRepr>,
+
     pub data_src: bool,    // PERF_SAMPLE_DATA_SRC
     pub transaction: bool, // PERF_SAMPLE_TRANSACTION
 
@@ -38,6 +45,7 @@ pub struct SampleRecordFields {
 }
 
 impl SampleRecordFields {
+    #[allow(clippy::cognitive_complexity)]
     pub(crate) const fn as_sample_type(&self) -> u64 {
         macro_rules! gen {
             ($(
@@ -58,9 +66,6 @@ impl SampleRecordFields {
             };
         }
 
-        //| PERF_SAMPLE_BRANCH_STACK // TODO: Not all hardware supports this feature
-        //| PERF_SAMPLE_WEIGHT // FIX: this will lead to "Invalid Argument"
-
         gen! {
             self.sample_id                  , PERF_SAMPLE_IDENTIFIER
             self.ip                         , PERF_SAMPLE_IP
@@ -74,8 +79,11 @@ impl SampleRecordFields {
             self.v                          , PERF_SAMPLE_READ
             self.ips.is_some()              , PERF_SAMPLE_CALLCHAIN
             self.data_raw                   , PERF_SAMPLE_RAW
+            // TODO: Not all hw supports PERF_SAMPLE_BRANCH_STACK
             self.abi_and_regs_user.is_some(), PERF_SAMPLE_REGS_USER
             self.data_stack_user.is_some()  , PERF_SAMPLE_STACK_USER
+            matches!(self.weight, Some(WeightRepr::Full)), PERF_SAMPLE_WEIGHT
+            matches!(self.weight, Some(WeightRepr::Vars)), PERF_SAMPLE_WEIGHT_STRUCT
             self.data_src                   , PERF_SAMPLE_DATA_SRC
             self.transaction                , PERF_SAMPLE_TRANSACTION
             self.abi_and_regs_intr.is_some(), PERF_SAMPLE_REGS_INTR

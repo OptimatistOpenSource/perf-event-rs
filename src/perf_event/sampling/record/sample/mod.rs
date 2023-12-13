@@ -4,9 +4,12 @@ use crate::sampling::record::sample::abi_and_regs::AbiAndRegs;
 mod abi_and_regs;
 mod data_src;
 mod raw;
+mod weight;
 
+use crate::syscall::bindings::{PERF_SAMPLE_WEIGHT, PERF_SAMPLE_WEIGHT_STRUCT};
 pub use abi_and_regs::*;
 pub use data_src::*;
+pub use weight::*;
 
 #[derive(Debug, Clone)]
 pub struct Body {
@@ -25,6 +28,7 @@ pub struct Body {
     pub data_raw: Option<Vec<u8>>,
     pub abi_and_regs_user: Option<AbiAndRegs>,
     pub data_stack_user: Option<Vec<u8>>,
+    pub weight: Option<Weight>,
     pub data_src: Option<DataSrc>,
     pub transaction: Option<u64>,
     pub abi_and_regs_intr: Option<AbiAndRegs>,
@@ -66,6 +70,14 @@ impl Body {
                 .abi_and_regs_user(regs_user_len)
                 .map(AbiAndRegs::from_raw),
             data_stack_user: raw.data_stack_user().map(|it| it.to_vec()),
+            weight: raw.weight().map(|it| {
+                let repr = match sample_type {
+                    st if (st & PERF_SAMPLE_WEIGHT as u64) > 0 => WeightRepr::Full,
+                    st if (st & PERF_SAMPLE_WEIGHT_STRUCT as u64) > 0 => WeightRepr::Vars,
+                    _ => unreachable!(),
+                };
+                Weight::from_raw(*it, repr)
+            }),
             data_src: raw.data_src().cloned().map(DataSrc::from_raw),
             transaction: raw.transaction().cloned(),
             abi_and_regs_intr: raw

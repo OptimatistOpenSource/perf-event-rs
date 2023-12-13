@@ -3,7 +3,6 @@ use crate::sampling::single::Sampling;
 use crate::sampling::{Attr, SamplingGroup};
 use crate::{BuildError, Builder};
 
-// TODO
 impl Builder {
     pub const fn ring_buffer_pages(mut self, pages: usize) -> Self {
         self.mmap_pages = Some(pages);

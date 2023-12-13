@@ -190,10 +190,16 @@ impl Body {
         }
     }
 
-    /*
-    TODO: if PERF_SAMPLE_WEIGHT || PERF_SAMPLE_WEIGHT_STRUCT
-    union perf_sample_weight weight;
-    */
+    pub unsafe fn weight(&mut self) -> Option<&perf_sample_weight> {
+        if (self.is_enabled(PERF_SAMPLE_WEIGHT) || self.is_enabled(PERF_SAMPLE_WEIGHT_STRUCT)).not()
+        {
+            return None;
+        }
+
+        let ptr = self.read_ptr as *const perf_sample_weight;
+        self.read_ptr = self.read_ptr.add(perf_sample_weight::size());
+        ptr.as_ref()
+    }
 
     gen_fn! { u64, data_src    PERF_SAMPLE_DATA_SRC    }
     gen_fn! { u64, transaction PERF_SAMPLE_TRANSACTION }

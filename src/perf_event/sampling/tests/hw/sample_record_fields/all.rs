@@ -1,3 +1,4 @@
+use crate::sampling::record::sample::WeightRepr;
 use crate::sampling::record::{Record, RecordBody};
 use crate::sampling::{Attr, ExtraConfig, OverflowBy, SampleRecordFields};
 use crate::test::cpu_workload;
@@ -36,6 +37,7 @@ fn test() {
         data_raw: true,
         abi_and_regs_user: Some(1),
         data_stack_user: Some(2_u32.pow(3)),
+        weight: Some(WeightRepr::Full),
         data_src: true,
         transaction: true,
         abi_and_regs_intr: Some(1),
@@ -70,6 +72,7 @@ fn test() {
             assert!(body.data_raw.is_some());
             assert!(body.abi_and_regs_user.is_some());
             assert!(body.data_stack_user.is_some());
+            assert!(body.weight.is_some());
             assert!(body.data_src.is_some());
             assert!(body.transaction.is_some());
             assert!(body.abi_and_regs_intr.is_some());
