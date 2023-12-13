@@ -105,4 +105,9 @@ impl Builder {
         self.cpu = Some(-1);
         self
     }
+
+    pub const fn ring_buffer_pages(mut self, pages: usize) -> Self {
+        self.mmap_pages = Some(pages);
+        self
+    }
 }

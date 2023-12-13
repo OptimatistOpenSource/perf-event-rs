@@ -111,29 +111,3 @@ impl Counting {
         Ok(id)
     }
 }
-
-/*
-    // TODO: tracing mode only
-    pub fn set_filter(&self) -> io::Result<()> {
-        //self.perf_event_ioctl(syscall::bindings::PERF_EVENT_IOCTL_SET_FILTER)
-        todo!()
-    }
-
-    // TODO: tracing mode only
-    pub fn set_bpf(&self) -> io::Result<()> {
-        //self.perf_event_ioctl(syscall::bindings::PERF_EVENT_IOCTL_SET_BPF)
-        todo!()
-    }
-
-    // TODO: tracing mode only
-    pub fn query_bpf(&self) -> io::Result<()> {
-        //self.perf_event_ioctl(syscall::bindings::PERF_EVENT_IOCTL_QUERY_BPF)
-        todo!()
-    }
-
-    // TODO: breakpoint event only
-    pub fn modify_attributes(&self) -> io::Result<()> {
-        //self.perf_event_ioctl(syscall::bindings::PERF_EVENT_IOCTL_MODIFY_ATTRIBUTES)
-        todo!()
-    }
-*/

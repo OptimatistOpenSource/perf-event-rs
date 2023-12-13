@@ -1,15 +1,17 @@
 use crate::infra::SizedExt;
 use crate::perf_event::RawAttr;
-use crate::sampling::{Attr, ClockId, ExtraConfig, ExtraRecord, OverflowBy, SampleIpSkid, Wakeup};
+use crate::sampling::{ClockId, ExtraConfig, ExtraRecord, SampleIpSkid, Wakeup};
 use crate::syscall::bindings::*;
-use crate::{Event, EventScope};
-use libc::{CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI};
+use crate::tracing::attr::Attr;
+use crate::{BreakpointType, DynamicPmuEvent, EventScope, KprobeConfig, TracingEvent};
+use libc::{
+    c_long, CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI,
+};
 use std::ops::Not;
 
 pub fn new(
-    event: impl Into<Event>,
+    event: impl Into<TracingEvent>,
     scopes: impl IntoIterator<Item = EventScope>,
-    overflow_by: OverflowBy,
     extra_config: &ExtraConfig,
 ) -> Attr {
     let sample_record_fields = &extra_config.sample_record_fields;
@@ -18,10 +20,7 @@ pub fn new(
         type_: 0,
         size: RawAttr::size() as _,
         config: 0,
-        __bindgen_anon_1: match overflow_by {
-            OverflowBy::Freq(f) => perf_event_attr__bindgen_ty_1 { sample_freq: f },
-            OverflowBy::Period(p) => perf_event_attr__bindgen_ty_1 { sample_period: p },
-        },
+        __bindgen_anon_1: perf_event_attr__bindgen_ty_1::default(), // not use in tracing mode
         sample_type: sample_record_fields.as_sample_type(),
         read_format: {
             #[allow(unused_mut)]
@@ -49,11 +48,9 @@ pub fn new(
                 wakeup_watermark: *val,
             },
         },
-        bp_type: 0, // not use in sampling mode
-        __bindgen_anon_3: perf_event_attr__bindgen_ty_3::default(), // ditto
-        __bindgen_anon_4: perf_event_attr__bindgen_ty_4::default(), // ditto
-        // TODO: config1 in __bindgen_anon_3
-        // TODO: config2 in __bindgen_anon_4
+        bp_type: 0,
+        __bindgen_anon_3: perf_event_attr__bindgen_ty_3::default(),
+        __bindgen_anon_4: perf_event_attr__bindgen_ty_4::default(),
         branch_sample_type: 0, // TODO: Not all hardware supports this feature
         sample_regs_user: sample_record_fields.abi_and_regs_user.unwrap_or(0),
         sample_stack_user: sample_record_fields.data_stack_user.unwrap_or(0),
@@ -96,10 +93,7 @@ pub fn new(
 
     raw_attr.set_mmap(0);
     raw_attr.set_comm(extra_config.comm as _);
-    raw_attr.set_freq(match overflow_by {
-        OverflowBy::Freq(_) => 1,
-        OverflowBy::Period(_) => 0,
-    });
+    raw_attr.set_freq(0); // not use in tracing mode
     raw_attr.set_inherit_stat(extra_config.inherit_stat as _); // `inherit_stat` requires `inherit` to be enabled
     raw_attr.set_enable_on_exec(extra_config.enable_on_exec as _);
     raw_attr.set_task(0);
@@ -164,22 +158,68 @@ pub fn new(
     });
 
     match event.into() {
-        Event::Hw(ev) if ev.is_cache_event() => {
-            raw_attr.type_ = PERF_TYPE_HW_CACHE;
-            raw_attr.config = ev.into_u64();
+        TracingEvent::Tracepoint(ev) => {
+            raw_attr.type_ = PERF_TYPE_TRACEPOINT;
+            raw_attr.config = ev.id
         }
-        Event::Hw(ev) => {
-            raw_attr.type_ = PERF_TYPE_HARDWARE;
-            raw_attr.config = ev.into_u64();
+        TracingEvent::Breakpoint(ev) => {
+            raw_attr.type_ = PERF_TYPE_BREAKPOINT;
+            use BreakpointType::*;
+            match ev.bp_type {
+                Empty => {}
+                R { addr, len } => {
+                    raw_attr.__bindgen_anon_3.bp_addr = addr;
+                    raw_attr.__bindgen_anon_4.bp_len = len.into_u64();
+                }
+                W { addr, len } => {
+                    raw_attr.__bindgen_anon_3.bp_addr = addr;
+                    raw_attr.__bindgen_anon_4.bp_len = len.into_u64();
+                }
+                Rw { addr, len } => {
+                    raw_attr.__bindgen_anon_3.bp_addr = addr;
+                    raw_attr.__bindgen_anon_4.bp_len = len.into_u64();
+                }
+                X { addr } => {
+                    raw_attr.__bindgen_anon_3.bp_addr = addr;
+                    raw_attr.__bindgen_anon_4.bp_len = c_long::size() as _;
+                }
+            };
+            raw_attr.config = 0;
         }
-        Event::Sw(ev) => {
-            raw_attr.type_ = PERF_TYPE_SOFTWARE;
-            raw_attr.config = ev.into_u64();
-        }
-        Event::Raw(ev) => {
-            raw_attr.type_ = PERF_TYPE_RAW;
-            raw_attr.config = ev.into_u64();
-        }
+        TracingEvent::DynamicPmu(ev) => match ev {
+            DynamicPmuEvent::OtherType(r#type) => raw_attr.type_ = r#type,
+            DynamicPmuEvent::Kprobe {
+                r#type,
+                retprobe,
+                cfg,
+            } => {
+                raw_attr.type_ = r#type;
+                raw_attr.config |= retprobe as u64;
+                match cfg {
+                    KprobeConfig::FuncAndOffset {
+                        kprobe_func,
+                        probe_offset,
+                    } => {
+                        raw_attr.__bindgen_anon_3.kprobe_func = kprobe_func;
+                        raw_attr.__bindgen_anon_4.probe_offset = probe_offset;
+                    }
+                    KprobeConfig::KprobeAddr(addr) => {
+                        raw_attr.__bindgen_anon_3.kprobe_func = 0;
+                        raw_attr.__bindgen_anon_4.kprobe_addr = addr;
+                    }
+                }
+            }
+            DynamicPmuEvent::Uprobe {
+                r#type,
+                retprobe,
+                cfg,
+            } => {
+                raw_attr.type_ = r#type;
+                raw_attr.config |= retprobe as u64;
+                raw_attr.__bindgen_anon_3.uprobe_path = cfg.uprobe_path;
+                raw_attr.__bindgen_anon_4.probe_offset = cfg.probe_offset;
+            }
+        },
     }
 
     extra_config

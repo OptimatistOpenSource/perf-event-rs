@@ -1,15 +1,16 @@
 mod next_record;
 
 use crate::infra::WrapResult;
+use crate::perf_event::RawAttr;
 use crate::sampling::record::*;
 use crate::sampling::single::next_record::next_record;
-use crate::sampling::Attr;
 use crate::syscall::bindings::*;
 use crate::syscall::{ioctl_wrapped, perf_event_open};
 use memmap::{MmapMut, MmapOptions};
 use std::fs::File;
 use std::io;
 use std::os::fd::FromRawFd;
+use crate::sampling::Attr;
 
 pub struct Sampling {
     pub(crate) mmap: MmapMut,
@@ -23,16 +24,14 @@ pub struct Sampling {
 }
 
 impl Sampling {
-    pub(crate) unsafe fn new(
-        attr: &Attr,
+    pub(crate) unsafe fn new_from_raw(
+        raw_attr: &RawAttr,
         pid: i32,
         cpu: i32,
         group_fd: i32,
         flags: u64,
         mmap_pages: usize,
     ) -> io::Result<Self> {
-        let raw_attr = attr.as_raw();
-
         let i32 = unsafe { perf_event_open(raw_attr, pid, cpu, group_fd, flags) };
         match i32 {
             -1 => Err(io::Error::last_os_error()),
@@ -56,6 +55,17 @@ impl Sampling {
             }
             .wrap_ok(),
         }
+    }
+
+    pub(crate) unsafe fn new(
+        attr: &Attr,
+        pid: i32,
+        cpu: i32,
+        group_fd: i32,
+        flags: u64,
+        mmap_pages: usize,
+    ) -> io::Result<Self> {
+        Self::new_from_raw(attr.as_raw(), pid, cpu, group_fd, flags, mmap_pages)
     }
 
     pub fn enable(&self) -> io::Result<()> {

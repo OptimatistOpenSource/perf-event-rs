@@ -4,11 +4,6 @@ use crate::sampling::{Attr, SamplingGroup};
 use crate::{BuildError, Builder};
 
 impl Builder {
-    pub const fn ring_buffer_pages(mut self, pages: usize) -> Self {
-        self.mmap_pages = Some(pages);
-        self
-    }
-
     pub fn build_sampling(&self, attr: &Attr) -> Result<Sampling, BuildError> {
         match self {
             Self { pid: None, .. } => Err(BuildError::PidNotSet),

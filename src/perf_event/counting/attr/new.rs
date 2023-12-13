@@ -38,6 +38,8 @@ pub fn new(
         bp_type: 0,                                             // ditto
         __bindgen_anon_3: perf_event_attr__bindgen_ty_3::default(), // ditto
         __bindgen_anon_4: perf_event_attr__bindgen_ty_4::default(), // ditto
+        // TODO: config1 in __bindgen_anon_3
+        // TODO: config2 in __bindgen_anon_4
         branch_sample_type: 0,                                  // ditto
         sample_regs_user: 0,                                    // ditto
         sample_stack_user: 0,                                   // ditto

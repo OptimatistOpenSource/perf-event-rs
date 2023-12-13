@@ -1,13 +1,25 @@
-mod hw_event;
-mod raw_event;
-mod sw_event;
+mod breakpoint;
+mod dynamic_pmu;
+mod hw;
+mod raw;
+mod sw;
+mod tracepoint;
 
-pub use hw_event::*;
-pub use raw_event::*;
-pub use sw_event::*;
+pub use breakpoint::*;
+pub use dynamic_pmu::*;
+pub use hw::*;
+pub use raw::*;
+pub use sw::*;
+pub use tracepoint::*;
 
 pub enum Event {
     Hw(HwEvent),
     Sw(SwEvent),
     Raw(RawEvent),
+}
+
+pub enum TracingEvent {
+    Tracepoint(TracepointEvent),
+    Breakpoint(BreakpointEvent),
+    DynamicPmu(DynamicPmuEvent),
 }
