@@ -76,7 +76,7 @@ fn test_enable_disable() {
 
     {
         let mut sample_count = 0_usize;
-        for _ in &mut sampling {
+        for _ in sampling.iter() {
             sample_count += 1;
         }
         assert!(sample_count > 0);
@@ -103,7 +103,7 @@ fn test_pause_resume() {
 
     {
         let mut sample_count = 0_usize;
-        for _ in &mut sampling {
+        for _ in sampling.iter() {
             sample_count += 1;
         }
         assert!(sample_count > 0);
@@ -127,7 +127,7 @@ fn test_ring_buffer() {
     cpu_workload();
 
     let mut sample_count = 0_usize;
-    for Record { body, .. } in &mut sampling {
+    for Record { body, .. } in sampling.iter() {
         if let RecordBody::Sample(_) = body {
             sample_count += 1;
         }

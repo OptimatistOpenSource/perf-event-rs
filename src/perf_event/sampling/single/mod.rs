@@ -1,3 +1,5 @@
+mod into_iter;
+mod iter;
 mod next_record;
 
 use crate::infra::WrapResult;
@@ -11,6 +13,9 @@ use memmap::{MmapMut, MmapOptions};
 use std::fs::File;
 use std::io;
 use std::os::fd::FromRawFd;
+
+pub use into_iter::*;
+pub use iter::*;
 
 pub struct Sampling {
     pub(crate) mmap: MmapMut,
@@ -106,13 +111,5 @@ impl Sampling {
         let mut id = 0_u64;
         ioctl_wrapped(&self.file, PERF_EVENT_IOCTL_ID, Some(&mut id))?;
         Ok(id)
-    }
-}
-
-impl Iterator for Sampling {
-    type Item = Record;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.next_record()
     }
 }
