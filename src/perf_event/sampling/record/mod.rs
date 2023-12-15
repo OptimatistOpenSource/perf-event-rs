@@ -19,6 +19,7 @@ pub mod switch_cpu_wide;
 pub mod text_poke;
 pub mod throttle;
 pub mod unthrottle;
+mod sample_id;
 
 #[derive(Debug, Clone)]
 pub struct Record {
@@ -49,19 +50,6 @@ pub enum RecordBody {
     Cgroup(Box<cgroup::Body>),
     TextPoke(Box<text_poke::Body>),
     AuxOutputHwId(Box<aux_output_hw_id::Body>), // TODO: missing docs in manual
-}
-
-#[repr(C)]
-#[derive(Debug, Clone)]
-pub struct SampleId {
-    pub pid: u32,
-    pub tid: u32,
-    pub time: u64,
-    pub id_1: u64,
-    pub stream_id: u64,
-    pub cpu: u32,
-    pub res: u32,
-    pub id_2: u64,
 }
 
 #[derive(Debug, Clone)]

@@ -34,6 +34,7 @@ pub struct ExtraConfig {
     pub sample_record_fields: SampleRecordFields,
 
     pub extra_record_types: Vec<ExtraRecord>,
+    /// i.e. `sample_id_all`
     pub extra_record_with_sample_id: bool,
 }
 

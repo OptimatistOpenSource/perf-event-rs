@@ -1,4 +1,4 @@
-use crate::sampling::record::SampleId;
+use crate::sampling::record::sample_id::SampleId;
 
 mod raw;
 
@@ -16,7 +16,7 @@ pub struct Body {
 type RawBody = raw::Body;
 
 impl Body {
-    pub(crate) unsafe fn from_ptr(ptr: *const u8, sample_id_all: bool) -> Self {
+    pub(crate) unsafe fn from_ptr(ptr: *const u8, sample_type: u64, sample_id_all: bool) -> Self {
         let raw = (ptr as *const RawBody).as_ref().unwrap();
 
         Self {
@@ -25,7 +25,7 @@ impl Body {
             tid: raw.tid,
             ptid: raw.ptid,
             time: raw.time,
-            sample_id: sample_id_all.then(|| raw.sample_id().clone()),
+            sample_id: sample_id_all.then(|| raw.sample_id(sample_type)),
         }
     }
 }

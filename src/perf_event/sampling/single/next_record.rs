@@ -72,31 +72,59 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
                 RecordBody::Mmap(record.wrap_box())
             }
             PERF_RECORD_LOST => {
-                let record = lost::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = lost::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::Lost(record.wrap_box())
             }
             PERF_RECORD_COMM => {
-                let record = comm::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = comm::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::Comm(record.wrap_box())
             }
             PERF_RECORD_EXIT => {
-                let record = exit::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = exit::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::Exit(record.wrap_box())
             }
             PERF_RECORD_THROTTLE => {
-                let record = throttle::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = throttle::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::Throttle(record.wrap_box())
             }
             PERF_RECORD_UNTHROTTLE => {
-                let record = unthrottle::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = unthrottle::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::Unthrottle(record.wrap_box())
             }
             PERF_RECORD_FORK => {
-                let record = fork::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = fork::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::Fork(record.wrap_box())
             }
             PERF_RECORD_READ => {
-                let record = read::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = read::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::Read(record.wrap_box())
             }
             PERF_RECORD_SAMPLE => {
@@ -112,12 +140,17 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
                 let record = mmap2::Body::from_ptr(
                     follow_mem_ptr,
                     record_header.misc,
+                    sampling.sample_type,
                     sampling.sample_id_all,
                 );
                 RecordBody::Mmap2(record.wrap_box())
             }
             PERF_RECORD_AUX => {
-                let record = aux::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = aux::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::Aux(record.wrap_box())
             }
             PERF_RECORD_ITRACE_START => {
@@ -125,36 +158,67 @@ pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
                 RecordBody::ItraceStart(ptr.read().wrap_box())
             }
             PERF_RECORD_LOST_SAMPLES => {
-                let record = lost_samples::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = lost_samples::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::LostSamples(record.wrap_box())
             }
             PERF_RECORD_SWITCH => {
-                let record = switch::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = switch::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::Switch(record.wrap_box())
             }
             PERF_RECORD_SWITCH_CPU_WIDE => {
-                let record =
-                    switch_cpu_wide::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = switch_cpu_wide::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::SwitchCpuWide(record.wrap_box())
             }
             PERF_RECORD_NAMESPACES => {
-                let record = namespaces::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = namespaces::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::Namespaces(record.wrap_box())
             }
             PERF_RECORD_KSYMBOL => {
-                let record = ksymbol::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = ksymbol::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::Ksymbol(record.wrap_box())
             }
             PERF_RECORD_BPF_EVENT => {
-                let record = bpf_event::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = bpf_event::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::BpfEvent(record.wrap_box())
             }
             PERF_RECORD_CGROUP => {
-                let record = cgroup::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = cgroup::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::Cgroup(record.wrap_box())
             }
             PERF_RECORD_TEXT_POKE => {
-                let record = text_poke::Body::from_ptr(follow_mem_ptr, sampling.sample_id_all);
+                let record = text_poke::Body::from_ptr(
+                    follow_mem_ptr,
+                    sampling.sample_type,
+                    sampling.sample_id_all,
+                );
                 RecordBody::TextPoke(record.wrap_box())
             }
             PERF_RECORD_AUX_OUTPUT_HW_ID => {

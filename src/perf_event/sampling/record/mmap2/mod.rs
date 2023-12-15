@@ -1,4 +1,4 @@
-use crate::sampling::record::SampleId;
+use crate::sampling::record::sample_id::SampleId;
 use crate::syscall::bindings::PERF_RECORD_MISC_MMAP_BUILD_ID;
 use std::ffi::CString;
 
@@ -32,7 +32,12 @@ pub struct Body {
 type RawBody = raw::Body;
 
 impl Body {
-    pub(crate) unsafe fn from_ptr(ptr: *const u8, misc: u16, sample_id_all: bool) -> Self {
+    pub(crate) unsafe fn from_ptr(
+        ptr: *const u8,
+        misc: u16,
+        sample_type: u64,
+        sample_id_all: bool,
+    ) -> Self {
         let raw = (ptr as *const RawBody).as_ref().unwrap();
 
         Self {
@@ -58,7 +63,7 @@ impl Body {
             prot: *raw.prot(),
             flags: *raw.flags(),
             filename: CString::from_vec_unchecked(raw.filename().to_vec()),
-            sample_id: sample_id_all.then(|| raw.sample_id().clone()),
+            sample_id: sample_id_all.then(|| raw.sample_id(sample_type)),
         }
     }
 }

@@ -9,7 +9,7 @@ struct {
 */
 
 use crate::infra::{ConstPtrExt, SliceExt, ZeroTerminated};
-use crate::sampling::record::SampleId;
+use crate::sampling::record::sample_id::SampleId;
 
 #[repr(C)]
 struct Sized1 {
@@ -47,8 +47,8 @@ impl Body {
         zt.as_slice()
     }
 
-    pub fn sample_id(&self) -> &SampleId {
-        let ptr = unsafe { self.bytes().follow_mem_ptr().align_as_ptr::<SampleId>() };
-        unsafe { ptr.as_ref() }.unwrap()
+    pub unsafe fn sample_id(&self, sample_type: u64) -> SampleId {
+        let ptr = unsafe { self.bytes().follow_mem_ptr().align_as_ptr::<u64>() } as _;
+        SampleId::from_ptr(ptr, sample_type)
     }
 }

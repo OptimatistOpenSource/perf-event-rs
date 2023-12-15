@@ -7,7 +7,7 @@ struct {
 */
 
 use crate::infra::SliceExt;
-use crate::sampling::record::SampleId;
+use crate::sampling::record::sample_id::SampleId;
 use crate::syscall::bindings::{read_format_body, read_format_header};
 use std::slice;
 
@@ -47,8 +47,8 @@ impl Body {
         unsafe { slice::from_raw_parts(ptr, members_len) }
     }
 
-    pub fn sample_id(&self) -> &SampleId {
-        let ptr = unsafe { self.values_body().follow_mem_ptr() as *const SampleId };
-        unsafe { ptr.as_ref() }.unwrap()
+    pub unsafe fn sample_id(&self, sample_type: u64) -> SampleId {
+        let ptr = unsafe { self.values_body().follow_mem_ptr() } as _;
+        SampleId::from_ptr(ptr, sample_type)
     }
 }
