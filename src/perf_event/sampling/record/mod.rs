@@ -1,25 +1,8 @@
-pub mod aux;
-pub mod aux_output_hw_id;
-pub mod bpf_event;
-pub mod cgroup;
-pub mod comm;
-pub mod exit;
-pub mod fork;
-pub mod intrace_start;
-pub mod ksymbol;
-pub mod lost;
-pub mod lost_samples;
-pub mod mmap;
-pub mod mmap2;
-pub mod namespaces;
-pub mod read;
-pub mod sample;
-pub mod switch;
-pub mod switch_cpu_wide;
-pub mod text_poke;
-pub mod throttle;
-pub mod unthrottle;
+mod body;
 mod sample_id;
+
+pub use body::*;
+pub use sample_id::*;
 
 #[derive(Debug, Clone)]
 pub struct Record {

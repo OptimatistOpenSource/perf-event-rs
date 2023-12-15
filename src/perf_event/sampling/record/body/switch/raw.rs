@@ -12,7 +12,7 @@ pub struct Body;
 
 impl Body {
     pub unsafe fn sample_id(&self, sample_type: u64) -> SampleId {
-        let ptr = (self as *const Self).add(1) as _;
+        let ptr = self as *const _ as _;
         SampleId::from_ptr(ptr, sample_type)
     }
 }

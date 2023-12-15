@@ -1,13 +1,19 @@
+use crate::sampling::record::sample_id::SampleId;
+
 mod raw;
 
-use std::ffi::CString;
-use crate::sampling::record::sample_id::SampleId;
+#[repr(C)]
+#[derive(Debug, Clone)]
+pub struct Namespace {
+    pub dev: u64,
+    pub inode: u64,
+}
 
 #[derive(Debug, Clone)]
 pub struct Body {
     pub pid: u32,
     pub tid: u32,
-    pub comm: CString,
+    pub namespaces: Vec<Namespace>,
     pub sample_id: Option<SampleId>,
 }
 
@@ -20,7 +26,7 @@ impl Body {
         Self {
             pid: *raw.pid(),
             tid: *raw.tid(),
-            comm: CString::from_vec_unchecked(raw.comm().to_vec()),
+            namespaces: raw.namespaces().to_vec(),
             sample_id: sample_id_all.then(|| raw.sample_id(sample_type)),
         }
     }
