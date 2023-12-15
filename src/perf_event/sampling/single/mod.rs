@@ -20,6 +20,7 @@ pub use iter::*;
 pub struct Sampling {
     pub(crate) mmap: MmapMut,
     pub(crate) file: File,
+
     /// The size of 2^n part of 1 + 2^n mmap pages,
     /// i.e. `perf_event_mmap_page.data_size`\
     /// Cached here for performance

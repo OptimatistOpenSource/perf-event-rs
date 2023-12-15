@@ -1,5 +1,5 @@
-mod builder;
 mod attr;
+mod builder;
 
 use crate::infra::{Vla, WrapResult};
 use crate::sampling::record::Record;
@@ -25,7 +25,8 @@ impl Tracing {
         flags: u64,
         mmap_pages: usize,
     ) -> io::Result<Self> {
-        let sampling = Sampling::new_from_raw(attr.as_raw(), pid, cpu, group_fd, flags, mmap_pages)?;
+        let sampling =
+            Sampling::new_from_raw(attr.as_raw(), pid, cpu, group_fd, flags, mmap_pages)?;
         Self { sampling }.wrap_ok()
     }
 

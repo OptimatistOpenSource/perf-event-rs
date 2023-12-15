@@ -1,8 +1,8 @@
 use crate::counting::{Attr, ExtraConfig};
-use crate::{Event, EventScope};
 use crate::infra::SizedExt;
 use crate::perf_event::RawAttr;
 use crate::syscall::bindings::*;
+use crate::{Event, EventScope};
 
 pub fn new(
     event: impl Into<Event>,
@@ -17,8 +17,8 @@ pub fn new(
         sample_type: 0,                                             // ditto
         read_format: {
             #[allow(unused_mut)]
-                #[allow(clippy::identity_op)] // for readable
-                let mut read_format = 0
+            #[allow(clippy::identity_op)] // for readable
+            let mut read_format = 0
                 | PERF_FORMAT_TOTAL_TIME_ENABLED
                 | PERF_FORMAT_TOTAL_TIME_RUNNING
                 | PERF_FORMAT_ID
@@ -40,13 +40,13 @@ pub fn new(
         __bindgen_anon_4: perf_event_attr__bindgen_ty_4::default(), // ditto
         // TODO: config1 in __bindgen_anon_3
         // TODO: config2 in __bindgen_anon_4
-        branch_sample_type: 0,                                  // ditto
-        sample_regs_user: 0,                                    // ditto
-        sample_stack_user: 0,                                   // ditto
-        clockid: 0,                                             // ditto
-        sample_regs_intr: 0,                                    // ditto
-        aux_watermark: 0,                                       // ditto
-        sample_max_stack: 0,                                    // ditto
+        branch_sample_type: 0, // ditto
+        sample_regs_user: 0,   // ditto
+        sample_stack_user: 0,  // ditto
+        clockid: 0,            // ditto
+        sample_regs_intr: 0,   // ditto
+        aux_watermark: 0,      // ditto
+        sample_max_stack: 0,   // ditto
         __reserved_2: 0,
         #[cfg(feature = "linux-5.5")]
         aux_sample_size: 0, // not use in counting mode
