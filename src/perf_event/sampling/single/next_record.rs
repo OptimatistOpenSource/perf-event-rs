@@ -1,4 +1,4 @@
-use crate::infra::{infer, SizedExt, WrapBox, WrapOption};
+use crate::infra::{SizedExt, WrapBox, WrapOption};
 use crate::sampling::record::*;
 use crate::sampling::Sampling;
 use crate::syscall::bindings::*;
@@ -8,59 +8,58 @@ use std::slice;
 pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
     let metapage =
         unsafe { (sampling.mmap.as_mut_ptr() as *mut perf_event_mmap_page).as_mut() }.unwrap();
-    let data_size = metapage.data_size;
+    let data_size = sampling.data_size;
     let data_head = metapage.data_head % data_size;
     let data_tail = metapage.data_tail;
-
-    let ring_ptr = unsafe { sampling.mmap.as_mut_ptr().add(metapage.data_offset as _) };
 
     if data_tail == data_head {
         return None;
     }
 
+    let data_ptr = unsafe { sampling.mmap.as_mut_ptr().add(metapage.data_offset as _) };
+
     let record_len = match data_tail as isize + 8 - data_size as isize {
         left if left <= 0 => {
             let offset = (data_tail + 6) as _;
-            let ptr = unsafe { ring_ptr.add(offset) } as *const u16;
+            let ptr = unsafe { data_ptr.add(offset) } as *const u16;
             unsafe { *ptr }
         }
         1 => unsafe {
             let mut buf = <[u8; 2]>::uninit();
-            buf[0] = *(ring_ptr.add((data_size - 1) as _) as *const u8);
-            buf[1] = *(ring_ptr as *const u8);
+            buf[0] = *(data_ptr.add((data_size - 1) as _) as *const u8);
+            buf[1] = *(data_ptr as *const u8);
             std::mem::transmute(buf)
         },
         left => unsafe {
-            let ptr = ring_ptr.add((left - 2) as _) as *const u16;
+            let ptr = data_ptr.add((left - 2) as _) as *const u16;
             *ptr
         },
     } as usize;
 
     let mut dealloc_record_buf = false;
     let record_buf = match data_tail as isize + record_len as isize - data_size as isize {
-        left if left > 0 => {
-            let ring_end_part = {
-                let start = data_tail as _;
-                let len = (data_size - data_tail) as usize;
-                unsafe { slice::from_raw_parts(ring_ptr.add(start), len) }
-            };
-            let ring_start_part = unsafe { slice::from_raw_parts(ring_ptr, left as _) };
-
-            let buf = unsafe {
-                let layout = Layout::array::<u8>(record_len).unwrap();
-                let ptr = alloc(layout);
+        left if left > 0 => unsafe {
+            let buf = {
                 dealloc_record_buf = true;
-                slice::from_raw_parts_mut(ptr, record_len)
+                let layout = Layout::array::<u8>(record_len).unwrap();
+                alloc(layout)
             };
-            ring_end_part
-                .iter()
-                .chain(ring_start_part)
-                .enumerate()
-                .for_each(|(i, byte)| buf[i] = *byte);
 
-            infer::<&[u8]>(buf)
-        }
-        _ => unsafe { slice::from_raw_parts(ring_ptr.add(data_tail as _), record_len) },
+            let ring_end_part_ptr = data_ptr.add(data_tail as _);
+            let ring_end_part_len = (data_size - data_tail) as usize;
+            std::ptr::copy_nonoverlapping(ring_end_part_ptr, buf, ring_end_part_len);
+
+            let ring_start_part_ptr = data_ptr;
+            let ring_start_part_len = left as _;
+            std::ptr::copy_nonoverlapping(
+                ring_start_part_ptr,
+                buf.add(ring_end_part_len),
+                ring_start_part_len,
+            );
+
+            slice::from_raw_parts(buf, record_len)
+        },
+        _ => unsafe { slice::from_raw_parts(data_ptr.add(data_tail as _), record_len) },
     };
 
     let record_header =

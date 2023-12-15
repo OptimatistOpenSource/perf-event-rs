@@ -4,17 +4,21 @@ use crate::infra::WrapResult;
 use crate::perf_event::RawAttr;
 use crate::sampling::record::*;
 use crate::sampling::single::next_record::next_record;
+use crate::sampling::Attr;
 use crate::syscall::bindings::*;
 use crate::syscall::{ioctl_wrapped, perf_event_open};
 use memmap::{MmapMut, MmapOptions};
 use std::fs::File;
 use std::io;
 use std::os::fd::FromRawFd;
-use crate::sampling::Attr;
 
 pub struct Sampling {
     pub(crate) mmap: MmapMut,
     pub(crate) file: File,
+    /// The size of 2^n part of 1 + 2^n mmap pages,
+    /// i.e. `perf_event_mmap_page.data_size`\
+    /// Cached here for performance
+    pub(crate) data_size: u64,
 
     pub(crate) sample_type: u64,
     pub(crate) sample_id_all: bool,
@@ -44,9 +48,15 @@ impl Sampling {
                 }
                 .unwrap();
 
+                let data_size = (mmap.as_ptr() as *const perf_event_mmap_page)
+                    .as_ref()
+                    .unwrap()
+                    .data_size;
+
                 Self {
                     mmap,
                     file,
+                    data_size,
                     sample_type: raw_attr.sample_type,
                     sample_id_all: raw_attr.sample_id_all() > 0,
                     regs_user_len: raw_attr.sample_regs_user.count_ones() as _,
