@@ -1,5 +1,8 @@
 mod attr;
 mod builder;
+mod into_iter;
+mod iter;
+mod tests;
 
 use crate::infra::{Vla, WrapResult};
 use crate::sampling::record::Record;
@@ -11,6 +14,8 @@ use std::io;
 
 pub use attr::*;
 pub use builder::*;
+pub use into_iter::*;
+pub use iter::*;
 
 pub struct Tracing {
     pub(crate) sampling: Sampling,
