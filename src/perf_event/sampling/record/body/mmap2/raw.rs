@@ -31,8 +31,7 @@ use crate::sampling::record::sample_id::SampleId;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
-#[allow(non_camel_case_types)]
-pub struct anon_struct_1 {
+pub struct AnonStruct1 {
     pub maj: u32,
     pub min: u32,
     pub ino: u64,
@@ -41,70 +40,54 @@ pub struct anon_struct_1 {
 
 #[repr(C)]
 #[derive(Copy, Clone)]
-#[allow(non_camel_case_types)]
-pub struct anon_struct_2 {
+pub struct AnonStruct2 {
     pub build_id_size: u8,
-    pub __reserved_1: u8,
-    pub __reserved_2: u16,
+    __reserved_1: u8,
+    __reserved_2: u16,
     pub build_id: [u8; 20],
 }
 
 #[repr(C)]
 #[derive(Copy, Clone)]
-#[allow(non_camel_case_types)]
-pub union anon_union {
-    pub anon_struct_1: anon_struct_1,
-    pub anon_struct_2: anon_struct_2,
+pub union AnonUnion {
+    pub anon_struct_1: AnonStruct1,
+    pub anon_struct_2: AnonStruct2,
 }
 
 #[repr(C)]
-struct Sized1 {
-    pid: u32,
-    tid: u32,
-    addr: u64,
-    len: u64,
-    pgoff: u64,
-    anon_union: anon_union,
-    prot: u32,
-    flags: u32,
+pub struct Sized {
+    pub pid: u32,
+    pub tid: u32,
+    pub addr: u64,
+    pub len: u64,
+    pub pgoff: u64,
+    pub anon_union: AnonUnion,
+    pub prot: u32,
+    pub flags: u32,
 }
 
-#[repr(C)]
-pub struct Body;
-
-macro_rules! sized1_get {
-    ($name:ident,$ty:ty) => {
-        #[inline]
-        pub fn $name(&self) -> $ty {
-            &self.sized1().$name
-        }
-    };
+pub struct Raw {
+    pub read_ptr: *const u8,
+    pub sample_type: u64,
 }
 
-impl Body {
-    #[inline]
-    fn sized1(&self) -> &Sized1 {
-        let ptr = self as *const _ as *const Sized1;
-        unsafe { ptr.as_ref().unwrap() }
-    }
-    sized1_get!(pid, &u32);
-    sized1_get!(tid, &u32);
-    sized1_get!(addr, &u64);
-    sized1_get!(len, &u64);
-    sized1_get!(pgoff, &u64);
-    sized1_get!(anon_union, &anon_union);
-    sized1_get!(prot, &u32);
-    sized1_get!(flags, &u32);
-
-    pub fn filename(&self) -> &[u8] {
-        let sized1_ptr = self.sized1() as *const Sized1;
-        let ptr = unsafe { sized1_ptr.add(1) } as *const u8;
-        let zt = unsafe { ZeroTerminated::from_ref(ptr.as_ref().unwrap()) };
-        zt.as_slice()
+impl Raw {
+    pub unsafe fn sized(&mut self) -> &Sized {
+        let ptr = self.read_ptr as *const Sized;
+        self.read_ptr = ptr.add(1) as _;
+        ptr.as_ref().unwrap()
     }
 
-    pub unsafe fn sample_id(&self, sample_type: u64) -> SampleId {
-        let ptr = unsafe { self.filename().follow_mem_ptr().align_as_ptr::<u64>() } as _;
-        SampleId::from_ptr(ptr, sample_type)
+    pub unsafe fn filename(&mut self) -> &[u8] {
+        let ptr = self.read_ptr;
+        let zt = ZeroTerminated::from_ref(ptr.as_ref().unwrap());
+        let slice = zt.as_slice();
+        // Above [u8] will be rounded up to 64-bit in size in the kernel
+        self.read_ptr = slice.follow_mem_ptr().align_as_ptr::<u64>() as _;
+        slice
+    }
+
+    pub unsafe fn sample_id(&self) -> SampleId {
+        SampleId::from_ptr(self.read_ptr, self.sample_type)
     }
 }

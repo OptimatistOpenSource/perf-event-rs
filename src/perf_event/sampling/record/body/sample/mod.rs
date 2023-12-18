@@ -38,8 +38,6 @@ pub struct Body {
     pub code_page_size: Option<u64>,
 }
 
-type RawBody = raw::Body;
-
 impl Body {
     pub(crate) unsafe fn from_ptr(
         ptr: *const u8,
@@ -47,7 +45,7 @@ impl Body {
         regs_user_len: usize,
         regs_intr_len: usize,
     ) -> Self {
-        let mut raw = RawBody {
+        let mut raw = raw::Raw {
             read_ptr: ptr,
             sample_type,
         };

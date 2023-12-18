@@ -13,14 +13,14 @@ use crate::syscall::bindings::BPF_TAG_SIZE;
 
 #[repr(C)]
 #[derive(Debug, Clone)]
-pub struct Body {
+pub struct Raw {
     pub r#type: u16,
     pub flags: u16,
     pub id: u32,
     pub tag: [u8; BPF_TAG_SIZE as usize],
 }
 
-impl Body {
+impl Raw {
     pub unsafe fn sample_id(&self, sample_type: u64) -> SampleId {
         let ptr = (self as *const Self).add(1) as _;
         SampleId::from_ptr(ptr, sample_type)

@@ -12,43 +12,33 @@ use crate::syscall::bindings::{read_format_body, read_format_header};
 use std::slice;
 
 #[repr(C)]
-struct Sized1 {
-    pid: u32,
-    tid: u32,
-    values_header: read_format_header,
+pub struct Sized {
+    pub pid: u32,
+    pub tid: u32,
 }
 
-#[repr(C)]
-pub struct Body;
-
-macro_rules! sized1_get {
-    ($name:ident,$ty:ty) => {
-        #[inline]
-        pub fn $name(&self) -> $ty {
-            &self.sized1().$name
-        }
-    };
+pub struct Raw {
+    pub read_ptr: *const u8,
+    pub sample_type: u64,
 }
 
-impl Body {
-    #[inline]
-    fn sized1(&self) -> &Sized1 {
-        let ptr = self as *const _ as *const Sized1;
-        unsafe { ptr.as_ref().unwrap() }
-    }
-    sized1_get!(pid, &u32);
-    sized1_get!(tid, &u32);
-    sized1_get!(values_header, &read_format_header);
-
-    pub fn values_body(&self) -> &[read_format_body] {
-        let sized1_ptr = self.sized1() as *const Sized1;
-        let ptr = unsafe { sized1_ptr.add(1) as *const read_format_body };
-        let members_len = self.values_header().members_len as usize;
-        unsafe { slice::from_raw_parts(ptr, members_len) }
+impl Raw {
+    pub unsafe fn sized(&mut self) -> &Sized {
+        let ptr = self.read_ptr as *const Sized;
+        self.read_ptr = ptr.add(1) as _;
+        ptr.as_ref().unwrap()
     }
 
-    pub unsafe fn sample_id(&self, sample_type: u64) -> SampleId {
-        let ptr = unsafe { self.values_body().follow_mem_ptr() } as _;
-        SampleId::from_ptr(ptr, sample_type)
+    pub unsafe fn values(&mut self) -> (&read_format_header, &[read_format_body]) {
+        let header_ptr = self.read_ptr as *const read_format_header;
+        let header = header_ptr.as_ref().unwrap();
+        let body_ptr = header_ptr.add(1) as *const read_format_body;
+        let slice = slice::from_raw_parts(body_ptr, header.members_len as _);
+        self.read_ptr = slice.follow_mem_ptr() as _;
+        (header, slice)
+    }
+
+    pub unsafe fn sample_id(&self) -> SampleId {
+        SampleId::from_ptr(self.read_ptr, self.sample_type)
     }
 }

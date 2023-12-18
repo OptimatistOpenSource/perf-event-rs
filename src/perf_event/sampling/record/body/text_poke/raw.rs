@@ -12,43 +12,34 @@ use crate::infra::{ConstPtrExt, SliceExt, ZeroTerminated};
 use crate::sampling::record::sample_id::SampleId;
 
 #[repr(C)]
-struct Sized1 {
+pub struct Sized {
     pub addr: u64,
     pub old_len: u16,
     pub new_len: u16,
 }
 
-#[repr(C)]
-pub struct Body;
-
-macro_rules! sized1_get {
-    ($name:ident,$ty:ty) => {
-        #[inline]
-        pub fn $name(&self) -> $ty {
-            &self.sized1().$name
-        }
-    };
+pub struct Raw {
+    pub read_ptr: *const u8,
+    pub sample_type: u64,
 }
 
-impl Body {
-    #[inline]
-    fn sized1(&self) -> &Sized1 {
-        let ptr = self as *const _ as *const Sized1;
-        unsafe { ptr.as_ref().unwrap() }
-    }
-    sized1_get!(addr, &u64);
-    sized1_get!(old_len, &u16);
-    sized1_get!(new_len, &u16);
-
-    pub fn bytes(&self) -> &[u8] {
-        let sized1_ptr = self.sized1() as *const Sized1;
-        let ptr = unsafe { sized1_ptr.add(1) } as *const u8;
-        let zt = unsafe { ZeroTerminated::from_ref(ptr.as_ref().unwrap()) };
-        zt.as_slice()
+impl Raw {
+    pub unsafe fn sized(&mut self) -> &Sized {
+        let ptr = self.read_ptr as *const Sized;
+        self.read_ptr = ptr.add(1) as _;
+        ptr.as_ref().unwrap()
     }
 
-    pub unsafe fn sample_id(&self, sample_type: u64) -> SampleId {
-        let ptr = unsafe { self.bytes().follow_mem_ptr().align_as_ptr::<u64>() } as _;
-        SampleId::from_ptr(ptr, sample_type)
+    pub unsafe fn bytes(&mut self) -> &[u8] {
+        let ptr = self.read_ptr;
+        let zt = ZeroTerminated::from_ref(ptr.as_ref().unwrap());
+        let slice = zt.as_slice();
+        // Above [u8] will be rounded up to 64-bit in size in the kernel
+        self.read_ptr = slice.follow_mem_ptr().align_as_ptr::<u64>() as _;
+        slice
+    }
+
+    pub unsafe fn sample_id(&self) -> SampleId {
+        SampleId::from_ptr(self.read_ptr, self.sample_type)
     }
 }

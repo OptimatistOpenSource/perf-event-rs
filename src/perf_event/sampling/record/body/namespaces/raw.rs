@@ -13,43 +13,33 @@ use crate::sampling::record::namespaces::Namespace;
 use crate::sampling::record::sample_id::SampleId;
 
 #[repr(C)]
-struct Sized1 {
-    pid: u32,
-    tid: u32,
+pub struct Sized {
+    pub pid: u32,
+    pub tid: u32,
 }
 
-#[repr(C)]
-pub struct Body {
-    namespaces: Vla<u64, Namespace>,
-    sample_id: SampleId,
+pub struct Raw {
+    pub read_ptr: *const u8,
+    pub sample_type: u64,
 }
 
-macro_rules! sized1_get {
-    ($name:ident,$ty:ty) => {
-        #[inline]
-        pub fn $name(&self) -> $ty {
-            &self.sized1().$name
-        }
-    };
-}
-
-impl Body {
-    #[inline]
-    fn sized1(&self) -> &Sized1 {
-        let ptr = self as *const _ as *const Sized1;
-        unsafe { ptr.as_ref().unwrap() }
-    }
-    sized1_get!(pid, &u32);
-    sized1_get!(tid, &u32);
-
-    pub fn namespaces(&self) -> &[Namespace] {
-        let len_ptr = unsafe { (self.sized1() as *const Sized1).add(1) } as *const u64;
-        let vla: &Vla<u64, Namespace> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
-        vla.as_slice()
+// TODO: use read_ptr
+impl Raw {
+    pub unsafe fn sized(&mut self) -> &Sized {
+        let ptr = self.read_ptr as *const Sized;
+        self.read_ptr = ptr.add(1) as _;
+        ptr.as_ref().unwrap()
     }
 
-    pub unsafe fn sample_id(&self, sample_type: u64) -> SampleId {
-        let ptr = self.namespaces().follow_mem_ptr() as _;
-        SampleId::from_ptr(ptr, sample_type)
+    pub unsafe fn namespaces(&mut self) -> &[Namespace] {
+        let len_ptr = self.read_ptr as *const u64;
+        let vla: &Vla<u64, Namespace> = Vla::from_ptr(len_ptr).as_ref().unwrap();
+        let slice = vla.as_slice();
+        self.read_ptr = slice.follow_mem_ptr() as _;
+        slice
+    }
+
+    pub unsafe fn sample_id(&self) -> SampleId {
+        SampleId::from_ptr(self.read_ptr, self.sample_type)
     }
 }

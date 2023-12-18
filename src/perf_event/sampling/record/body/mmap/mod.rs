@@ -13,15 +13,10 @@ pub struct Body {
     pub filename: CString,
 }
 
-type RawBody = raw::Body;
-
 impl Body {
     pub(crate) unsafe fn from_ptr(ptr: *const u8) -> Self {
-        let raw = (ptr as *const RawBody).as_ref().unwrap();
-        Self::from_raw(raw)
-    }
+        let raw = (ptr as *const raw::Raw).as_ref().unwrap();
 
-    unsafe fn from_raw(raw: &RawBody) -> Self {
         Self {
             pid: raw.pid,
             tid: raw.tid,
