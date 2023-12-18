@@ -2,6 +2,7 @@ mod attr;
 mod builder;
 mod into_iter;
 mod iter;
+#[cfg(test)]
 mod tests;
 
 use crate::infra::{Vla, WrapResult};
@@ -99,7 +100,7 @@ impl Tracing {
 
         ioctl_wrapped(&self.sampling.file, PERF_EVENT_IOCTL_QUERY_BPF, Some(ptr))?;
 
-        let vla: &Vla<u32, u32> = unsafe { Vla::from_ptr(ptr.add(1)).as_ref() }.unwrap();
+        let vla: &Vla<u32, u32> = unsafe { Vla::from_ptr(ptr.add(1)) };
         vla.as_slice().to_vec().wrap_ok()
     }
 

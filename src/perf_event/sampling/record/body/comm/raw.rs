@@ -21,17 +21,16 @@ pub struct Raw {
     pub sample_type: u64,
 }
 
-// TODO: simplify: ptr.as_ref().unwrap()
 impl Raw {
     pub unsafe fn sized(&mut self) -> &Sized {
         let ptr = self.read_ptr as *const Sized;
         self.read_ptr = ptr.add(1) as _;
-        ptr.as_ref().unwrap()
+        &*ptr
     }
 
     pub unsafe fn comm(&mut self) -> &[u8] {
         let ptr = self.read_ptr;
-        let zt = ZeroTerminated::from_ref(ptr.as_ref().unwrap());
+        let zt = ZeroTerminated::from_ptr(ptr);
         let slice = zt.as_slice();
         // Above [u8] will be rounded up to 64-bit in size in the kernel
         self.read_ptr = slice.follow_mem_ptr().align_as_ptr::<u64>() as _;

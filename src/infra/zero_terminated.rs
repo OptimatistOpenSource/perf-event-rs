@@ -9,9 +9,8 @@ pub struct ZeroTerminated<T> {
 }
 
 impl<T> ZeroTerminated<T> {
-    pub unsafe fn from_ref(r: &T) -> &Self {
-        let ptr = r as *const _ as *const Self;
-        ptr.as_ref().unwrap()
+    pub unsafe fn from_ptr<'t>(ptr: *const T) -> &'t Self {
+        &*(ptr as *const Self)
     }
 
     pub fn as_slice(&self) -> &[T] {
@@ -46,7 +45,7 @@ mod tests {
     #[test]
     fn test_u8_1() {
         let buf = [1, 2, 3, 4, 5, 6, 0_u8];
-        let zt = unsafe { ZeroTerminated::from_ref(&buf[0]) };
+        let zt = unsafe { ZeroTerminated::from_ptr(&buf[0]) };
         let slice = zt.as_slice();
         assert_eq!(slice.len(), 6);
         assert_eq!(slice, &buf[0..6]);
@@ -55,7 +54,7 @@ mod tests {
     #[test]
     fn test_u8_2() {
         let buf = [1, 2, 3, 0, 5, 6, 0_u8];
-        let zt = unsafe { ZeroTerminated::from_ref(&buf[0]) };
+        let zt = unsafe { ZeroTerminated::from_ptr(&buf[0]) };
         let slice = zt.as_slice();
         assert_eq!(slice.len(), 3);
         assert_eq!(slice, &buf[0..3]);
@@ -64,7 +63,7 @@ mod tests {
     #[test]
     fn test_u64_1() {
         let buf = [1, 2, 3, 4, 5, 6, 0_u64];
-        let zt = unsafe { ZeroTerminated::from_ref(&buf[0]) };
+        let zt = unsafe { ZeroTerminated::from_ptr(&buf[0]) };
         let slice = zt.as_slice();
         assert_eq!(slice.len(), 6);
         assert_eq!(slice, &buf[0..6]);
@@ -73,7 +72,7 @@ mod tests {
     #[test]
     fn test_u64_2() {
         let buf = [1, 2, 3, 0, 5, 6, 0_u64];
-        let zt = unsafe { ZeroTerminated::from_ref(&buf[0]) };
+        let zt = unsafe { ZeroTerminated::from_ptr(&buf[0]) };
         let slice = zt.as_slice();
         assert_eq!(slice.len(), 3);
         assert_eq!(slice, &buf[0..3]);

@@ -97,11 +97,7 @@ impl Inner {
             buf
         };
 
-        let header = {
-            let ptr = buf.as_ptr() as *const read_format_header;
-            unsafe { ptr.as_ref().unwrap() }
-        };
-
+        let header = unsafe { &*(buf.as_ptr() as *const read_format_header) };
         let body = {
             let header_ptr = header as *const read_format_header;
             let values_ptr = unsafe { header_ptr.add(1) as *const read_format_body };

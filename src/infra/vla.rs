@@ -8,13 +8,8 @@ pub struct Vla<L, T> {
 }
 
 impl<L, T> Vla<L, T> {
-    pub unsafe fn from_ptr(ptr: *const L) -> *const Self {
-        let ptr = ptr as *const Self;
-        ptr.as_ref().unwrap()
-    }
-    pub unsafe fn from_ref<X>(r: &X) -> &Self {
-        let ptr = r as *const _ as *const Self;
-        ptr.as_ref().unwrap()
+    pub unsafe fn from_ptr<'t>(ptr: *const L) -> &'t Self {
+        &*(ptr as *const Self)
     }
 }
 
@@ -98,17 +93,20 @@ mod tests {
     fn test_vla_u8_u8() {
         let buf = [2, 1, 2, 3, 4, 5_u8];
         let len_ptr = &buf[0] as *const u8;
-        let vla: &Vla<u8, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
+        let vla: &Vla<u8, u8> = unsafe { &*Vla::from_ptr(len_ptr) };
 
         assert_eq!(vla.as_slice(), &buf[1..3])
     }
 
     #[test]
     fn test_vla_u32_u8() {
-        let buf = [2, 0, 0, 0, 1, 2, 3, 4, 5_u8];
-        let len_ptr = &buf[0] as *const _ as *const u32;
-        let vla: &Vla<u32, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
+        #[repr(align(32))]
+        struct Wrapper<const T: usize>([u8; T]);
 
-        assert_eq!(vla.as_slice(), &buf[4..6])
+        let buf = Wrapper([2, 0, 0, 0, 1, 2, 3, 4, 5_u8]);
+        let len_ptr = &buf.0[0] as *const _ as *const u32;
+        let vla: &Vla<u32, u8> = unsafe { &*Vla::from_ptr(len_ptr) };
+
+        assert_eq!(vla.as_slice(), &buf.0[4..6])
     }
 }

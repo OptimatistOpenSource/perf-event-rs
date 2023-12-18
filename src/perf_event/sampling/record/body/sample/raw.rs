@@ -108,7 +108,7 @@ impl Raw {
         }
 
         let header_ptr = self.read_ptr as *const read_format_header;
-        let header = header_ptr.as_ref().unwrap();
+        let header = &*header_ptr;
 
         let body_ptr = header_ptr.add(1) as *const read_format_body;
         let slice = slice::from_raw_parts(body_ptr, header.members_len as _);
@@ -123,7 +123,7 @@ impl Raw {
             return None;
         }
         let len_ptr = self.read_ptr as *const u64;
-        let vla: &Vla<u64, u64> = Vla::from_ptr(len_ptr).as_ref().unwrap();
+        let vla: &Vla<u64, u64> = &*Vla::from_ptr(len_ptr);
         let slice = vla.as_slice();
         self.read_ptr = slice.follow_mem_ptr() as _;
         slice.wrap_some()
@@ -159,7 +159,7 @@ impl Raw {
         If there are no regs to dump, notice it through
         first u64 being zero (PERF_SAMPLE_REGS_ABI_NONE).
         */
-        let abi = abi_ptr.as_ref().unwrap();
+        let abi = &*abi_ptr;
         let regs_len = if *abi == PERF_SAMPLE_REGS_ABI_NONE as _ {
             0
         } else {
@@ -176,7 +176,7 @@ impl Raw {
         }
 
         let len_ptr = self.read_ptr as *const u64;
-        let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
+        let vla: &Vla<u64, u8> = unsafe { &*Vla::from_ptr(len_ptr) };
         let slice = vla.as_slice();
         /*
         This ptr is always aligned in 64-bit by line 12144 of kernel/events/core.c:
@@ -223,7 +223,7 @@ impl Raw {
         If there are no regs to dump, notice it through
         first u64 being zero (PERF_SAMPLE_REGS_ABI_NONE).
         */
-        let abi = abi_ptr.as_ref().unwrap();
+        let abi = &*abi_ptr;
         let regs_len = if *abi == PERF_SAMPLE_REGS_ABI_NONE as _ {
             0
         } else {

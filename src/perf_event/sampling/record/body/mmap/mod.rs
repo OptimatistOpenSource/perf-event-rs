@@ -15,8 +15,7 @@ pub struct Body {
 
 impl Body {
     pub(crate) unsafe fn from_ptr(ptr: *const u8) -> Self {
-        let raw = (ptr as *const raw::Raw).as_ref().unwrap();
-
+        let raw = &*(ptr as *const raw::Raw);
         Self {
             pid: raw.pid,
             tid: raw.tid,

@@ -28,12 +28,12 @@ impl Raw {
     pub unsafe fn sized(&mut self) -> &Sized {
         let ptr = self.read_ptr as *const Sized;
         self.read_ptr = ptr.add(1) as _;
-        ptr.as_ref().unwrap()
+        &*ptr
     }
 
     pub unsafe fn namespaces(&mut self) -> &[Namespace] {
         let len_ptr = self.read_ptr as *const u64;
-        let vla: &Vla<u64, Namespace> = Vla::from_ptr(len_ptr).as_ref().unwrap();
+        let vla: &Vla<u64, Namespace> = &*Vla::from_ptr(len_ptr);
         let slice = vla.as_slice();
         self.read_ptr = slice.follow_mem_ptr() as _;
         slice

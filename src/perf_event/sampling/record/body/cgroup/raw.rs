@@ -18,12 +18,12 @@ impl Raw {
     pub unsafe fn id(&mut self) -> &u64 {
         let ptr = self.read_ptr as *const u64;
         self.read_ptr = ptr.add(1) as _;
-        ptr.as_ref().unwrap()
+        &*ptr
     }
 
     pub unsafe fn path(&mut self) -> &[u8] {
         let ptr = self.read_ptr;
-        let zt = ZeroTerminated::from_ref(ptr.as_ref().unwrap());
+        let zt = ZeroTerminated::from_ptr(ptr);
         let slice = zt.as_slice();
         // Above [u8] will be rounded up to 64-bit in size in the kernel
         self.read_ptr = slice.follow_mem_ptr().align_as_ptr::<u64>() as _;

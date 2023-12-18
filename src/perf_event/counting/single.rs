@@ -48,10 +48,7 @@ impl Counting {
         let mut buf = unsafe { <[u8; std::mem::size_of::<read_format>()]>::uninit() };
         self.file.read_exact(&mut buf)?;
 
-        let read_format = {
-            let ptr = buf.as_ptr() as *const read_format;
-            unsafe { ptr.as_ref().unwrap() }
-        };
+        let read_format = unsafe { &*(buf.as_ptr() as *const read_format) };
         CountingResult {
             event_count: read_format.body.event_count,
             time_enabled: read_format.header.time_enabled,
