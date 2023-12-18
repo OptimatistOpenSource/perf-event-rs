@@ -1,5 +1,5 @@
 use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Attr, ExtraConfig, OverflowBy};
+use crate::sampling::{Config, ExtraConfig, OverflowBy};
 use crate::test::cpu_workload;
 use crate::{Builder, EventScope, SwEvent};
 
@@ -10,20 +10,20 @@ fn gen_builder(mmap_pages: usize) -> Builder {
         .ring_buffer_pages(mmap_pages)
 }
 
-fn gen_attr() -> Attr {
+fn gen_cfg() -> Config {
     let event = SwEvent::CpuClock;
     let scopes = [EventScope::User, EventScope::Host];
     let overflow_by = OverflowBy::Period(1000);
     let mut extra_config = ExtraConfig::default();
     extra_config.sample_record_fields.time = true;
-    Attr::new(event, scopes, overflow_by, &extra_config)
+    Config::new(event, scopes, overflow_by, &extra_config)
 }
 
 #[test]
 fn test_basic() {
     let builder = gen_builder(1 + (1 << 16));
-    let attr = gen_attr();
-    let sampling = builder.build_sampling(&attr).unwrap();
+    let cfg = gen_cfg();
+    let sampling = builder.build_sampling(&cfg).unwrap();
 
     sampling.enable().unwrap();
     cpu_workload();
@@ -44,8 +44,8 @@ fn test_basic() {
 #[test]
 fn test_all_records() {
     let builder = gen_builder(1 + (1 << 16));
-    let attr = gen_attr();
-    let sampling = builder.build_sampling(&attr).unwrap();
+    let cfg = gen_cfg();
+    let sampling = builder.build_sampling(&cfg).unwrap();
 
     sampling.enable().unwrap();
     cpu_workload();
@@ -66,8 +66,8 @@ fn test_all_records() {
 #[test]
 fn test_enable_disable() {
     let builder = gen_builder(1 + (1 << 16));
-    let attr = gen_attr();
-    let mut sampling = builder.build_sampling(&attr).unwrap();
+    let cfg = gen_cfg();
+    let mut sampling = builder.build_sampling(&cfg).unwrap();
 
     assert!(sampling.next_record().is_none());
     sampling.enable().unwrap();
@@ -93,8 +93,8 @@ fn test_enable_disable() {
 #[test]
 fn test_pause_resume() {
     let builder = gen_builder(1 + (1 << 16));
-    let attr = gen_attr();
-    let mut sampling = builder.build_sampling(&attr).unwrap();
+    let cfg = gen_cfg();
+    let mut sampling = builder.build_sampling(&cfg).unwrap();
 
     assert!(sampling.next_record().is_none());
     sampling.enable().unwrap();
@@ -120,8 +120,8 @@ fn test_pause_resume() {
 #[test]
 fn test_ring_buffer() {
     let builder = gen_builder(1 + (1 << 16));
-    let attr = gen_attr();
-    let mut sampling = builder.build_sampling(&attr).unwrap();
+    let cfg = gen_cfg();
+    let mut sampling = builder.build_sampling(&cfg).unwrap();
 
     sampling.enable().unwrap();
     cpu_workload();

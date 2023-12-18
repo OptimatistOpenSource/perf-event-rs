@@ -1,5 +1,5 @@
-mod attr;
 mod builder;
+mod config;
 mod into_iter;
 mod iter;
 #[cfg(test)]
@@ -13,8 +13,8 @@ use crate::syscall::ioctl_wrapped;
 use std::alloc::{alloc, Layout};
 use std::io;
 
-pub use attr::*;
 pub use builder::*;
+pub use config::*;
 pub use into_iter::*;
 pub use iter::*;
 
@@ -24,15 +24,14 @@ pub struct Tracing {
 
 impl Tracing {
     pub(crate) unsafe fn new(
-        attr: &Attr,
+        cfg: &Config,
         pid: i32,
         cpu: i32,
         group_fd: i32,
         flags: u64,
         mmap_pages: usize,
     ) -> io::Result<Self> {
-        let sampling =
-            Sampling::new_from_raw(attr.as_raw(), pid, cpu, group_fd, flags, mmap_pages)?;
+        let sampling = Sampling::new_from_raw(cfg.as_raw(), pid, cpu, group_fd, flags, mmap_pages)?;
         Self { sampling }.wrap_ok()
     }
 
@@ -104,7 +103,7 @@ impl Tracing {
         vla.as_slice().to_vec().wrap_ok()
     }
 
-    pub fn update_attr(&self, new: &Attr) -> io::Result<()> {
+    pub fn update_cfg(&self, new: &Config) -> io::Result<()> {
         ioctl_wrapped(
             &self.sampling.file,
             PERF_EVENT_IOCTL_MODIFY_ATTRIBUTES,

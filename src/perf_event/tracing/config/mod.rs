@@ -1,22 +1,21 @@
-mod extra_config;
 mod new;
 
+use crate::event::tracing::TracingEvent;
 use crate::perf_event::RawAttr;
-use std::fmt::Debug;
+use crate::EventScope;
 
-use crate::{Event, EventScope};
-pub use extra_config::*;
+pub type ExtraConfig = crate::sampling::ExtraConfig;
 
 #[derive(Debug, Clone)]
-pub struct Attr {
+pub struct Config {
     raw_attr: RawAttr,
 }
 
-impl Attr {
+impl Config {
     pub fn new(
-        event: impl Into<Event>,
+        event: impl Into<TracingEvent>,
         scopes: impl IntoIterator<Item = EventScope>,
-        extra_config: ExtraConfig,
+        extra_config: &ExtraConfig,
     ) -> Self {
         new::new(event, scopes, extra_config)
     }

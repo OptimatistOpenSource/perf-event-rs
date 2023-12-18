@@ -1,4 +1,4 @@
-use crate::sampling::attr::sample_record_fields::SampleRecordFields;
+use crate::sampling::config::sample_record_fields::SampleRecordFields;
 use crate::sampling::ExtraRecord;
 use crate::sampling::Wakeup::Events;
 

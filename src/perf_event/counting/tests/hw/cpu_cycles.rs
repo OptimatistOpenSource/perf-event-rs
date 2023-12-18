@@ -1,4 +1,4 @@
-use crate::counting::{Attr, Counting};
+use crate::counting::{Config, Counting};
 use crate::test::cpu_workload;
 use crate::{Builder, EventScope, HwEvent};
 
@@ -7,9 +7,9 @@ fn gen_counting() -> Counting {
 
     let event = HwEvent::CpuCycles;
     let scopes = [EventScope::User, EventScope::Host];
-    let attr = Attr::new(event, scopes, Default::default());
+    let cfg = Config::new(event, scopes, Default::default());
 
-    builder.build_counting(&attr).unwrap()
+    builder.build_counting(&cfg).unwrap()
 }
 
 #[test]

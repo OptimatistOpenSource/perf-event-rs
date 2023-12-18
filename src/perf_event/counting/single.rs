@@ -1,4 +1,4 @@
-use crate::counting::Attr;
+use crate::counting::Config;
 use crate::infra::{SizedExt, WrapResult};
 use crate::syscall;
 use crate::syscall::bindings::{read_format_body, read_format_header};
@@ -21,13 +21,13 @@ pub struct CountingResult {
 
 impl Counting {
     pub(crate) unsafe fn new(
-        attr: &Attr,
+        cfg: &Config,
         pid: i32,
         cpu: i32,
         group_fd: i32,
         flags: u64,
     ) -> io::Result<Self> {
-        let i32 = unsafe { perf_event_open(attr.as_raw(), pid, cpu, group_fd, flags) };
+        let i32 = unsafe { perf_event_open(cfg.as_raw(), pid, cpu, group_fd, flags) };
         match i32 {
             -1 => Err(io::Error::last_os_error()),
             fd => Self {

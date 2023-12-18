@@ -1,5 +1,5 @@
 use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Attr, ExtraConfig, FixedSamplingGroup, OverflowBy, SamplingGuard};
+use crate::sampling::{Config, ExtraConfig, FixedSamplingGroup, OverflowBy, SamplingGuard};
 use crate::test::cpu_workload;
 use crate::{Builder, EventScope, HwEvent};
 
@@ -10,19 +10,19 @@ fn gen_builder() -> Builder {
         .ring_buffer_pages(1 + 512)
 }
 
-fn gen_attr(event: HwEvent) -> Attr {
+fn gen_cfg(event: HwEvent) -> Config {
     let scopes = [EventScope::User, EventScope::Host];
     let overflow_by = OverflowBy::Period(1000);
     let extra_config = ExtraConfig::default();
-    Attr::new(event, scopes, overflow_by, &extra_config)
+    Config::new(event, scopes, overflow_by, &extra_config)
 }
 
 #[test]
 fn test_basic() {
     let builder = gen_builder();
     let mut group = builder.build_sampling_group().unwrap();
-    let cpu_cycles_guard = group.add_member(&gen_attr(HwEvent::CpuCycles)).unwrap();
-    let instructions_guard = group.add_member(&gen_attr(HwEvent::Instructions)).unwrap();
+    let cpu_cycles_guard = group.add_member(&gen_cfg(HwEvent::CpuCycles)).unwrap();
+    let instructions_guard = group.add_member(&gen_cfg(HwEvent::Instructions)).unwrap();
 
     assert!(group.next_record(&cpu_cycles_guard).is_none());
     assert!(group.next_record(&instructions_guard).is_none());
@@ -56,8 +56,8 @@ fn test_basic() {
 fn test_enable_disable() {
     let builder = gen_builder();
     let mut group = builder.build_sampling_group().unwrap();
-    let cpu_cycles_guard = group.add_member(&gen_attr(HwEvent::CpuCycles)).unwrap();
-    let instructions_guard = group.add_member(&gen_attr(HwEvent::Instructions)).unwrap();
+    let cpu_cycles_guard = group.add_member(&gen_cfg(HwEvent::CpuCycles)).unwrap();
+    let instructions_guard = group.add_member(&gen_cfg(HwEvent::Instructions)).unwrap();
 
     assert!(group.next_record(&cpu_cycles_guard).is_none());
     assert!(group.next_record(&instructions_guard).is_none());
@@ -91,8 +91,8 @@ fn test_enable_disable() {
 fn test_guard_basic() {
     let builder = gen_builder();
     let mut group = builder.build_sampling_group().unwrap();
-    let mut cpu_cycles_guard = group.add_member(&gen_attr(HwEvent::CpuCycles)).unwrap();
-    let mut instructions_guard = group.add_member(&gen_attr(HwEvent::Instructions)).unwrap();
+    let mut cpu_cycles_guard = group.add_member(&gen_cfg(HwEvent::CpuCycles)).unwrap();
+    let mut instructions_guard = group.add_member(&gen_cfg(HwEvent::Instructions)).unwrap();
 
     assert!(cpu_cycles_guard.next_record().is_none());
     assert!(instructions_guard.next_record().is_none());
@@ -122,8 +122,8 @@ fn test_guard_basic() {
 fn test_guard_enable_disable() {
     let builder = gen_builder();
     let mut group = builder.build_sampling_group().unwrap();
-    let mut cpu_cycles_guard = group.add_member(&gen_attr(HwEvent::CpuCycles)).unwrap();
-    let mut instructions_guard = group.add_member(&gen_attr(HwEvent::Instructions)).unwrap();
+    let mut cpu_cycles_guard = group.add_member(&gen_cfg(HwEvent::CpuCycles)).unwrap();
+    let mut instructions_guard = group.add_member(&gen_cfg(HwEvent::Instructions)).unwrap();
 
     assert!(cpu_cycles_guard.next_record().is_none());
     assert!(instructions_guard.next_record().is_none());

@@ -1,4 +1,4 @@
-use crate::counting::{Attr, ExtraConfig};
+use crate::counting::{Config, ExtraConfig};
 use crate::infra::SizedExt;
 use crate::perf_event::RawAttr;
 use crate::syscall::bindings::*;
@@ -8,7 +8,7 @@ pub fn new(
     event: impl Into<Event>,
     scopes: impl IntoIterator<Item = EventScope>,
     extra_config: ExtraConfig,
-) -> Attr {
+) -> Config {
     let mut raw_attr = RawAttr {
         type_: 0,
         size: RawAttr::size() as _,
@@ -137,5 +137,5 @@ pub fn new(
         }
     }
 
-    Attr { raw_attr }
+    Config { raw_attr }
 }

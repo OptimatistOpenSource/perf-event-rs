@@ -5,7 +5,7 @@ mod inner;
 use crate::infra::WrapResult;
 use crate::sampling::group::inner::Inner;
 use crate::sampling::record::Record;
-use crate::sampling::Attr;
+use crate::sampling::Config;
 use libc::pid_t;
 use std::io;
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
@@ -38,10 +38,10 @@ impl SamplingGroup {
         self.inner.write().unwrap()
     }
 
-    pub fn add_member(&mut self, attr: &Attr) -> io::Result<SamplingGuard> {
+    pub fn add_member(&mut self, cfg: &Config) -> io::Result<SamplingGuard> {
         let event_id = self
             .inner_mut()
-            .add_member(self.pid, self.cpu, attr, self.mmap_pages)?;
+            .add_member(self.pid, self.cpu, cfg, self.mmap_pages)?;
         SamplingGuard::new(event_id, self.inner.clone()).wrap_ok()
     }
 

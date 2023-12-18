@@ -1,5 +1,5 @@
 use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Attr, ExtraConfig, OverflowBy};
+use crate::sampling::{Config, ExtraConfig, OverflowBy};
 use crate::test::cpu_workload;
 use crate::{Builder, EventScope, HwEvent};
 
@@ -11,22 +11,22 @@ fn gen_builder() -> Builder {
         .ring_buffer_pages(mmap_pages)
 }
 
-fn gen_attr(sample_regs_user: u64) -> Attr {
+fn gen_cfg(sample_regs_user: u64) -> Config {
     let mut extra_config = ExtraConfig::default();
     extra_config.sample_record_fields.abi_and_regs_user = Some(sample_regs_user);
 
     let event = HwEvent::CpuCycles;
     let scopes = [EventScope::User, EventScope::Host];
     let overflow_by = OverflowBy::Period(1000);
-    Attr::new(event, scopes, overflow_by, &extra_config)
+    Config::new(event, scopes, overflow_by, &extra_config)
 }
 
 #[test]
 fn test() {
     let builder = gen_builder();
     for i in 1..7 {
-        let attr = gen_attr(i);
-        let sampling = builder.build_sampling(&attr).unwrap();
+        let cfg = gen_cfg(i);
+        let sampling = builder.build_sampling(&cfg).unwrap();
 
         sampling.enable().unwrap();
         cpu_workload();

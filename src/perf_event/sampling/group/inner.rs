@@ -1,5 +1,5 @@
 use crate::sampling::record::Record;
-use crate::sampling::{Attr, Sampling};
+use crate::sampling::{Config, Sampling};
 use crate::syscall::bindings::*;
 use crate::syscall::ioctl_wrapped;
 use libc::pid_t;
@@ -35,14 +35,14 @@ impl Inner {
         &mut self,
         pid: pid_t,
         cpu: i32,
-        attr: &Attr,
+        cfg: &Config,
         mmap_pages: usize,
     ) -> io::Result<u64> {
         let member = self.leader().map_or_else(
-            || unsafe { Sampling::new(attr, pid, cpu, -1, 0, mmap_pages) },
+            || unsafe { Sampling::new(cfg, pid, cpu, -1, 0, mmap_pages) },
             |leader| {
                 let group_fd = leader.file.as_raw_fd();
-                unsafe { Sampling::new(attr, pid, cpu, group_fd, 0, mmap_pages) }
+                unsafe { Sampling::new(cfg, pid, cpu, group_fd, 0, mmap_pages) }
             },
         )?;
 

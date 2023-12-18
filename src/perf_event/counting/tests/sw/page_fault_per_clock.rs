@@ -1,4 +1,4 @@
-use crate::counting::{Attr, CountingGroup};
+use crate::counting::{Config, CountingGroup};
 use crate::test::mem_workload;
 use crate::{Builder, EventScope, SwEvent};
 
@@ -7,16 +7,16 @@ fn gen_group() -> CountingGroup {
     builder.build_counting_group().unwrap()
 }
 
-fn gen_attr(event: SwEvent) -> Attr {
+fn gen_cfg(event: SwEvent) -> Config {
     let scopes = [EventScope::User, EventScope::Host];
-    Attr::new(event, scopes, Default::default())
+    Config::new(event, scopes, Default::default())
 }
 
 #[test]
 fn test_basic() {
     let mut group = gen_group();
-    let cpu_clock_guard = group.add_member(&gen_attr(SwEvent::CpuClock)).unwrap();
-    let page_faults_guard = group.add_member(&gen_attr(SwEvent::PageFaults)).unwrap();
+    let cpu_clock_guard = group.add_member(&gen_cfg(SwEvent::CpuClock)).unwrap();
+    let page_faults_guard = group.add_member(&gen_cfg(SwEvent::PageFaults)).unwrap();
 
     {
         let result = group.result().unwrap();
@@ -50,8 +50,8 @@ fn test_basic() {
 #[test]
 fn test_enable_disable() {
     let mut group = gen_group();
-    let cpu_clock_guard = group.add_member(&gen_attr(SwEvent::CpuClock)).unwrap();
-    let page_faults_guard = group.add_member(&gen_attr(SwEvent::PageFaults)).unwrap();
+    let cpu_clock_guard = group.add_member(&gen_cfg(SwEvent::CpuClock)).unwrap();
+    let page_faults_guard = group.add_member(&gen_cfg(SwEvent::PageFaults)).unwrap();
 
     {
         let result = group.result().unwrap();
@@ -88,8 +88,8 @@ fn test_enable_disable() {
 #[test]
 fn test_reset_count() {
     let mut group = gen_group();
-    let cpu_clock_guard = group.add_member(&gen_attr(SwEvent::CpuClock)).unwrap();
-    let page_faults_guard = group.add_member(&gen_attr(SwEvent::PageFaults)).unwrap();
+    let cpu_clock_guard = group.add_member(&gen_cfg(SwEvent::CpuClock)).unwrap();
+    let page_faults_guard = group.add_member(&gen_cfg(SwEvent::PageFaults)).unwrap();
 
     let mut group = group.enable().unwrap();
     mem_workload();
@@ -117,8 +117,8 @@ fn test_reset_count() {
 #[test]
 fn test_guard() {
     let mut group = gen_group();
-    let mut cpu_clock_guard = group.add_member(&gen_attr(SwEvent::CpuClock)).unwrap();
-    let mut page_faults_guard = group.add_member(&gen_attr(SwEvent::PageFaults)).unwrap();
+    let mut cpu_clock_guard = group.add_member(&gen_cfg(SwEvent::CpuClock)).unwrap();
+    let mut page_faults_guard = group.add_member(&gen_cfg(SwEvent::PageFaults)).unwrap();
 
     {
         let cpu_clock = cpu_clock_guard.result().unwrap().event_count;

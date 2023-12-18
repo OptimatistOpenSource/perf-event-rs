@@ -4,7 +4,7 @@ mod inner;
 mod result;
 
 use crate::counting::group::guard::CountingGuard;
-use crate::counting::Attr;
+use crate::counting::Config;
 use crate::infra::WrapResult;
 use libc::pid_t;
 pub use result::*;
@@ -40,8 +40,8 @@ impl CountingGroup {
         self.inner.write().unwrap()
     }
 
-    pub fn add_member(&mut self, attr: &Attr) -> io::Result<CountingGuard> {
-        let event_id = self.inner_mut().add_member(self.cpu, self.pid, attr)?;
+    pub fn add_member(&mut self, cfg: &Config) -> io::Result<CountingGuard> {
+        let event_id = self.inner_mut().add_member(self.cpu, self.pid, cfg)?;
         CountingGuard::new(event_id, self.inner.clone()).wrap_ok()
     }
 

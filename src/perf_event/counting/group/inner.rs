@@ -1,4 +1,4 @@
-use crate::counting::{Attr, Counting, CountingGroupResult};
+use crate::counting::{Config, Counting, CountingGroupResult};
 use crate::infra::VecExt;
 use crate::infra::WrapResult;
 use crate::syscall;
@@ -26,12 +26,12 @@ impl Inner {
         self.members.get_mut(0)
     }
 
-    pub fn add_member(&mut self, pid: pid_t, cpu: i32, attr: &Attr) -> io::Result<u64> {
+    pub fn add_member(&mut self, pid: pid_t, cpu: i32, cfg: &Config) -> io::Result<u64> {
         let member = self.leader().map_or_else(
-            || unsafe { Counting::new(attr, pid, cpu, -1, 0) },
+            || unsafe { Counting::new(cfg, pid, cpu, -1, 0) },
             |leader| {
                 let group_fd = leader.file.as_raw_fd();
-                unsafe { Counting::new(attr, pid, cpu, group_fd, 0) }
+                unsafe { Counting::new(cfg, pid, cpu, group_fd, 0) }
             },
         )?;
 

@@ -1,10 +1,10 @@
 use crate::infra::WrapResult;
 use crate::sampling::single::Sampling;
-use crate::sampling::{Attr, SamplingGroup};
+use crate::sampling::{Config, SamplingGroup};
 use crate::{BuildError, Builder};
 
 impl Builder {
-    pub fn build_sampling(&self, attr: &Attr) -> Result<Sampling, BuildError> {
+    pub fn build_sampling(&self, cfg: &Config) -> Result<Sampling, BuildError> {
         match self {
             Self { pid: None, .. } => Err(BuildError::PidNotSet),
             Self { cpu: None, .. } => Err(BuildError::CpuNotSet),
@@ -16,7 +16,7 @@ impl Builder {
                 cpu: Some(cpu),
                 mmap_pages: Some(mmap_pages),
                 ..
-            } => unsafe { Sampling::new(attr, *pid, *cpu, -1, 0, *mmap_pages) }
+            } => unsafe { Sampling::new(cfg, *pid, *cpu, -1, 0, *mmap_pages) }
                 .map_err(BuildError::SyscallFailed),
         }
     }

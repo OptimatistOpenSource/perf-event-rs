@@ -1,6 +1,6 @@
 use crate::sampling::record::sample::{Weight, WeightRepr};
 use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Attr, ExtraConfig, OverflowBy};
+use crate::sampling::{Config, ExtraConfig, OverflowBy};
 use crate::test::cpu_workload;
 use crate::{Builder, EventScope, HwEvent};
 
@@ -12,21 +12,21 @@ fn gen_builder() -> Builder {
         .ring_buffer_pages(mmap_pages)
 }
 
-fn gen_attr(repr: WeightRepr) -> Attr {
+fn gen_cfg(repr: WeightRepr) -> Config {
     let mut extra_config = ExtraConfig::default();
     extra_config.sample_record_fields.weight = Some(repr);
 
     let event = HwEvent::CpuCycles;
     let scopes = [EventScope::User, EventScope::Host];
     let overflow_by = OverflowBy::Period(1000);
-    Attr::new(event, scopes, overflow_by, &extra_config)
+    Config::new(event, scopes, overflow_by, &extra_config)
 }
 
 #[test]
 fn test_full() {
     let builder = gen_builder();
-    let attr = gen_attr(WeightRepr::Full);
-    let sampling = builder.build_sampling(&attr).unwrap();
+    let cfg = gen_cfg(WeightRepr::Full);
+    let sampling = builder.build_sampling(&cfg).unwrap();
 
     sampling.enable().unwrap();
     cpu_workload();
@@ -45,8 +45,8 @@ fn test_full() {
 #[test]
 fn test_vars() {
     let builder = gen_builder();
-    let attr = gen_attr(WeightRepr::Vars);
-    let sampling = builder.build_sampling(&attr).unwrap();
+    let cfg = gen_cfg(WeightRepr::Vars);
+    let sampling = builder.build_sampling(&cfg).unwrap();
 
     sampling.enable().unwrap();
     cpu_workload();

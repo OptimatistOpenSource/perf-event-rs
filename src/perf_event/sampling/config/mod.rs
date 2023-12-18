@@ -1,23 +1,35 @@
+mod extra_config;
+mod extra_record;
 mod new;
+mod sample_record_fields;
 
 use crate::perf_event::RawAttr;
-use crate::event::tracing::TracingEvent;
-use crate::EventScope;
+use crate::{Event, EventScope};
+pub use extra_record::*;
+use std::fmt::Debug;
 
-pub type ExtraConfig = crate::sampling::ExtraConfig;
+pub use extra_config::*;
+pub use extra_record::*;
+pub use sample_record_fields::*;
+
+pub enum OverflowBy {
+    Period(u64),
+    Freq(u64),
+}
 
 #[derive(Debug, Clone)]
-pub struct Attr {
+pub struct Config {
     raw_attr: RawAttr,
 }
 
-impl Attr {
+impl Config {
     pub fn new(
-        event: impl Into<TracingEvent>,
+        event: impl Into<Event>,
         scopes: impl IntoIterator<Item = EventScope>,
+        overflow_by: OverflowBy,
         extra_config: &ExtraConfig,
     ) -> Self {
-        new::new(event, scopes, extra_config)
+        new::new(event, scopes, overflow_by, extra_config)
     }
 
     /// Construct from a raw `perf_event_attr` struct.
