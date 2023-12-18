@@ -181,9 +181,9 @@ impl Raw {
         /*
         This ptr is always aligned in 64-bit by line 12144 of kernel/events/core.c:
         ```c
-		else if (!IS_ALIGNED(attr->sample_stack_user, sizeof(u64)))
-			return -EINVAL;
-		```
+        else if (!IS_ALIGNED(attr->sample_stack_user, sizeof(u64)))
+            return -EINVAL;
+        ```
         */
         let u64_aligned_ptr = slice.follow_mem_ptr() as *const u64;
 
