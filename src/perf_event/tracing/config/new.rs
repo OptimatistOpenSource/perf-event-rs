@@ -22,7 +22,7 @@ pub fn new(
         type_: 0,
         size: RawAttr::size() as _,
         config: 0,
-        __bindgen_anon_1: perf_event_attr__bindgen_ty_1::default(), // not use in tracing mode
+        __bindgen_anon_1: perf_event_attr__bindgen_ty_1 { sample_period: 1 },
         sample_type: sample_record_fields.as_sample_type(),
         read_format: {
             #[allow(unused_mut)]
