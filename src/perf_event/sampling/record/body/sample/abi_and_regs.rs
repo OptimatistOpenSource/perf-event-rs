@@ -11,9 +11,9 @@ pub enum Abi {
 impl Abi {
     pub(crate) fn from_raw(abi: u64) -> Self {
         match abi as _ {
-            PERF_SAMPLE_REGS_ABI_NONE => Abi::AbiNone,
-            PERF_SAMPLE_REGS_ABI_32 => Abi::Abi32,
-            PERF_SAMPLE_REGS_ABI_64 => Abi::Abi64,
+            PERF_SAMPLE_REGS_ABI_NONE => Self::AbiNone,
+            PERF_SAMPLE_REGS_ABI_32 => Self::Abi32,
+            PERF_SAMPLE_REGS_ABI_64 => Self::Abi64,
             abi => unreachable!("ABI: {}", abi),
         }
     }

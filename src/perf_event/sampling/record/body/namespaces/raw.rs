@@ -33,7 +33,7 @@ impl Raw {
 
     pub unsafe fn namespaces(&mut self) -> &[Namespace] {
         let len_ptr = self.read_ptr as *const u64;
-        let vla: &Vla<u64, Namespace> = &*Vla::from_ptr(len_ptr);
+        let vla: &Vla<u64, Namespace> = Vla::from_ptr(len_ptr);
         let slice = vla.as_slice();
         self.read_ptr = slice.follow_mem_ptr() as _;
         slice
