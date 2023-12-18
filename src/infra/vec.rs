@@ -3,12 +3,11 @@ pub trait VecExt<T> {
 }
 
 impl<T> VecExt<T> for Vec<T> {
+    #[inline]
     unsafe fn with_len_uninit(len: usize) -> Self {
         let mut vec = Self::with_capacity(len);
         #[allow(clippy::uninit_vec)]
-        unsafe {
-            vec.set_len(len)
-        };
+        vec.set_len(len);
         vec
     }
 }

@@ -9,6 +9,7 @@ pub struct ZeroTerminated<T> {
 }
 
 impl<T> ZeroTerminated<T> {
+    #[inline]
     pub unsafe fn from_ptr<'t>(ptr: *const T) -> &'t Self {
         &*(ptr as *const Self)
     }

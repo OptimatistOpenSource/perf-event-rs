@@ -12,6 +12,7 @@ impl<T> SizedExt for T {
         std::mem::size_of::<T>()
     }
 
+    #[inline]
     unsafe fn uninit() -> Self {
         #[allow(clippy::uninit_assumed_init)]
         MaybeUninit::uninit().assume_init()

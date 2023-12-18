@@ -8,13 +8,15 @@ pub struct Vla<L, T> {
 }
 
 impl<L, T> Vla<L, T> {
+    #[inline]
     pub unsafe fn from_ptr<'t>(ptr: *const L) -> &'t Self {
         &*(ptr as *const Self)
     }
 }
 
 impl<T> Vla<u8, T> {
-    pub const fn len(&self) -> usize {
+    #[inline]
+    pub const fn len(&self) -> u8 {
         self.len as _
     }
 
@@ -26,7 +28,8 @@ impl<T> Vla<u8, T> {
 }
 
 impl<T> Vla<u16, T> {
-    pub const fn len(&self) -> usize {
+    #[inline]
+    pub const fn len(&self) -> u16 {
         self.len as _
     }
 
@@ -38,7 +41,8 @@ impl<T> Vla<u16, T> {
 }
 
 impl<T> Vla<u32, T> {
-    pub const fn len(&self) -> usize {
+    #[inline]
+    pub const fn len(&self) -> u32 {
         self.len as _
     }
 
@@ -50,7 +54,8 @@ impl<T> Vla<u32, T> {
 }
 
 impl<T> Vla<u64, T> {
-    pub const fn len(&self) -> usize {
+    #[inline]
+    pub const fn len(&self) -> u64 {
         self.len as _
     }
 
@@ -62,7 +67,8 @@ impl<T> Vla<u64, T> {
 }
 
 impl<T> Vla<u128, T> {
-    pub const fn len(&self) -> usize {
+    #[inline]
+    pub const fn len(&self) -> u128 {
         self.len as _
     }
 
@@ -74,6 +80,7 @@ impl<T> Vla<u128, T> {
 }
 
 impl<T> Vla<usize, T> {
+    #[inline]
     pub const fn len(&self) -> usize {
         self.len as _
     }
