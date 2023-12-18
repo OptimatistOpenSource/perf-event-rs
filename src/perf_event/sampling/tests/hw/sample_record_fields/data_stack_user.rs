@@ -11,7 +11,7 @@ fn gen_builder() -> Builder {
         .ring_buffer_pages(mmap_pages)
 }
 
-fn gen_attr(sample_stack_user: u32) -> Attr {
+fn gen_attr(sample_stack_user: u16) -> Attr {
     let mut extra_config = ExtraConfig::default();
     extra_config.sample_record_fields.data_stack_user = Some(sample_stack_user);
 
@@ -25,7 +25,7 @@ fn gen_attr(sample_stack_user: u32) -> Attr {
 fn test() {
     let builder = gen_builder();
     for i in 3..8 {
-        let attr = gen_attr(2_u32.pow(i));
+        let attr = gen_attr(2_u16.pow(i));
         let sampling = builder.build_sampling(&attr).unwrap();
 
         sampling.enable().unwrap();

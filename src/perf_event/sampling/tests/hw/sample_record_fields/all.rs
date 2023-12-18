@@ -36,7 +36,7 @@ fn test() {
         ips: Some(1),
         data_raw: true,
         abi_and_regs_user: Some(1),
-        data_stack_user: Some(2_u32.pow(3)),
+        data_stack_user: Some(2_u16.pow(3)),
         weight: Some(WeightRepr::Full),
         data_src: true,
         transaction: true,
