@@ -1,8 +1,10 @@
 mod new;
 
 use crate::perf_event::RawAttr;
-use crate::sampling::ExtraConfig;
-use crate::{EventScope, TracingEvent};
+use crate::tracing::TracingEvent;
+use crate::EventScope;
+
+pub type ExtraConfig = crate::sampling::ExtraConfig;
 
 #[derive(Debug, Clone)]
 pub struct Attr {

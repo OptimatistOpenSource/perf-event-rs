@@ -1,10 +1,16 @@
+use crate::perf_event::tracing::TracingEvent;
 use crate::syscall::bindings::{
     HW_BREAKPOINT_LEN_1, HW_BREAKPOINT_LEN_2, HW_BREAKPOINT_LEN_4, HW_BREAKPOINT_LEN_8,
 };
-use crate::TracingEvent;
 
 pub struct BreakpointEvent {
     pub bp_type: BreakpointType,
+}
+
+impl BreakpointEvent {
+    pub const fn new(bp_type: BreakpointType) -> Self {
+        Self { bp_type }
+    }
 }
 
 pub enum BreakpointType {

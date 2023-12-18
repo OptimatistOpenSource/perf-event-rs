@@ -34,11 +34,3 @@ pub enum RecordBody {
     TextPoke(Box<text_poke::Body>),
     AuxOutputHwId(Box<aux_output_hw_id::Body>), // TODO: missing docs in manual
 }
-
-#[derive(Debug, Clone)]
-#[allow(clippy::enum_variant_names)]
-pub enum Abi {
-    AbiNone,
-    Abi32,
-    Abi64,
-}

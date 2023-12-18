@@ -1,5 +1,6 @@
 mod attr;
 mod builder;
+mod event;
 mod into_iter;
 mod iter;
 #[cfg(test)]
@@ -15,6 +16,7 @@ use std::io;
 
 pub use attr::*;
 pub use builder::*;
+pub use event::*;
 pub use into_iter::*;
 pub use iter::*;
 

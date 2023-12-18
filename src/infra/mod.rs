@@ -9,7 +9,7 @@ mod sized;
 mod slice;
 mod vec;
 mod vla;
-mod zero_terminated;
+mod zt;
 
 pub use infer::*;
 pub use option::*;
@@ -20,4 +20,4 @@ pub use sized::*;
 pub use slice::*;
 pub use vec::*;
 pub use vla::*;
-pub use zero_terminated::*;
+pub use zt::*;
