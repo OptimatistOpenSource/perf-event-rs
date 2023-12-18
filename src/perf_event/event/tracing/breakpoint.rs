@@ -1,4 +1,4 @@
-use crate::perf_event::tracing::TracingEvent;
+use crate::perf_event::event::tracing::TracingEvent;
 use crate::syscall::bindings::{
     HW_BREAKPOINT_LEN_1, HW_BREAKPOINT_LEN_2, HW_BREAKPOINT_LEN_4, HW_BREAKPOINT_LEN_8,
 };

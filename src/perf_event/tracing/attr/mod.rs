@@ -1,7 +1,7 @@
 mod new;
 
 use crate::perf_event::RawAttr;
-use crate::tracing::TracingEvent;
+use crate::event::tracing::TracingEvent;
 use crate::EventScope;
 
 pub type ExtraConfig = crate::sampling::ExtraConfig;

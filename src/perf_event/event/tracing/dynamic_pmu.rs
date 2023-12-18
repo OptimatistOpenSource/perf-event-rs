@@ -1,4 +1,4 @@
-use crate::perf_event::tracing::TracingEvent;
+use crate::perf_event::event::tracing::TracingEvent;
 
 pub enum KprobeConfig {
     FuncAndOffset { kprobe_func: u64, probe_offset: u64 },

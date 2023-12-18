@@ -1,6 +1,7 @@
 mod hw;
 mod raw;
 mod sw;
+pub mod tracing;
 
 pub use hw::*;
 pub use raw::*;

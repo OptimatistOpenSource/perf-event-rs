@@ -1,15 +1,15 @@
 use crate::infra::SizedExt;
-use crate::perf_event::tracing::TracingEvent;
+use crate::perf_event::event::tracing::TracingEvent;
 use crate::perf_event::RawAttr;
 use crate::sampling::{ClockId, ExtraConfig, ExtraRecord, SampleIpSkid, Wakeup};
 use crate::syscall::bindings::*;
 use crate::tracing::attr::Attr;
-use crate::tracing::*;
 use crate::EventScope;
 use libc::{
     c_long, CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI,
 };
 use std::ops::Not;
+use crate::event::tracing::*;
 
 pub fn new(
     event: impl Into<TracingEvent>,

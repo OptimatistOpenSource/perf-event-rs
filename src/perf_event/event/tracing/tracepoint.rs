@@ -1,4 +1,4 @@
-use crate::perf_event::tracing::TracingEvent;
+use crate::perf_event::event::tracing::TracingEvent;
 
 pub struct TracepointEvent {
     /// The content of `/sys/kernel/debug/tracing/events/*/*/id`
