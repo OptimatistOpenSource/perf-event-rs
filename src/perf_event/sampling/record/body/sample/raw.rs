@@ -44,12 +44,12 @@ struct {
 };
 */
 
-use crate::infra::{ConstPtrExt, SizedExt, SliceExt, Vla, WrapOption};
+use crate::infra::{SizedExt, SliceExt, Vla, WrapOption};
 use crate::syscall::bindings::*;
 use std::ops::Not;
 use std::slice;
 
-pub struct Body {
+pub struct Raw {
     pub read_ptr: *const u8,
     pub sample_type: u64,
 }
@@ -65,7 +65,7 @@ macro_rules! gen_fn {
     };
 }
 
-impl Body {
+impl Raw {
     #[inline]
     const fn is_enabled(&self, mask: Mask) -> bool {
         (self.sample_type & mask as u64) > 0
@@ -178,7 +178,14 @@ impl Body {
         let len_ptr = self.read_ptr as *const u64;
         let vla: &Vla<u64, u8> = unsafe { Vla::from_ptr(len_ptr).as_ref().unwrap() };
         let slice = vla.as_slice();
-        let u64_aligned_ptr = slice.follow_mem_ptr().align_as_ptr::<u64>();
+        /*
+        This ptr is always aligned in 64-bit by line 12144 of kernel/events/core.c:
+        ```c
+		else if (!IS_ALIGNED(attr->sample_stack_user, sizeof(u64)))
+			return -EINVAL;
+		```
+        */
+        let u64_aligned_ptr = slice.follow_mem_ptr() as *const u64;
 
         if *len_ptr == 0 {
             self.read_ptr = u64_aligned_ptr as _;

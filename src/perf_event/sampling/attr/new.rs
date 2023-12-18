@@ -56,7 +56,7 @@ pub fn new(
         // TODO: config2 in __bindgen_anon_4
         branch_sample_type: 0, // TODO: Not all hardware supports this feature
         sample_regs_user: sample_record_fields.abi_and_regs_user.unwrap_or(0),
-        sample_stack_user: sample_record_fields.data_stack_user.unwrap_or(0),
+        sample_stack_user: sample_record_fields.data_stack_user.unwrap_or(0) as _,
         clockid: extra_config.clockid.as_ref().map_or(0, |id| match id {
             ClockId::Monotonic => CLOCK_MONOTONIC,
             ClockId::MonotonicRaw => CLOCK_MONOTONIC_RAW,
