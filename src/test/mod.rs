@@ -1,5 +1,5 @@
-use std::thread;
 use std::time::Duration;
+use std::{fs, thread};
 
 pub fn cpu_workload() {
     for _ in 0..1000000 {
@@ -18,4 +18,8 @@ pub fn mem_workload() {
         thread::sleep(Duration::from_millis(1));
         std::hint::black_box(vec[rand]);
     }
+}
+
+pub fn read_file(path: &str) -> String {
+    fs::read_to_string(path).unwrap()
 }
