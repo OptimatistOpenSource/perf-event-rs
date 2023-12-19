@@ -1,3 +1,5 @@
+use std::ops::Not;
+
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub enum ExtraRecord {
     Mmap,
@@ -28,5 +30,13 @@ impl ExtraRecord {
             Self::TextPoke,
             Self::ForkAndExit,
         ]
+    }
+
+    pub fn all_but_exclude(records: impl IntoIterator<Item = Self>) -> Vec<Self> {
+        let excludes = records.into_iter().collect::<Vec<_>>();
+        Self::all()
+            .into_iter()
+            .filter(|s| excludes.contains(s).not())
+            .collect()
     }
 }
