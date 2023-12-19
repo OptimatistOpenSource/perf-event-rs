@@ -9,6 +9,7 @@ pub use raw::*;
 pub use scope::*;
 pub use sw::*;
 
+#[derive(Clone, Debug)]
 pub enum Event {
     Hw(HwEvent),
     Sw(SwEvent),

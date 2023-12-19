@@ -1,5 +1,6 @@
 use crate::perf_event::event::tracing::TracingEvent;
 
+#[derive(Clone, Debug)]
 pub struct TracepointEvent {
     /// The content of `/sys/kernel/debug/tracing/events/*/*/id`
     pub id: u64,

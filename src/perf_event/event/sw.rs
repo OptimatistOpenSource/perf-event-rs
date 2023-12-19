@@ -1,6 +1,7 @@
 use crate::syscall::bindings::*;
 use crate::Event;
 
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum SwEvent {
     CpuClock,
     TaskClock,

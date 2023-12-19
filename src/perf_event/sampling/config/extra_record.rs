@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum ExtraRecord {
     Mmap,
     Mmap2,

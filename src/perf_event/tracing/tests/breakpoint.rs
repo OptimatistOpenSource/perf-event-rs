@@ -1,7 +1,5 @@
-use crate::event::tracing::{BreakpointEvent, BreakpointLen, BreakpointType, TracepointEvent};
-use crate::perf_event::RawAttr;
+use crate::event::tracing::{BreakpointEvent, BreakpointLen, BreakpointType};
 use crate::sampling::record::{Record, RecordBody};
-use crate::test::{cpu_workload, read_file};
 use crate::tracing::{Config, ExtraConfig};
 use crate::{Builder, EventScope};
 

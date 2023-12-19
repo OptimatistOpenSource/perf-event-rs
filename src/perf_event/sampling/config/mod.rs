@@ -12,6 +12,7 @@ pub use extra_config::*;
 pub use extra_record::*;
 pub use sample_record_fields::*;
 
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum OverflowBy {
     Period(u64),
     Freq(u64),

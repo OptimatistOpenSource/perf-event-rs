@@ -1,6 +1,7 @@
 use crate::syscall::bindings::*;
 use crate::Event;
 
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum CacheOp {
     Read,
     Write,
@@ -19,6 +20,7 @@ impl CacheOp {
     }
 }
 
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum CacheOpResult {
     Access,
     Miss,
@@ -35,6 +37,7 @@ impl CacheOpResult {
     }
 }
 
+#[derive(Clone, Debug)]
 pub enum HwEvent {
     CpuCycles,
     Instructions,

@@ -1,6 +1,7 @@
 use crate::perf_event::event::tracing::TracingEvent;
 use crate::syscall::bindings::*;
 
+#[derive(Clone, Debug)]
 pub struct BreakpointEvent {
     pub bp_type: BreakpointType,
 }
@@ -11,6 +12,7 @@ impl BreakpointEvent {
     }
 }
 
+#[derive(Clone, Debug)]
 pub enum BreakpointType {
     /*
     Line 582 of kernel/events/hw_breakpoint.c:
@@ -28,6 +30,7 @@ pub enum BreakpointType {
     X { addr: u64 },
 }
 
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum BreakpointLen {
     Len1,
     Len2,

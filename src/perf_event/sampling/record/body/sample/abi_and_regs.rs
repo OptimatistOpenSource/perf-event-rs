@@ -1,6 +1,6 @@
 use crate::syscall::bindings::*;
 
-#[derive(Debug, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 #[allow(clippy::enum_variant_names)]
 pub enum Abi {
     AbiNone,

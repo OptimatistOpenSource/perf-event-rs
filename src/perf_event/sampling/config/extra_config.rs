@@ -74,7 +74,7 @@ impl Default for ExtraConfig {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum SampleIpSkid {
     /// SAMPLE_IP can have arbitrary skid
     Arbitrary, // 0
@@ -87,7 +87,7 @@ pub enum SampleIpSkid {
     Zero, // 3
 }
 
-#[derive(Debug, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum ClockId {
     Monotonic,
     MonotonicRaw,
@@ -96,7 +96,7 @@ pub enum ClockId {
     Tai,
 }
 
-#[derive(Debug, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum Wakeup {
     Events(u32),
     Watermark(u32),

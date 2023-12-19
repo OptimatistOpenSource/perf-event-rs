@@ -1,6 +1,6 @@
 use crate::syscall::bindings::perf_sample_weight;
 
-#[derive(Debug, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum WeightRepr {
     Full,
     Vars,

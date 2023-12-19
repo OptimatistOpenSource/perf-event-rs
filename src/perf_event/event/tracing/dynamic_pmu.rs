@@ -1,15 +1,18 @@
 use crate::perf_event::event::tracing::TracingEvent;
 
+#[derive(Clone, Debug)]
 pub enum KprobeConfig {
     FuncAndOffset { kprobe_func: u64, probe_offset: u64 },
     KprobeAddr(u64),
 }
 
+#[derive(Clone, Debug)]
 pub struct UprobeConfig {
     pub uprobe_path: u64,
     pub probe_offset: u64,
 }
 
+#[derive(Clone, Debug)]
 pub enum DynamicPmuEvent {
     /// The type can be found in `/sys/bus/event_source/devices/*/type`
     OtherType(u32),

@@ -1,6 +1,6 @@
 use std::ops::Not;
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum EventScope {
     User,
     Kernel,
@@ -25,9 +25,10 @@ impl EventScope {
             Self::CallchainUser,
         ]
     }
-    pub fn all_but_exclude(scopes: impl IntoIterator<Item = EventScope>) -> Vec<Self> {
+
+    pub fn all_but_exclude(scopes: impl IntoIterator<Item = Self>) -> Vec<Self> {
         let exclude_scopes = scopes.into_iter().collect::<Vec<_>>();
-        EventScope::all()
+        Self::all()
             .into_iter()
             .filter(|s| exclude_scopes.contains(s).not())
             .collect()

@@ -6,6 +6,7 @@ pub use breakpoint::*;
 pub use dynamic_pmu::*;
 pub use tracepoint::*;
 
+#[derive(Clone, Debug)]
 pub enum TracingEvent {
     Tracepoint(TracepointEvent),
     Breakpoint(BreakpointEvent),
