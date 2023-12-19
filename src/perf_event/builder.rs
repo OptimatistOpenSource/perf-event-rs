@@ -86,7 +86,7 @@ impl Builder {
     }
 
     pub const fn any_process(mut self) -> Self {
-        self.pid = Some(0);
+        self.pid = Some(-1);
         self
     }
 
