@@ -82,7 +82,7 @@ pub fn new(
     raw_attr.set_disabled(1);
 
     /*
-    From line 6402 of kernel/events/core.c:
+    Line 6402 of kernel/events/core.c:
     Don't allow mmap() of inherited per-task counters. This would
     create a performance issue due to all children writing to the
     same rb.

@@ -79,7 +79,7 @@ pub fn new(
     raw_attr.set_disabled(1);
 
     /*
-    From line 6402 of kernel/events/core.c:
+    Line 6402 of kernel/events/core.c:
     Don't allow mmap() of inherited per-task counters. This would
     create a performance issue due to all children writing to the
     same rb.
@@ -166,27 +166,30 @@ pub fn new(
         }
         TracingEvent::Breakpoint(ev) => {
             raw_attr.type_ = PERF_TYPE_BREAKPOINT;
+            raw_attr.config = 0;
             use BreakpointType::*;
             match ev.bp_type {
-                Empty => {}
                 R { addr, len } => {
+                    raw_attr.bp_type = HW_BREAKPOINT_R;
                     raw_attr.__bindgen_anon_3.bp_addr = addr;
                     raw_attr.__bindgen_anon_4.bp_len = len.into_u64();
                 }
                 W { addr, len } => {
+                    raw_attr.bp_type = HW_BREAKPOINT_W;
                     raw_attr.__bindgen_anon_3.bp_addr = addr;
                     raw_attr.__bindgen_anon_4.bp_len = len.into_u64();
                 }
                 Rw { addr, len } => {
+                    raw_attr.bp_type = HW_BREAKPOINT_RW;
                     raw_attr.__bindgen_anon_3.bp_addr = addr;
                     raw_attr.__bindgen_anon_4.bp_len = len.into_u64();
                 }
                 X { addr } => {
+                    raw_attr.bp_type = HW_BREAKPOINT_X;
                     raw_attr.__bindgen_anon_3.bp_addr = addr;
                     raw_attr.__bindgen_anon_4.bp_len = c_long::size() as _;
                 }
             };
-            raw_attr.config = 0;
         }
         TracingEvent::DynamicPmu(ev) => match ev {
             DynamicPmuEvent::OtherType(r#type) => raw_attr.type_ = r#type,

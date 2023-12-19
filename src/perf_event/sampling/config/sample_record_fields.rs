@@ -26,11 +26,13 @@ pub struct SampleRecordFields {
     /// Wrap `sample_stack_user` with `Some` to enable this field, \
     /// `sample_stack_user` must be `n * 8` in value
     /*
-    From line 12137 of kernel/events/core.c:
-    > We have __u32 type for the size, but so far\
-    we can only use __u16 as maximum due to the\
-    __u16 sample size limit.
+    Line 12137 of kernel/events/core.c:
     ```c
+    /*
+     * We have __u32 type for the size, but so far
+     * we can only use __u16 as maximum due to the
+     * __u16 sample size limit.
+     */
     if (attr->sample_stack_user >= USHRT_MAX)
         return -EINVAL;
     else if (!IS_ALIGNED(attr->sample_stack_user, sizeof(u64)))

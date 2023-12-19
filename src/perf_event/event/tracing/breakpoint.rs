@@ -1,7 +1,5 @@
 use crate::perf_event::event::tracing::TracingEvent;
-use crate::syscall::bindings::{
-    HW_BREAKPOINT_LEN_1, HW_BREAKPOINT_LEN_2, HW_BREAKPOINT_LEN_4, HW_BREAKPOINT_LEN_8,
-};
+use crate::syscall::bindings::*;
 
 pub struct BreakpointEvent {
     pub bp_type: BreakpointType,
@@ -14,7 +12,16 @@ impl BreakpointEvent {
 }
 
 pub enum BreakpointType {
-    Empty,
+    /*
+    Line 582 of kernel/events/hw_breakpoint.c:
+    ```c
+    /* Basic checks */
+    if (bp_type == HW_BREAKPOINT_EMPTY ||
+        bp_type == HW_BREAKPOINT_INVALID)
+        return -EINVAL;
+    ```
+    So `HW_BREAKPOINT_EMPTY` is not provided here.
+     */
     R { addr: u64, len: BreakpointLen },
     W { addr: u64, len: BreakpointLen },
     Rw { addr: u64, len: BreakpointLen },

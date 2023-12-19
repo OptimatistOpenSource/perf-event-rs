@@ -155,7 +155,7 @@ impl Raw {
         let abi_ptr = self.read_ptr as *const u64;
         let regs_ptr = abi_ptr.add(1);
         /*
-        From line 7387 of kernel/events/core.c:
+        Line 7387 of kernel/events/core.c:
         If there are no regs to dump, notice it through
         first u64 being zero (PERF_SAMPLE_REGS_ABI_NONE).
         */
@@ -219,7 +219,7 @@ impl Raw {
         let abi_ptr = self.read_ptr as *const u64;
         let regs_ptr = abi_ptr.add(1);
         /*
-        From line 7387 of kernel/events/core.c:
+        Line 7387 of kernel/events/core.c:
         If there are no regs to dump, notice it through
         first u64 being zero (PERF_SAMPLE_REGS_ABI_NONE).
         */
