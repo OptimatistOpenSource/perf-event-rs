@@ -18,8 +18,13 @@ pub struct UprobeConfig {
 
 #[derive(Clone, Debug)]
 pub enum DynamicPmuEvent {
-    /// The type can be found in `/sys/bus/event_source/devices/*/type`
-    OtherType(u32),
+    Other{
+        /// The content of `/sys/bus/event_source/devices/*/type`
+        r#type: u32,
+        /// See: `/sys/bus/event_source/devices/*/format/*`
+        /// and `/sys/bus/event_source/devices/*/events/*`
+        config: u64,
+    },
     Kprobe {
         /// The content of `/sys/bus/event_source/devices/kprobe/type`
         r#type: u32,

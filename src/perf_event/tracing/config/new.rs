@@ -194,7 +194,10 @@ pub fn new(
             };
         }
         TracingEvent::DynamicPmu(ev) => match ev {
-            DynamicPmuEvent::OtherType(r#type) => raw_attr.type_ = r#type,
+            DynamicPmuEvent::Other { r#type, config } => {
+                raw_attr.type_ = r#type;
+                raw_attr.config = config;
+            }
             DynamicPmuEvent::Kprobe {
                 r#type,
                 retprobe,
