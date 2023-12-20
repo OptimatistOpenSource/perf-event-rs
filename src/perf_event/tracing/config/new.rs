@@ -159,6 +159,7 @@ pub fn new(
         CallchainUser => raw_attr.set_exclude_callchain_user(0),
     });
 
+    let mut uprobe_path = None;
     match event.into() {
         TracingEvent::Tracepoint(ev) => {
             raw_attr.type_ = PERF_TYPE_TRACEPOINT;
@@ -221,7 +222,8 @@ pub fn new(
             } => {
                 raw_attr.type_ = r#type;
                 raw_attr.config |= retprobe as u64;
-                raw_attr.__bindgen_anon_3.uprobe_path = cfg.uprobe_path;
+                uprobe_path = Some(cfg.uprobe_path);
+                raw_attr.__bindgen_anon_3.uprobe_path = uprobe_path.as_ref().unwrap().as_ptr() as _;
                 raw_attr.__bindgen_anon_4.probe_offset = cfg.probe_offset;
             }
         },
@@ -244,5 +246,8 @@ pub fn new(
             ExtraRecord::ForkAndExit => raw_attr.set_task(1),
         });
 
-    Config { raw_attr }
+    Config {
+        uprobe_path,
+        raw_attr,
+    }
 }

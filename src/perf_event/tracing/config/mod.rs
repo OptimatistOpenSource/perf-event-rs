@@ -3,11 +3,14 @@ mod new;
 use crate::event::tracing::TracingEvent;
 use crate::perf_event::RawAttr;
 use crate::EventScope;
+use std::ffi::CString;
 
 pub type ExtraConfig = crate::sampling::ExtraConfig;
 
 #[derive(Debug, Clone)]
 pub struct Config {
+    #[allow(dead_code)]
+    uprobe_path: Option<CString>, // This keep ptr to `uprobe_path` valid, if it exists.
     raw_attr: RawAttr,
 }
 
@@ -25,10 +28,13 @@ impl Config {
     /// The `raw_attr` argument must be a properly initialized
     /// `perf_event_attr` struct for counting mode.
     pub const unsafe fn from_raw(raw_attr: RawAttr) -> Self {
-        Self { raw_attr }
+        Self {
+            uprobe_path: None,
+            raw_attr,
+        }
     }
 
-    pub const fn into_raw(self) -> RawAttr {
+    pub fn into_raw(self) -> RawAttr {
         self.raw_attr
     }
 

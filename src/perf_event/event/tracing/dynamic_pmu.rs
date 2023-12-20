@@ -1,4 +1,5 @@
 use crate::perf_event::event::tracing::TracingEvent;
+use std::ffi::CString;
 
 #[derive(Clone, Debug)]
 pub enum KprobeConfig {
@@ -8,7 +9,7 @@ pub enum KprobeConfig {
 
 #[derive(Clone, Debug)]
 pub struct UprobeConfig {
-    pub uprobe_path: u64,
+    pub uprobe_path: CString,
     pub probe_offset: u64,
 }
 
