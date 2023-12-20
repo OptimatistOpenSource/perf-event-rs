@@ -7,5 +7,4 @@ Linux perf event in Rust without unsafe
 - [x] Counting with single event
 - [x] Counting with event group
 - [x] Sampling mode
-- [ ] Tracing mode
-- [ ] Listing vendor events
+- [x] Tracing mode
