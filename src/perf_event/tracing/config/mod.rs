@@ -10,6 +10,8 @@ pub type ExtraConfig = crate::sampling::ExtraConfig;
 #[derive(Debug, Clone)]
 pub struct Config {
     #[allow(dead_code)]
+    kprobe_func: Option<CString>, // This keep ptr to `kprobe_func` valid, if it exists.
+    #[allow(dead_code)]
     uprobe_path: Option<CString>, // This keep ptr to `uprobe_path` valid, if it exists.
     raw_attr: RawAttr,
 }
@@ -29,6 +31,7 @@ impl Config {
     /// `perf_event_attr` struct for counting mode.
     pub const unsafe fn from_raw(raw_attr: RawAttr) -> Self {
         Self {
+            kprobe_func: None,
             uprobe_path: None,
             raw_attr,
         }

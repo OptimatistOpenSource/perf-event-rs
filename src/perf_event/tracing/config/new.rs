@@ -159,6 +159,7 @@ pub fn new(
         CallchainUser => raw_attr.set_exclude_callchain_user(0),
     });
 
+    let mut kprobe_func = None;
     let mut uprobe_path = None;
     match event.into() {
         TracingEvent::Tracepoint(ev) => {
@@ -203,10 +204,12 @@ pub fn new(
                 raw_attr.config |= retprobe as u64;
                 match cfg {
                     KprobeConfig::FuncAndOffset {
-                        kprobe_func,
+                        kprobe_func: kf,
                         probe_offset,
                     } => {
-                        raw_attr.__bindgen_anon_3.kprobe_func = kprobe_func;
+                        kprobe_func = Some(kf);
+                        raw_attr.__bindgen_anon_3.kprobe_func =
+                            kprobe_func.as_ref().unwrap().as_ptr() as _;
                         raw_attr.__bindgen_anon_4.probe_offset = probe_offset;
                     }
                     KprobeConfig::KprobeAddr(addr) => {
@@ -247,6 +250,7 @@ pub fn new(
         });
 
     Config {
+        kprobe_func,
         uprobe_path,
         raw_attr,
     }

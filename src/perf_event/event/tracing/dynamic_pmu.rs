@@ -3,7 +3,10 @@ use std::ffi::CString;
 
 #[derive(Clone, Debug)]
 pub enum KprobeConfig {
-    FuncAndOffset { kprobe_func: u64, probe_offset: u64 },
+    FuncAndOffset {
+        kprobe_func: CString,
+        probe_offset: u64,
+    },
     KprobeAddr(u64),
 }
 
