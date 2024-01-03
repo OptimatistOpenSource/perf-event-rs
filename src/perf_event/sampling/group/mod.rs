@@ -13,14 +13,14 @@ use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 pub use fixed::*;
 pub use guard::*;
 
-pub struct SamplingGroup {
+pub struct SamplerGroup {
     pid: pid_t,
     cpu: i32,
     mmap_pages: usize,
     inner: Arc<RwLock<Inner>>,
 }
 
-impl SamplingGroup {
+impl SamplerGroup {
     pub(crate) unsafe fn new(pid: pid_t, cpu: i32, mmap_pages: usize) -> Self {
         Self {
             pid,
@@ -38,19 +38,19 @@ impl SamplingGroup {
         self.inner.write().unwrap()
     }
 
-    pub fn add_member(&mut self, cfg: &Config) -> io::Result<SamplingGuard> {
+    pub fn add_member(&mut self, cfg: &Config) -> io::Result<SamplerGuard> {
         let event_id = self
             .inner_mut()
             .add_member(self.pid, self.cpu, cfg, self.mmap_pages)?;
-        SamplingGuard::new(event_id, self.inner.clone()).wrap_ok()
+        SamplerGuard::new(event_id, self.inner.clone()).wrap_ok()
     }
 
-    pub fn enable(self) -> io::Result<FixedSamplingGroup> {
+    pub fn enable(self) -> io::Result<FixedSamplerGroup> {
         self.inner().enable()?;
-        FixedSamplingGroup::new(self.inner).wrap_ok()
+        FixedSamplerGroup::new(self.inner).wrap_ok()
     }
 
-    pub fn next_record(&self, guard: &SamplingGuard) -> Option<Record> {
+    pub fn next_record(&self, guard: &SamplerGuard) -> Option<Record> {
         self.inner_mut().next_record(guard.event_id())
     }
 }

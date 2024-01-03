@@ -1,14 +1,14 @@
-use crate::sampling::group::guard::SamplingGuard;
+use crate::sampling::group::guard::SamplerGuard;
 use crate::sampling::group::inner::Inner;
 use crate::sampling::record::Record;
 use std::io;
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-pub struct FixedSamplingGroup {
+pub struct FixedSamplerGroup {
     inner: Arc<RwLock<Inner>>,
 }
 
-impl FixedSamplingGroup {
+impl FixedSamplerGroup {
     pub(crate) const fn new(inner: Arc<RwLock<Inner>>) -> Self {
         Self { inner }
     }
@@ -29,7 +29,7 @@ impl FixedSamplingGroup {
         self.inner().disable()
     }
 
-    pub fn next_record(&mut self, guard: &SamplingGuard) -> Option<Record> {
+    pub fn next_record(&mut self, guard: &SamplerGuard) -> Option<Record> {
         self.inner_mut().next_record(guard.event_id())
     }
 }

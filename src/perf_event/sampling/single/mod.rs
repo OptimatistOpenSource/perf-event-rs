@@ -17,7 +17,7 @@ use std::os::fd::FromRawFd;
 pub use into_iter::*;
 pub use iter::*;
 
-pub struct Sampling {
+pub struct Sampler {
     pub(crate) mmap: MmapMut,
     pub(crate) file: File,
 
@@ -33,7 +33,7 @@ pub struct Sampling {
     pub(crate) regs_intr_len: usize,
 }
 
-impl Sampling {
+impl Sampler {
     pub(crate) unsafe fn new_from_raw(
         raw_attr: &RawAttr,
         pid: i32,

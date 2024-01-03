@@ -7,7 +7,7 @@ mod tests;
 
 use crate::infra::{Vla, WrapResult};
 use crate::sampling::record::Record;
-use crate::sampling::Sampling;
+use crate::sampling::Sampler;
 use crate::syscall::bindings::*;
 use crate::syscall::ioctl_wrapped;
 use std::alloc::{alloc, Layout};
@@ -18,11 +18,11 @@ pub use config::*;
 pub use into_iter::*;
 pub use iter::*;
 
-pub struct Tracing {
-    pub(crate) sampling: Sampling,
+pub struct Tracer {
+    pub(crate) sampling: Sampler,
 }
 
-impl Tracing {
+impl Tracer {
     pub(crate) unsafe fn new(
         cfg: &Config,
         pid: i32,
@@ -31,7 +31,7 @@ impl Tracing {
         flags: u64,
         mmap_pages: usize,
     ) -> io::Result<Self> {
-        let sampling = Sampling::new_from_raw(cfg.as_raw(), pid, cpu, group_fd, flags, mmap_pages)?;
+        let sampling = Sampler::new_from_raw(cfg.as_raw(), pid, cpu, group_fd, flags, mmap_pages)?;
         Self { sampling }.wrap_ok()
     }
 

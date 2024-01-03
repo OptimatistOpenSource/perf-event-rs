@@ -1,15 +1,15 @@
 use crate::counting::group::inner::Inner;
-use crate::counting::CountingResult;
+use crate::counting::CounterResult;
 use crate::infra::WrapResult;
 use std::io;
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-pub struct CountingGuard {
+pub struct CounterGuard {
     event_id: u64,
     inner: Arc<RwLock<Inner>>,
 }
 
-impl CountingGuard {
+impl CounterGuard {
     pub(crate) fn new(event_id: u64, inner: Arc<RwLock<Inner>>) -> Self {
         Self { event_id, inner }
     }
@@ -26,9 +26,9 @@ impl CountingGuard {
         self.event_id
     }
 
-    pub fn result(&mut self) -> io::Result<CountingResult> {
+    pub fn result(&mut self) -> io::Result<CounterResult> {
         let result = self.as_inner_mut().result()?;
-        CountingResult {
+        CounterResult {
             event_count: result.member_count(self)?,
             time_enabled: result.time_enabled,
             time_running: result.time_running,

@@ -1,4 +1,4 @@
-use crate::counting::CountingGroupResult;
+use crate::counting::CounterGroupResult;
 
 mod abi_and_regs;
 mod data_src;
@@ -22,7 +22,7 @@ pub struct Body {
     pub stream_id: Option<u64>,
     pub cpu: Option<u32>,
     pub period: Option<u64>,
-    pub v: Option<CountingGroupResult>,
+    pub v: Option<CounterGroupResult>,
     pub ips: Option<Vec<u64>>,
     pub data_raw: Option<Vec<u8>>,
     pub abi_and_regs_user: Option<AbiAndRegs>,
@@ -60,7 +60,7 @@ impl Body {
             stream_id: raw.stream_id().cloned(),
             cpu: raw.cpu().cloned(),
             period: raw.period().cloned(),
-            v: raw.v().map(|(h, b)| CountingGroupResult::from_raw(h, b)),
+            v: raw.v().map(|(h, b)| CounterGroupResult::from_raw(h, b)),
             ips: raw.ips().map(|it| it.to_vec()),
             data_raw: raw.data_raw().map(|it| it.to_vec()),
             abi_and_regs_user: raw

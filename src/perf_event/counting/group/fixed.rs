@@ -1,13 +1,13 @@
 use crate::counting::group::inner::Inner;
-use crate::counting::CountingGroupResult;
+use crate::counting::CounterGroupResult;
 use std::io;
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-pub struct FixedCountingGroup {
+pub struct FixedCounterGroup {
     inner: Arc<RwLock<Inner>>,
 }
 
-impl FixedCountingGroup {
+impl FixedCounterGroup {
     pub(crate) const fn new(inner: Arc<RwLock<Inner>>) -> Self {
         Self { inner }
     }
@@ -32,7 +32,7 @@ impl FixedCountingGroup {
         self.inner().reset_count()
     }
 
-    pub fn result(&mut self) -> io::Result<CountingGroupResult> {
+    pub fn result(&mut self) -> io::Result<CounterGroupResult> {
         self.inner_mut().result()
     }
 }

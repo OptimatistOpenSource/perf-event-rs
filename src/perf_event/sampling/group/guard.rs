@@ -2,12 +2,12 @@ use crate::sampling::group::inner::Inner;
 use crate::sampling::record::Record;
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-pub struct SamplingGuard {
+pub struct SamplerGuard {
     event_id: u64,
     inner: Arc<RwLock<Inner>>,
 }
 
-impl SamplingGuard {
+impl SamplerGuard {
     pub(crate) fn new(event_id: u64, inner: Arc<RwLock<Inner>>) -> Self {
         Self { event_id, inner }
     }
@@ -29,7 +29,7 @@ impl SamplingGuard {
     }
 }
 
-impl Iterator for SamplingGuard {
+impl Iterator for SamplerGuard {
     type Item = Record;
 
     fn next(&mut self) -> Option<Self::Item> {

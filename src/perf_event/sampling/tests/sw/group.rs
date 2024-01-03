@@ -1,5 +1,5 @@
 use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Config, ExtraConfig, FixedSamplingGroup, OverflowBy, SamplingGuard};
+use crate::sampling::{Config, ExtraConfig, FixedSamplerGroup, OverflowBy, SamplerGuard};
 use crate::test::cpu_workload;
 use crate::{Builder, EventScope, SwEvent};
 
@@ -66,7 +66,7 @@ fn test_enable_disable() {
     cpu_workload();
     group.disable().unwrap();
 
-    fn consume_records(group: &mut FixedSamplingGroup, guard: &SamplingGuard) {
+    fn consume_records(group: &mut FixedSamplerGroup, guard: &SamplerGuard) {
         let mut count = 0;
         let mut next = group.next_record(&guard);
         while let Some(_) = next {
@@ -132,7 +132,7 @@ fn test_guard_enable_disable() {
     cpu_workload();
     group.disable().unwrap();
 
-    fn consume_records(guard: &mut SamplingGuard) {
+    fn consume_records(guard: &mut SamplerGuard) {
         let mut count = 0;
         for Record { body, .. } in guard {
             if let RecordBody::Sample(_) = body {

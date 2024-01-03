@@ -3,7 +3,7 @@ mod guard;
 mod inner;
 mod result;
 
-use crate::counting::group::guard::CountingGuard;
+use crate::counting::group::guard::CounterGuard;
 use crate::counting::Config;
 use crate::infra::WrapResult;
 use libc::pid_t;
@@ -16,13 +16,13 @@ pub use fixed::*;
 pub use guard::*;
 pub use result::*;
 
-pub struct CountingGroup {
+pub struct CounterGroup {
     pid: pid_t,
     cpu: i32,
     inner: Arc<RwLock<Inner>>,
 }
 
-impl CountingGroup {
+impl CounterGroup {
     pub(crate) unsafe fn new(pid: pid_t, cpu: i32) -> Self {
         Self {
             pid,
@@ -40,17 +40,17 @@ impl CountingGroup {
         self.inner.write().unwrap()
     }
 
-    pub fn add_member(&mut self, cfg: &Config) -> io::Result<CountingGuard> {
+    pub fn add_member(&mut self, cfg: &Config) -> io::Result<CounterGuard> {
         let event_id = self.inner_mut().add_member(self.cpu, self.pid, cfg)?;
-        CountingGuard::new(event_id, self.inner.clone()).wrap_ok()
+        CounterGuard::new(event_id, self.inner.clone()).wrap_ok()
     }
 
-    pub fn enable(self) -> io::Result<FixedCountingGroup> {
+    pub fn enable(self) -> io::Result<FixedCounterGroup> {
         self.inner_mut().enable()?;
-        FixedCountingGroup::new(self.inner).wrap_ok()
+        FixedCounterGroup::new(self.inner).wrap_ok()
     }
 
-    pub fn result(&mut self) -> io::Result<CountingGroupResult> {
+    pub fn result(&mut self) -> io::Result<CounterGroupResult> {
         self.inner_mut().result()
     }
 }

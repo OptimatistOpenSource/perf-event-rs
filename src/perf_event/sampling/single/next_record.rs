@@ -1,11 +1,11 @@
 use crate::infra::{SizedExt, WrapBox, WrapOption};
 use crate::sampling::record::*;
-use crate::sampling::Sampling;
+use crate::sampling::Sampler;
 use crate::syscall::bindings::*;
 use std::alloc::{alloc, dealloc, Layout};
 use std::slice;
 
-pub fn next_record(sampling: &mut Sampling) -> Option<Record> {
+pub fn next_record(sampling: &mut Sampler) -> Option<Record> {
     let metapage =
         unsafe { (sampling.mmap.as_mut_ptr() as *mut perf_event_mmap_page).as_mut() }.unwrap();
     let data_size = sampling.data_size;

@@ -8,18 +8,18 @@ use std::io;
 use std::io::Read;
 use std::os::fd::{AsRawFd, FromRawFd};
 
-pub struct Counting {
+pub struct Counter {
     pub(crate) file: File,
 }
 
 #[derive(Debug, Clone)]
-pub struct CountingResult {
+pub struct CounterResult {
     pub event_count: u64,
     pub time_enabled: u64,
     pub time_running: u64,
 }
 
-impl Counting {
+impl Counter {
     pub(crate) unsafe fn new(
         cfg: &Config,
         pid: i32,
@@ -37,7 +37,7 @@ impl Counting {
         }
     }
 
-    pub fn result(&mut self) -> io::Result<CountingResult> {
+    pub fn result(&mut self) -> io::Result<CounterResult> {
         #[repr(C)]
         #[allow(non_camel_case_types)]
         struct read_format {
@@ -49,7 +49,7 @@ impl Counting {
         self.file.read_exact(&mut buf)?;
 
         let read_format = unsafe { &*(buf.as_ptr() as *const read_format) };
-        CountingResult {
+        CounterResult {
             event_count: read_format.body.event_count,
             time_enabled: read_format.header.time_enabled,
             time_running: read_format.header.time_running,

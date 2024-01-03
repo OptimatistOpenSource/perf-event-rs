@@ -1,8 +1,8 @@
 use crate::sampling::record::Record;
-use crate::sampling::Sampling;
+use crate::sampling::Sampler;
 
 pub struct IntoIter {
-    inner: Sampling,
+    inner: Sampler,
 }
 
 impl Iterator for IntoIter {
@@ -13,7 +13,7 @@ impl Iterator for IntoIter {
     }
 }
 
-impl IntoIterator for Sampling {
+impl IntoIterator for Sampler {
     type Item = Record;
     type IntoIter = IntoIter;
 

@@ -1,5 +1,5 @@
 use crate::sampling::record::Record;
-use crate::sampling::{Config, Sampling};
+use crate::sampling::{Config, Sampler};
 use crate::syscall::bindings::*;
 use crate::syscall::ioctl_wrapped;
 use libc::pid_t;
@@ -10,7 +10,7 @@ use std::os::fd::AsRawFd;
 
 pub struct Inner {
     leader_event_id: Option<u64>,
-    members: HashMap<u64, Sampling>, // members[0] is the group leader, if it exists.
+    members: HashMap<u64, Sampler>, // members[0] is the group leader, if it exists.
 }
 
 impl Inner {
@@ -21,12 +21,12 @@ impl Inner {
         }
     }
 
-    fn leader(&self) -> Option<&Sampling> {
+    fn leader(&self) -> Option<&Sampler> {
         self.leader_event_id.and_then(|id| self.members.get(&id))
     }
 
     #[allow(dead_code)]
-    fn leader_mut(&mut self) -> Option<&mut Sampling> {
+    fn leader_mut(&mut self) -> Option<&mut Sampler> {
         self.leader_event_id
             .and_then(|id| self.members.get_mut(&id))
     }
@@ -39,10 +39,10 @@ impl Inner {
         mmap_pages: usize,
     ) -> io::Result<u64> {
         let member = self.leader().map_or_else(
-            || unsafe { Sampling::new(cfg, pid, cpu, -1, 0, mmap_pages) },
+            || unsafe { Sampler::new(cfg, pid, cpu, -1, 0, mmap_pages) },
             |leader| {
                 let group_fd = leader.file.as_raw_fd();
-                unsafe { Sampling::new(cfg, pid, cpu, group_fd, 0, mmap_pages) }
+                unsafe { Sampler::new(cfg, pid, cpu, group_fd, 0, mmap_pages) }
             },
         )?;
 

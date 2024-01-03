@@ -1,7 +1,7 @@
 use crate::sampling::record::Record;
-use crate::tracing::Tracing;
+use crate::tracing::Tracer;
 
-impl Tracing {
+impl Tracer {
     #[inline]
     pub fn iter(&mut self) -> Iter<'_> {
         Iter { inner: self }
@@ -9,7 +9,7 @@ impl Tracing {
 }
 
 pub struct Iter<'t> {
-    inner: &'t mut Tracing,
+    inner: &'t mut Tracer,
 }
 
 impl Iterator for Iter<'_> {

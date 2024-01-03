@@ -1,7 +1,7 @@
 use crate::sampling::record::Record;
-use crate::sampling::Sampling;
+use crate::sampling::Sampler;
 
-impl Sampling {
+impl Sampler {
     #[inline]
     pub fn iter(&mut self) -> Iter<'_> {
         Iter { inner: self }
@@ -9,7 +9,7 @@ impl Sampling {
 }
 
 pub struct Iter<'t> {
-    inner: &'t mut Sampling,
+    inner: &'t mut Sampler,
 }
 
 impl Iterator for Iter<'_> {

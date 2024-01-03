@@ -1,4 +1,4 @@
-use crate::counting::group::guard::CountingGuard;
+use crate::counting::group::guard::CounterGuard;
 use crate::infra::WrapResult;
 use crate::syscall::bindings::{read_format_body, read_format_header};
 use std::collections::HashMap;
@@ -13,14 +13,14 @@ pub struct MemberResult {
 }
 
 #[derive(Debug, Clone)]
-pub struct CountingGroupResult {
+pub struct CounterGroupResult {
     pub time_enabled: u64,
     pub time_running: u64,
     member_results: HashMap<u64, MemberResult>,
 }
 
-impl CountingGroupResult {
-    pub fn member_count(&self, guard: &CountingGuard) -> io::Result<u64> {
+impl CounterGroupResult {
+    pub fn member_count(&self, guard: &CounterGuard) -> io::Result<u64> {
         self.member_results
             .get(&guard.event_id())
             .unwrap()

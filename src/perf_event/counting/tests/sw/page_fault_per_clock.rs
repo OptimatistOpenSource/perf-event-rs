@@ -1,8 +1,8 @@
-use crate::counting::{Config, CountingGroup};
+use crate::counting::{Config, CounterGroup};
 use crate::test::mem_workload;
 use crate::{Builder, EventScope, SwEvent};
 
-fn gen_group() -> CountingGroup {
+fn gen_group() -> CounterGroup {
     let builder = Builder::new().calling_process().any_cpu();
     builder.build_counting_group().unwrap()
 }

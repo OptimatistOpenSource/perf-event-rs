@@ -1,4 +1,4 @@
-use crate::counting::{Config, Counting, CountingGroupResult};
+use crate::counting::{Config, Counter, CounterGroupResult};
 use crate::infra::VecExt;
 use crate::infra::WrapResult;
 use crate::syscall;
@@ -10,7 +10,7 @@ use std::os::fd::AsRawFd;
 use std::{io, slice};
 
 pub struct Inner {
-    members: Vec<Counting>, // members[0] is the group leader, if it exists.
+    members: Vec<Counter>, // members[0] is the group leader, if it exists.
 }
 
 impl Inner {
@@ -18,20 +18,20 @@ impl Inner {
         Self { members: vec![] }
     }
 
-    fn leader(&self) -> Option<&Counting> {
+    fn leader(&self) -> Option<&Counter> {
         self.members.get(0)
     }
 
-    fn leader_mut(&mut self) -> Option<&mut Counting> {
+    fn leader_mut(&mut self) -> Option<&mut Counter> {
         self.members.get_mut(0)
     }
 
     pub fn add_member(&mut self, pid: pid_t, cpu: i32, cfg: &Config) -> io::Result<u64> {
         let member = self.leader().map_or_else(
-            || unsafe { Counting::new(cfg, pid, cpu, -1, 0) },
+            || unsafe { Counter::new(cfg, pid, cpu, -1, 0) },
             |leader| {
                 let group_fd = leader.file.as_raw_fd();
-                unsafe { Counting::new(cfg, pid, cpu, group_fd, 0) }
+                unsafe { Counter::new(cfg, pid, cpu, group_fd, 0) }
             },
         )?;
 
@@ -80,7 +80,7 @@ impl Inner {
         )
     }
 
-    pub fn result(&mut self) -> io::Result<CountingGroupResult> {
+    pub fn result(&mut self) -> io::Result<CounterGroupResult> {
         let members_len = self.members.len();
         let Some(leader) = self.leader_mut() else {
             return Err(io::Error::new(ErrorKind::Other, "Group has no members"));
@@ -104,6 +104,6 @@ impl Inner {
             unsafe { slice::from_raw_parts(values_ptr, self.members.len()) }
         };
 
-        CountingGroupResult::from_raw(header, body).wrap_ok()
+        CounterGroupResult::from_raw(header, body).wrap_ok()
     }
 }

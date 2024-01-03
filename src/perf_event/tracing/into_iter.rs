@@ -1,8 +1,8 @@
 use crate::sampling::record::Record;
-use crate::tracing::Tracing;
+use crate::tracing::Tracer;
 
 pub struct IntoIter {
-    inner: Tracing,
+    inner: Tracer,
 }
 
 impl Iterator for IntoIter {
@@ -13,7 +13,7 @@ impl Iterator for IntoIter {
     }
 }
 
-impl IntoIterator for Tracing {
+impl IntoIterator for Tracer {
     type Item = Record;
     type IntoIter = IntoIter;
 
