@@ -27,15 +27,15 @@ fn test() {
     let builder = gen_builder();
     for i in 1..7 {
         let cfg = gen_cfg(i);
-        let sampling = builder.build_sampling(&cfg).unwrap();
+        let mut sampler = builder.build_sampling(&cfg).unwrap();
 
-        sampling.enable().unwrap();
+        sampler.enable().unwrap();
         cpu_workload();
-        sampling.disable().unwrap();
+        sampler.disable().unwrap();
 
         let mut sample_count = 0_usize;
         let mut last_time = 0;
-        for Record { body, .. } in sampling {
+        for Record { body, .. } in sampler.iter() {
             if let RecordBody::Sample(sample) = body {
                 assert!(sample.time.unwrap() >= last_time);
                 last_time = sample.time.unwrap();

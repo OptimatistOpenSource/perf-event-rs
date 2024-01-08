@@ -26,14 +26,14 @@ fn test() {
     let builder = gen_builder();
     for i in 1..7 {
         let cfg = gen_cfg(i);
-        let sampling = builder.build_sampling(&cfg).unwrap();
+        let mut sampler = builder.build_sampling(&cfg).unwrap();
 
-        sampling.enable().unwrap();
+        sampler.enable().unwrap();
         cpu_workload();
-        sampling.disable().unwrap();
+        sampler.disable().unwrap();
 
         let mut sample_count = 0_usize;
-        for Record { body, .. } in sampling {
+        for Record { body, .. } in sampler.iter() {
             if let RecordBody::Sample(body) = body {
                 assert!(body.abi_and_regs_intr.is_some());
                 sample_count += 1;

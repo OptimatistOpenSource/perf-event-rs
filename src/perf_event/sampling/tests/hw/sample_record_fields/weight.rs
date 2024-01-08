@@ -26,14 +26,14 @@ fn gen_cfg(repr: WeightRepr) -> Config {
 fn test_full() {
     let builder = gen_builder();
     let cfg = gen_cfg(WeightRepr::Full);
-    let sampling = builder.build_sampling(&cfg).unwrap();
+    let mut sampler = builder.build_sampling(&cfg).unwrap();
 
-    sampling.enable().unwrap();
+    sampler.enable().unwrap();
     cpu_workload();
-    sampling.disable().unwrap();
+    sampler.disable().unwrap();
 
     let mut sample_count = 0_usize;
-    for Record { body, .. } in sampling {
+    for Record { body, .. } in sampler.iter() {
         if let RecordBody::Sample(body) = body {
             assert!(matches!(body.weight, Some(Weight::Full(_))));
             sample_count += 1;
@@ -46,14 +46,14 @@ fn test_full() {
 fn test_vars() {
     let builder = gen_builder();
     let cfg = gen_cfg(WeightRepr::Vars);
-    let sampling = builder.build_sampling(&cfg).unwrap();
+    let mut sampler = builder.build_sampling(&cfg).unwrap();
 
-    sampling.enable().unwrap();
+    sampler.enable().unwrap();
     cpu_workload();
-    sampling.disable().unwrap();
+    sampler.disable().unwrap();
 
     let mut sample_count = 0_usize;
-    for Record { body, .. } in sampling {
+    for Record { body, .. } in sampler.iter() {
         if let RecordBody::Sample(body) = body {
             assert!(matches!(body.weight, Some(Weight::Vars { .. })));
             sample_count += 1;

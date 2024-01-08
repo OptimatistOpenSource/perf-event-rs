@@ -30,17 +30,17 @@ fn test_basic() {
         }
     };
     let cfg = gen_cfg(bp_type);
-    let tracing = builder.build_tracing(&cfg).unwrap();
+    let mut tracer = builder.build_tracing(&cfg).unwrap();
 
-    tracing.enable().unwrap();
+    tracer.enable().unwrap();
     for i in 0..114514 {
         a = i;
         std::hint::black_box(a);
     }
-    tracing.disable().unwrap();
+    tracer.disable().unwrap();
 
     let mut sample_count = 0;
-    for Record { body, .. } in tracing {
+    for Record { body, .. } in tracer.iter() {
         if let RecordBody::Sample(body) = body {
             sample_count += 1;
             assert_eq!(body.addr.unwrap(), a_addr);

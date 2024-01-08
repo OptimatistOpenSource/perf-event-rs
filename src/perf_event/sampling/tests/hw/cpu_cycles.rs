@@ -23,15 +23,15 @@ fn gen_cfg() -> Config {
 fn test_basic() {
     let builder = gen_builder(1 + (1 << 16));
     let cfg = gen_cfg();
-    let sampling = builder.build_sampling(&cfg).unwrap();
+    let mut sampler = builder.build_sampling(&cfg).unwrap();
 
-    sampling.enable().unwrap();
+    sampler.enable().unwrap();
     cpu_workload();
-    sampling.disable().unwrap();
+    sampler.disable().unwrap();
 
     let mut sample_count = 0_usize;
     let mut last_time = 0;
-    for Record { body, .. } in sampling {
+    for Record { body, .. } in sampler.iter() {
         if let RecordBody::Sample(sample) = body {
             assert!(sample.time.unwrap() >= last_time);
             last_time = sample.time.unwrap();
@@ -45,15 +45,15 @@ fn test_basic() {
 fn test_all_records() {
     let builder = gen_builder(1 + (1 << 16));
     let cfg = gen_cfg();
-    let sampling = builder.build_sampling(&cfg).unwrap();
+    let mut sampler = builder.build_sampling(&cfg).unwrap();
 
-    sampling.enable().unwrap();
+    sampler.enable().unwrap();
     cpu_workload();
-    sampling.disable().unwrap();
+    sampler.disable().unwrap();
 
     let mut sample_count = 0_usize;
     let mut last_time = 0;
-    for Record { body, .. } in sampling {
+    for Record { body, .. } in sampler.iter() {
         if let RecordBody::Sample(sample) = body {
             assert!(sample.time.unwrap() >= last_time);
             last_time = sample.time.unwrap();
@@ -67,67 +67,67 @@ fn test_all_records() {
 fn test_enable_disable() {
     let builder = gen_builder(1 + (1 << 16));
     let cfg = gen_cfg();
-    let mut sampling = builder.build_sampling(&cfg).unwrap();
+    let mut sampler = builder.build_sampling(&cfg).unwrap();
 
-    assert!(sampling.next_record().is_none());
-    sampling.enable().unwrap();
+    assert!(sampler.next_record().is_none());
+    sampler.enable().unwrap();
     cpu_workload();
-    sampling.disable().unwrap();
+    sampler.disable().unwrap();
 
     {
         let mut sample_count = 0_usize;
-        for _ in sampling.iter() {
+        for _ in sampler.iter() {
             sample_count += 1;
         }
         assert!(sample_count > 0);
     }
 
     cpu_workload();
-    assert!(sampling.next_record().is_none());
+    assert!(sampler.next_record().is_none());
 
-    sampling.enable().unwrap();
+    sampler.enable().unwrap();
     cpu_workload();
-    assert!(sampling.next_record().is_some());
+    assert!(sampler.next_record().is_some());
 }
 
 #[test]
 fn test_pause_resume() {
     let builder = gen_builder(1 + (1 << 16));
     let cfg = gen_cfg();
-    let mut sampling = builder.build_sampling(&cfg).unwrap();
+    let mut sampler = builder.build_sampling(&cfg).unwrap();
 
-    assert!(sampling.next_record().is_none());
-    sampling.enable().unwrap();
+    assert!(sampler.next_record().is_none());
+    sampler.enable().unwrap();
     cpu_workload();
-    sampling.pause().unwrap();
+    sampler.pause().unwrap();
 
     {
         let mut sample_count = 0_usize;
-        for _ in sampling.iter() {
+        for _ in sampler.iter() {
             sample_count += 1;
         }
         assert!(sample_count > 0);
     }
 
     cpu_workload();
-    assert!(sampling.next_record().is_none());
+    assert!(sampler.next_record().is_none());
 
-    sampling.resume().unwrap();
+    sampler.resume().unwrap();
     cpu_workload();
-    assert!(sampling.next_record().is_some());
+    assert!(sampler.next_record().is_some());
 }
 
 #[test]
 fn test_ring_buffer() {
     let builder = gen_builder(1 + 512);
     let cfg = gen_cfg();
-    let mut sampling = builder.build_sampling(&cfg).unwrap();
+    let mut sampler = builder.build_sampling(&cfg).unwrap();
 
-    sampling.enable().unwrap();
+    sampler.enable().unwrap();
     cpu_workload();
 
     let mut sample_count = 0_usize;
-    for Record { body, .. } in sampling.iter() {
+    for Record { body, .. } in sampler.iter() {
         if let RecordBody::Sample(_) = body {
             sample_count += 1;
         }

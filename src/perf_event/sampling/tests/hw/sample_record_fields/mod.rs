@@ -35,13 +35,13 @@ macro_rules! gen_test {
             let builder = gen_builder();
             let cfg = gen_cfg(extra_config);
 
-            let sampling = builder.build_sampling(&cfg).unwrap();
-            sampling.enable().unwrap();
+            let mut sampler = builder.build_sampling(&cfg).unwrap();
+            sampler.enable().unwrap();
             cpu_workload();
-            sampling.disable().unwrap();
+            sampler.disable().unwrap();
 
             let mut sample_count = 0_usize;
-            for Record { body, .. } in sampling {
+            for Record { body, .. } in sampler.iter() {
                 if let RecordBody::Sample(body) = body {
                     assert!(body.$field.is_some());
                     sample_count += 1;
@@ -63,13 +63,13 @@ fn pid_and_tid() {
     let builder = gen_builder();
     let cfg = gen_cfg(extra_config);
 
-    let sampling = builder.build_sampling(&cfg).unwrap();
-    sampling.enable().unwrap();
+    let mut sampler = builder.build_sampling(&cfg).unwrap();
+    sampler.enable().unwrap();
     cpu_workload();
-    sampling.disable().unwrap();
+    sampler.disable().unwrap();
 
     let mut sample_count = 0_usize;
-    for Record { body, .. } in sampling {
+    for Record { body, .. } in sampler.iter() {
         if let RecordBody::Sample(body) = body {
             assert!(body.pid.is_some());
             assert!(body.tid.is_some());
