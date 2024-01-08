@@ -31,14 +31,14 @@ fn test_basic() {
         u64::from_str(string.as_str()).unwrap()
     };
     let cfg = gen_cfg(id);
-    let tracing = builder.build_tracing(&cfg).unwrap();
+    let mut tracer = builder.build_tracing(&cfg).unwrap();
 
-    tracing.enable().unwrap();
+    tracer.enable().unwrap();
     cpu_workload();
-    tracing.disable().unwrap();
+    tracer.disable().unwrap();
 
     let mut sample_count = 0;
-    for Record { body, .. } in tracing {
+    for Record { body, .. } in tracer.iter() {
         if let RecordBody::Sample(body) = body {
             sample_count += 1;
             assert!(body.data_raw.is_some());

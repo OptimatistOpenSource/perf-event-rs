@@ -11,9 +11,7 @@ impl Builder {
                 pid: Some(pid),
                 cpu: Some(cpu),
                 ..
-            } => {
-                unsafe { Counter::new(cfg, *pid, *cpu, -1, 0) }.map_err(BuildError::SyscallFailed)
-            }
+            } => unsafe { Counter::new(cfg, *pid, *cpu, -1, 0) }.map_err(BuildError::SyscallFailed),
         }
     }
 

@@ -18,7 +18,7 @@ pub struct UprobeConfig {
 
 #[derive(Clone, Debug)]
 pub enum DynamicPmuEvent {
-    Other{
+    Other {
         /// The content of `/sys/bus/event_source/devices/*/type`
         r#type: u32,
         /// See: `/sys/bus/event_source/devices/*/format/*`
