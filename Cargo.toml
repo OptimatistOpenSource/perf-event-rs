@@ -29,7 +29,7 @@ default = ["linux-latest"]
 bindgen = "0.68.1"
 
 [dependencies]
-memmap = "0.7.0"
+memmap2 = "0.9.3"
 libc = "0.2.148"
 page_size = "0.6.0"
 rand = "0.8.5"

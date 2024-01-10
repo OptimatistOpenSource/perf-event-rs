@@ -155,13 +155,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f665ee40bc4a3c5590afb1e9677db74a508659dfd71e126420da8274909a0167"
 
 [[package]]
-name = "memmap"
-version = "0.7.0"
+name = "memmap2"
+version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6585fd95e7bb50d6cc31e20d4cf9afb4e2ba16c5846fc76793f11218da9c475b"
+checksum = "45fd3a57831bf88bc63f8cebc0cf956116276e97fef3966103e96416209f7c92"
 dependencies = [
  "libc",
- "winapi",
 ]
 
 [[package]]
@@ -208,7 +207,7 @@ version = "0.0.0"
 dependencies = [
  "bindgen",
  "libc",
- "memmap",
+ "memmap2",
  "page_size",
  "rand",
  "thiserror",
