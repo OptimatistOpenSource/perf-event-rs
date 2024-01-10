@@ -13,7 +13,9 @@ use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 use crate::counting::group::inner::Inner;
 pub use fixed::*;
+#[allow(unused_imports)]
 pub use guard::*;
+#[allow(unused_imports)]
 pub use result::*;
 
 pub struct CounterGroup {

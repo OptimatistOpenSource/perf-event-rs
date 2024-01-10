@@ -5,6 +5,7 @@ mod single;
 #[cfg(test)]
 mod tests;
 
+#[allow(unused_imports)]
 pub use builder::*;
 pub use config::*;
 pub use group::*;

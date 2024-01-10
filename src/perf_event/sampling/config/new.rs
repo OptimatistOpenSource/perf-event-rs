@@ -75,8 +75,10 @@ pub fn new(
         __reserved_3: 0,
         #[cfg(feature = "linux-5.13")]
         sig_data: extra_config.sigtrap.unwrap_or(0),
-        #[cfg(feature = "linux-latest")]
-        config3: 0, // TODO: missing docs in manual
+
+        // TODO: https://github.com/torvalds/linux/commit/09519ec3b19e4144b5f6e269c54fbb9c294a9fcb
+        #[cfg(feature = "linux-6.3")]
+        config3: 0,
     };
 
     raw_attr.set_disabled(1);

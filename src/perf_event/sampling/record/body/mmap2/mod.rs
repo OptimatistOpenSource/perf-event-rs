@@ -1,4 +1,5 @@
 use crate::sampling::record::sample_id::SampleId;
+#[cfg(feature = "linux-5.12")]
 use crate::syscall::bindings::PERF_RECORD_MISC_MMAP_BUILD_ID;
 use std::ffi::CString;
 
@@ -51,6 +52,7 @@ impl Body {
             anon_enum: {
                 let anon_union = sizd.anon_union;
                 match misc as _ {
+                    #[cfg(feature = "linux-5.12")]
                     PERF_RECORD_MISC_MMAP_BUILD_ID => {
                         let build_id_len = anon_union.anon_struct_2.build_id_size as _;
                         let build_id = anon_union.anon_struct_2.build_id[0..build_id_len].to_vec();

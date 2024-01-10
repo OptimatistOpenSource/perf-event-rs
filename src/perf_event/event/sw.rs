@@ -14,6 +14,7 @@ pub enum SwEvent {
     EmulationFaults,
     Dummy,
     BpfOutput,
+    #[cfg(feature = "linux-5.13")]
     CgroupSwitches,
 }
 
@@ -32,6 +33,7 @@ impl SwEvent {
             EmulationFaults => PERF_COUNT_SW_EMULATION_FAULTS,
             Dummy => PERF_COUNT_SW_DUMMY,
             BpfOutput => PERF_COUNT_SW_BPF_OUTPUT,
+            #[cfg(feature = "linux-5.13")]
             CgroupSwitches => PERF_COUNT_SW_CGROUP_SWITCHES,
         };
         config as _

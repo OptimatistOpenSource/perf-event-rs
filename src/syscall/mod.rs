@@ -30,5 +30,5 @@ pub unsafe fn ioctl<A>(
     request: c_ulong, //u64
     arg: A,
 ) -> c_int {
-    libc::ioctl(fd, request, arg)
+    libc::ioctl(fd, request as _, arg)
 }

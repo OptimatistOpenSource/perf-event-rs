@@ -10,14 +10,22 @@ mod perf_event_attr__bindgen_ty_4;
 mod perf_event_mmap_page;
 #[allow(non_snake_case)]
 mod perf_event_mmap_page__bindgen_ty_1;
+#[cfg(feature = "linux-5.12")]
 mod perf_sample_weight;
 
+#[allow(unused_imports)]
 pub use perf_event_attr::*;
+#[allow(unused_imports)]
 pub use perf_event_attr__bindgen_ty_1::*;
+#[allow(unused_imports)]
 pub use perf_event_attr__bindgen_ty_2::*;
+#[allow(unused_imports)]
 pub use perf_event_attr__bindgen_ty_3::*;
+#[allow(unused_imports)]
 pub use perf_event_attr__bindgen_ty_4::*;
+#[allow(unused_imports)]
 pub use perf_event_mmap_page::*;
+#[allow(unused_imports)]
 pub use perf_event_mmap_page__bindgen_ty_1::*;
 
 #[macro_export]

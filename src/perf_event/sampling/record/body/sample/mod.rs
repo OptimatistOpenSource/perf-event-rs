@@ -5,7 +5,9 @@ mod data_src;
 mod raw;
 mod weight;
 
-use crate::syscall::bindings::{PERF_SAMPLE_WEIGHT, PERF_SAMPLE_WEIGHT_STRUCT};
+use crate::syscall::bindings::PERF_SAMPLE_WEIGHT;
+#[cfg(feature = "linux-5.12")]
+use crate::syscall::bindings::PERF_SAMPLE_WEIGHT_STRUCT;
 pub use abi_and_regs::*;
 pub use data_src::*;
 pub use weight::*;
@@ -69,7 +71,12 @@ impl Body {
             data_stack_user: raw.data_stack_user().map(|it| it.to_vec()),
             weight: raw.weight().map(|it| {
                 let repr = match sample_type {
+                    // mask may be u64 or u32 in different linux headers
+                    #[allow(clippy::unnecessary_cast)]
                     st if (st & PERF_SAMPLE_WEIGHT as u64) > 0 => WeightRepr::Full,
+                    #[cfg(feature = "linux-5.12")]
+                    // mask may be u64 or u32 in different linux headers
+                    #[allow(clippy::unnecessary_cast)]
                     st if (st & PERF_SAMPLE_WEIGHT_STRUCT as u64) > 0 => WeightRepr::Vars,
                     _ => unreachable!(),
                 };

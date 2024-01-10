@@ -67,6 +67,7 @@ macro_rules! gen_fn {
 
 impl Raw {
     #[inline]
+    #[allow(clippy::unnecessary_cast)] // mask may be u64 or u32 in different linux headers
     const fn is_enabled(&self, mask: Mask) -> bool {
         (self.sample_type & mask as u64) > 0
     }
@@ -198,8 +199,11 @@ impl Raw {
     }
 
     pub unsafe fn weight(&mut self) -> Option<&perf_sample_weight> {
-        if (self.is_enabled(PERF_SAMPLE_WEIGHT) || self.is_enabled(PERF_SAMPLE_WEIGHT_STRUCT)).not()
-        {
+        if self.is_enabled(PERF_SAMPLE_WEIGHT).not() {
+            return None;
+        }
+        #[cfg(feature = "linux-5.12")]
+        if self.is_enabled(PERF_SAMPLE_WEIGHT_STRUCT).not() {
             return None;
         }
 
@@ -235,8 +239,11 @@ impl Raw {
     }
 
     gen_fn! { u64, phys_addr      PERF_SAMPLE_PHYS_ADDR      }
+    #[cfg(feature = "linux-5.7")]
     gen_fn! { u64, cgroup         PERF_SAMPLE_CGROUP         }
+    #[cfg(feature = "linux-5.11")]
     gen_fn! { u64, data_page_size PERF_SAMPLE_DATA_PAGE_SIZE }
+    #[cfg(feature = "linux-5.11")]
     gen_fn! { u64, code_page_size PERF_SAMPLE_CODE_PAGE_SIZE }
 
     /*

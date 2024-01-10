@@ -19,7 +19,7 @@ impl Inner {
     }
 
     fn leader(&self) -> Option<&Counter> {
-        self.members.get(0)
+        self.members.first()
     }
 
     fn leader_mut(&mut self) -> Option<&mut Counter> {

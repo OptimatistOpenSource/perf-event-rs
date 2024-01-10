@@ -31,6 +31,7 @@ function is_version_leq() {
 declare -a versions=(
 '6.3'
 '6.0'
+'5.16'
 '5.13'
 '5.12'
 '5.11'
