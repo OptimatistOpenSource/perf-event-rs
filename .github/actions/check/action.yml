@@ -1,0 +1,26 @@
+name: Check
+description: Check the code with audit, fmt and clippy
+inputs:
+  target:
+    description: Build for the target triple
+    required: true
+  feature:
+    description: Build feature
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Audit
+      shell: bash
+      run: |
+        cargo install cargo-audit
+        cargo audit
+
+    - name: Fmt
+      shell: bash
+      run: cargo fmt --check
+
+    - name: Clippy
+      shell: bash
+      # You need to run 'cargo clippy -r' in the local to get the same output with CI
+      run: cargo clippy --target ${{ inputs.target }} --features ${{ inputs.feature }} -- -D warnings

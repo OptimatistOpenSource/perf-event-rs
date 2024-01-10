@@ -1,0 +1,23 @@
+name: Install linux headers
+description: Install linux headers by `make headers_install`
+inputs:
+  src-pkg:
+    description: Linux source package
+    required: true
+  install-path:
+    description: Linux headers install path
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Install linux source
+      shell: bash
+      run: sudo apt install -y ${{ inputs.src-pkg }}
+
+    - name: Extract linux source
+      shell: bash
+      run: tar -xf /usr/src/${{ inputs.src-pkg }}.tar.bz2 --directory=/tmp
+
+    - name: Make and install linux headers
+      shell: bash
+      run: make -C /tmp/${{ inputs.src-pkg }} headers_install INSTALL_HDR_PATH=${{ inputs.install-path }}

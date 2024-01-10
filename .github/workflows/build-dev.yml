@@ -1,0 +1,120 @@
+name: Build / Development
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request_target:
+    types:
+      - edited
+      - opened
+      - reopened
+      - synchronize
+
+jobs:
+  build-dev:
+    name: ${{ matrix.target.alias }}-${{ matrix.linux-source.alias }}
+    runs-on: ${{ matrix.target.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - { os: ubuntu-22.04, triple: x86_64-unknown-linux-gnu , alias: amd64-gnu-ubuntu-22.04 }
+          - { os: ubuntu-22.04, triple: x86_64-unknown-linux-musl, alias: amd64-musl-ubuntu-22.04 }
+        linux-source:
+          - { pkg: linux-source-5.15.0, alias: 5.15.0 }
+          - { pkg: linux-source-5.19.0, alias: 5.19.0 }
+          - { pkg: linux-source-6.2.0 , alias: 6.2.0  }
+          - { pkg: linux-source-6.5.0 , alias: 6.5.0  }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          override: true
+          toolchain: 1.75.0
+          components: rustfmt, clippy
+
+      - name: Show environment information
+        shell: bash
+        run: |
+          cargo -V
+          cargo clippy -V
+          cargo fmt -- -V
+          rustc -V
+          uname -a
+
+      - name: Cache APT packages
+        uses: awalsh128/cache-apt-pkgs-action@v1.3.1
+        with:
+          packages: musl-tools ${{ matrix.linux-source.pkg }}
+          version: 1.0
+
+      - name: Setup musl-tools
+        if: matrix.target.triple == 'x86_64-unknown-linux-musl'
+        shell: bash
+        run: sudo apt -y install musl-tools
+
+      - name: Install linux headers
+        uses: ./.github/actions/install-linux-headers
+        with:
+          src-pkg: ${{ matrix.linux-source.pkg }}
+          install-path: ${{ github.workspace }}/linux-headers
+
+      - name: Add target
+        uses: ./.github/actions/add-target
+        with:
+          target: ${{ matrix.target.triple }}
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: ${{ matrix.target.alias }}
+
+      - name: Generate version
+        id: gen-version
+        shell: bash
+        run: echo 'VERSION=0.0.0-${{ github.sha }}' >> $GITHUB_OUTPUT
+
+      - name: Replace version
+        uses: ./.github/actions/replace-version
+        with:
+          version: ${{ steps.gen-version.outputs.VERSION }}
+
+      - name: Select feature
+        id: select-feature
+        shell: bash
+        run: echo "FEATURE=$(./select-feature.sh ${{ matrix.linux-source.alias }})" >> $GITHUB_OUTPUT
+
+      - name: Cargo build
+        uses: ./.github/actions/build
+        with:
+          target: ${{ matrix.target.triple }}
+          feature: ${{ steps.select-feature.outputs.FEATURE }}
+          release: false
+        env:
+          LINUX_HEADERS_PATH: ${{ github.workspace }}/linux-headers
+
+      - name: Cargo check
+        uses: ./.github/actions/check
+        with:
+          target: ${{ matrix.target.triple }}
+          feature: ${{ steps.select-feature.outputs.FEATURE }}
+        env:
+          LINUX_HEADERS_PATH: ${{ github.workspace }}/linux-headers
+
+      # Some tests will fail in GitHub actions environment, so disable this.
+      #- name: Cargo test
+      #  uses: ./.github/actions/test
+      #  with:
+      #    target: ${{ matrix.target.triple }}
+      #    feature: ${{ steps.select-feature.outputs.FEATURE }}
+      #  env:
+      #    LINUX_HEADERS_PATH: ${{ github.workspace }}/linux-headers
