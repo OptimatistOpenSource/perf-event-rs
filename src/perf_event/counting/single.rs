@@ -73,14 +73,6 @@ impl Counter {
         ioctl_wrapped::<()>(&self.file, syscall::bindings::PERF_EVENT_IOCTL_RESET, None)
     }
 
-    pub fn update_period(&self, new: u64) -> io::Result<()> {
-        ioctl_wrapped(
-            &self.file,
-            syscall::bindings::PERF_EVENT_IOCTL_PERIOD,
-            Some(&new),
-        )
-    }
-
     pub fn set_output(&self, new: &File) -> io::Result<()> {
         let raw_fd = new.as_raw_fd() as i64;
         ioctl_wrapped(
