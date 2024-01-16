@@ -1,0 +1,19 @@
+name: Test
+description: Run tests
+inputs:
+  target:
+    description: Build for the target triple
+    required: true
+  feature:
+    description: Build feature
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Test dev
+      shell: bash
+      run: cargo test --target ${{ inputs.target }} --features ${{ inputs.feature }} --verbose
+
+    - name: Test release
+      shell: bash
+      run: cargo test --target ${{ inputs.target }} --features ${{ inputs.feature }} --verbose --release

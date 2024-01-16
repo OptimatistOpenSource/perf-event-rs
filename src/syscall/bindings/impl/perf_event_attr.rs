@@ -27,9 +27,11 @@ impl Debug for perf_event_attr {
                 sample_regs_intr
                 aux_watermark
                 sample_max_stack
+                #[cfg(feature = "linux-5.5")]
                 aux_sample_size
+                #[cfg(feature = "linux-5.13")]
                 sig_data
-                #[cfg(feature = "linux-latest")]
+                #[cfg(feature = "linux-6.3")]
                 config3
         }
 

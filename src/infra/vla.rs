@@ -9,7 +9,7 @@ pub struct Vla<L, T> {
 
 impl<L, T> Vla<L, T> {
     #[inline]
-    pub unsafe fn from_ptr<'t>(ptr: *const L) -> &'t Self {
+    pub const unsafe fn from_ptr<'t>(ptr: *const L) -> &'t Self {
         &*(ptr as *const Self)
     }
 }

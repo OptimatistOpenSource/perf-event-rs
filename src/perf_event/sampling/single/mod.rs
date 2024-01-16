@@ -9,7 +9,7 @@ use crate::sampling::single::next_record::next_record;
 use crate::sampling::Config;
 use crate::syscall::bindings::*;
 use crate::syscall::{ioctl_wrapped, perf_event_open};
-use memmap::{MmapMut, MmapOptions};
+use memmap2::{MmapMut, MmapOptions};
 use std::fs::File;
 use std::io;
 use std::os::fd::FromRawFd;

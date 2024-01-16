@@ -218,6 +218,7 @@ pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
                 );
                 RecordBody::TextPoke(record.wrap_box())
             }
+            #[cfg(feature = "linux-5.16")]
             PERF_RECORD_AUX_OUTPUT_HW_ID => {
                 let ptr = follow_mem_ptr as *const aux_output_hw_id::Body;
                 RecordBody::AuxOutputHwId(ptr.read().wrap_box())

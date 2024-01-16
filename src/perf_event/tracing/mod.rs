@@ -13,6 +13,7 @@ use crate::syscall::ioctl_wrapped;
 use std::alloc::{alloc, Layout};
 use std::io;
 
+#[allow(unused_imports)]
 pub use builder::*;
 pub use config::*;
 pub use into_iter::*;

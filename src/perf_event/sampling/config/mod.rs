@@ -9,6 +9,7 @@ pub use extra_record::*;
 use std::fmt::Debug;
 
 pub use extra_config::*;
+#[allow(unused_imports)]
 pub use extra_record::*;
 pub use sample_record_fields::*;
 

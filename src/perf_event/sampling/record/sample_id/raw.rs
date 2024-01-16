@@ -33,6 +33,7 @@ macro_rules! gen_fn {
 
 impl Raw {
     #[inline]
+    #[allow(clippy::unnecessary_cast)] // mask may be u64 or u32 in different linux headers
     const fn is_enabled(&self, mask: Mask) -> bool {
         (self.sample_type & mask as u64) > 0
     }

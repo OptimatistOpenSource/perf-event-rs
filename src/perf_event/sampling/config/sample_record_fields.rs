@@ -53,9 +53,12 @@ pub struct SampleRecordFields {
     /// Wrap `sample_regs_intr` with `Some` to enable this field
     pub abi_and_regs_intr: Option<u64>, // PERF_SAMPLE_REGS_INTR
 
-    pub phys_addr: bool,      // PERF_SAMPLE_PHYS_ADDR
-    pub cgroup: bool,         // PERF_SAMPLE_CGROUP
+    pub phys_addr: bool, // PERF_SAMPLE_PHYS_ADDR
+    #[cfg(feature = "linux-5.7")]
+    pub cgroup: bool, // PERF_SAMPLE_CGROUP
+    #[cfg(feature = "linux-5.11")]
     pub data_page_size: bool, // PERF_SAMPLE_DATA_PAGE_SIZE
+    #[cfg(feature = "linux-5.11")]
     pub code_page_size: bool, // PERF_SAMPLE_CODE_PAGE_SIZE
 }
 
@@ -98,6 +101,7 @@ impl SampleRecordFields {
             self.abi_and_regs_user.is_some(), PERF_SAMPLE_REGS_USER
             self.data_stack_user.is_some()  , PERF_SAMPLE_STACK_USER
             matches!(self.weight, Some(WeightRepr::Full)), PERF_SAMPLE_WEIGHT
+            @#[cfg(feature = "linux-5.12")]
             matches!(self.weight, Some(WeightRepr::Vars)), PERF_SAMPLE_WEIGHT_STRUCT
             self.data_src                   , PERF_SAMPLE_DATA_SRC
             self.transaction                , PERF_SAMPLE_TRANSACTION
