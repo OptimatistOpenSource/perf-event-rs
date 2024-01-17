@@ -120,8 +120,8 @@ impl HardwareEvent {
     }
 }
 
-impl From<HwEvent> for Event {
-    fn from(value: HwEvent) -> Self {
-        Self::Hw(value)
+impl From<HardwareEvent> for Event {
+    fn from(value: HardwareEvent) -> Self {
+        Self::Hardware(value)
     }
 }

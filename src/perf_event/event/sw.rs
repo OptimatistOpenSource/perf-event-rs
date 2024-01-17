@@ -2,7 +2,7 @@ use crate::syscall::bindings::*;
 use crate::Event;
 
 #[derive(PartialEq, Eq, Clone, Debug)]
-pub enum SwEvent {
+pub enum SoftwareEvent {
     CpuClock,
     TaskClock,
     PageFaults,
@@ -18,9 +18,9 @@ pub enum SwEvent {
     CgroupSwitches,
 }
 
-impl SwEvent {
+impl SoftwareEvent {
     pub(crate) const fn into_u64(self) -> u64 {
-        use SwEvent::*;
+        use SoftwareEvent::*;
         let config = match self {
             CpuClock => PERF_COUNT_SW_CPU_CLOCK,
             TaskClock => PERF_COUNT_SW_TASK_CLOCK,
@@ -40,8 +40,8 @@ impl SwEvent {
     }
 }
 
-impl From<SwEvent> for Event {
-    fn from(value: SwEvent) -> Self {
-        Self::Sw(value)
+impl From<SoftwareEvent> for Event {
+    fn from(value: SoftwareEvent) -> Self {
+        Self::Software(value)
     }
 }
