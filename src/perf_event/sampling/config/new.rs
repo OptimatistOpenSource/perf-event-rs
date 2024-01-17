@@ -1,8 +1,6 @@
 use crate::infra::SizedExt;
 use crate::perf_event::RawAttr;
-use crate::sampling::{
-    ClockId, Config, ExtraConfig, ExtraRecord, OverflowBy, SampleIpSkid, Wakeup,
-};
+use crate::sampling::{ClockId, Config, ExtraConfig, OverflowBy, SampleIpSkid, Wakeup};
 use crate::syscall::bindings::*;
 use crate::{Event, EventScope};
 use libc::{CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI};
@@ -164,19 +162,7 @@ pub fn new(
     extra_config
         .extra_record_types
         .iter()
-        .for_each(|it| match it {
-            ExtraRecord::Mmap => raw_attr.set_mmap(1),
-            ExtraRecord::Mmap2 => raw_attr.set_mmap2(1),
-            ExtraRecord::ContextSwitch => raw_attr.set_context_switch(1),
-            ExtraRecord::Namespaces => raw_attr.set_namespaces(1),
-            ExtraRecord::Ksymbol => raw_attr.set_ksymbol(1),
-            ExtraRecord::BpfEvent => raw_attr.set_bpf_event(1),
-            #[cfg(feature = "linux-5.7")]
-            ExtraRecord::Cgroup => raw_attr.set_cgroup(1),
-            #[cfg(feature = "linux-5.8")]
-            ExtraRecord::TextPoke => raw_attr.set_text_poke(1),
-            ExtraRecord::ForkAndExit => raw_attr.set_task(1),
-        });
+        .for_each(|it| it.enable_in_raw_attr(&mut raw_attr));
 
     Config { raw_attr }
 }
