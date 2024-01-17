@@ -155,17 +155,9 @@ pub fn new(
     #[cfg(feature = "linux-5.13")]
     raw_attr.set_sigtrap(extra_config.sigtrap.is_some() as _);
 
-    use EventScope::*;
-    scopes.into_iter().for_each(|scope| match scope {
-        User => raw_attr.set_exclude_user(0),
-        Kernel => raw_attr.set_exclude_kernel(0),
-        Hv => raw_attr.set_exclude_hv(0),
-        Idle => raw_attr.set_exclude_idle(0),
-        Host => raw_attr.set_exclude_host(0),
-        Guest => raw_attr.set_exclude_guest(0),
-        CallchainKernel => raw_attr.set_exclude_callchain_kernel(0),
-        CallchainUser => raw_attr.set_exclude_callchain_user(0),
-    });
+    scopes
+        .into_iter()
+        .for_each(|scope| scope.enable_in_raw_attr(&mut raw_attr));
 
     match event.into() {
         Event::Hardware(ev) if ev.is_cache_event() => {
