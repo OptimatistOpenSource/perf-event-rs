@@ -13,7 +13,7 @@ build = "build.rs"
 
 [features]
 "linux-6.3" = ["linux-6.0"]
-"linux-6.0" = ["linux-5.13"]
+"linux-6.0" = ["linux-5.16"]
 "linux-5.16" = ["linux-5.13"]
 "linux-5.13" = ["linux-5.12"]
 "linux-5.12" = ["linux-5.11"]
