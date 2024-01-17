@@ -4,9 +4,7 @@ use crate::sampling::{ClockId, ExtraConfig, ExtraRecord, SampleIpSkid, Wakeup};
 use crate::syscall::bindings::*;
 use crate::tracing::config::Config;
 use crate::{Event, EventScope};
-use libc::{
-    c_long, CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI,
-};
+use libc::{CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI};
 use std::ops::Not;
 
 pub fn new(
@@ -147,85 +145,11 @@ pub fn new(
     #[cfg(feature = "linux-5.13")]
     raw_attr.set_sigtrap(extra_config.sigtrap.is_some() as _);
 
+    event.into().enable_in_raw_attr(&mut raw_attr);
+
     scopes
         .into_iter()
         .for_each(|scope| scope.enable_in_raw_attr(&mut raw_attr));
-
-    let mut kprobe_func = None;
-    let mut uprobe_path = None;
-    match event.into() {
-        TracingEvent::Tracepoint(ev) => {
-            raw_attr.type_ = PERF_TYPE_TRACEPOINT;
-            raw_attr.config = ev.id
-        }
-        TracingEvent::Breakpoint(ev) => {
-            raw_attr.type_ = PERF_TYPE_BREAKPOINT;
-            raw_attr.config = 0;
-            use BreakpointType::*;
-            match ev.bp_type {
-                R { addr, len } => {
-                    raw_attr.bp_type = HW_BREAKPOINT_R;
-                    raw_attr.__bindgen_anon_3.bp_addr = addr;
-                    raw_attr.__bindgen_anon_4.bp_len = len.into_u64();
-                }
-                W { addr, len } => {
-                    raw_attr.bp_type = HW_BREAKPOINT_W;
-                    raw_attr.__bindgen_anon_3.bp_addr = addr;
-                    raw_attr.__bindgen_anon_4.bp_len = len.into_u64();
-                }
-                Rw { addr, len } => {
-                    raw_attr.bp_type = HW_BREAKPOINT_RW;
-                    raw_attr.__bindgen_anon_3.bp_addr = addr;
-                    raw_attr.__bindgen_anon_4.bp_len = len.into_u64();
-                }
-                X { addr } => {
-                    raw_attr.bp_type = HW_BREAKPOINT_X;
-                    raw_attr.__bindgen_anon_3.bp_addr = addr;
-                    raw_attr.__bindgen_anon_4.bp_len = c_long::size() as _;
-                }
-            };
-        }
-        TracingEvent::DynamicPmu(ev) => match ev {
-            DynamicPmuEvent::Other { r#type, config } => {
-                raw_attr.type_ = r#type;
-                raw_attr.config = config;
-            }
-            DynamicPmuEvent::Kprobe {
-                r#type,
-                retprobe,
-                cfg,
-            } => {
-                raw_attr.type_ = r#type;
-                raw_attr.config |= retprobe as u64;
-                match cfg {
-                    KprobeConfig::FuncAndOffset {
-                        kprobe_func: kf,
-                        probe_offset,
-                    } => {
-                        kprobe_func = Some(kf);
-                        raw_attr.__bindgen_anon_3.kprobe_func =
-                            kprobe_func.as_ref().unwrap().as_ptr() as _;
-                        raw_attr.__bindgen_anon_4.probe_offset = probe_offset;
-                    }
-                    KprobeConfig::KprobeAddr(addr) => {
-                        raw_attr.__bindgen_anon_3.kprobe_func = 0;
-                        raw_attr.__bindgen_anon_4.kprobe_addr = addr;
-                    }
-                }
-            }
-            DynamicPmuEvent::Uprobe {
-                r#type,
-                retprobe,
-                cfg,
-            } => {
-                raw_attr.type_ = r#type;
-                raw_attr.config |= retprobe as u64;
-                uprobe_path = Some(cfg.uprobe_path);
-                raw_attr.__bindgen_anon_3.uprobe_path = uprobe_path.as_ref().unwrap().as_ptr() as _;
-                raw_attr.__bindgen_anon_4.probe_offset = cfg.probe_offset;
-            }
-        },
-    }
 
     extra_config
         .extra_record_types
