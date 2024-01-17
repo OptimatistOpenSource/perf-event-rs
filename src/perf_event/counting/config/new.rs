@@ -108,28 +108,11 @@ pub fn new(
     #[cfg(feature = "linux-5.13")]
     raw_attr.set_sigtrap(0); // not use in counting mode
 
+    event.into().enable_in_raw_attr(&mut raw_attr);
+
     scopes
         .into_iter()
         .for_each(|scope| scope.enable_in_raw_attr(&mut raw_attr));
-
-    match event.into() {
-        Event::Hardware(ev) if ev.is_cache_event() => {
-            raw_attr.type_ = PERF_TYPE_HW_CACHE;
-            raw_attr.config = ev.into_u64();
-        }
-        Event::Hardware(ev) => {
-            raw_attr.type_ = PERF_TYPE_HARDWARE;
-            raw_attr.config = ev.into_u64();
-        }
-        Event::Software(ev) => {
-            raw_attr.type_ = PERF_TYPE_SOFTWARE;
-            raw_attr.config = ev.into_u64();
-        }
-        Event::Raw(ev) => {
-            raw_attr.type_ = PERF_TYPE_RAW;
-            raw_attr.config = ev.into_u64();
-        }
-    }
 
     Config { raw_attr }
 }
