@@ -176,7 +176,7 @@ pub fn new(
             raw_attr.type_ = PERF_TYPE_HARDWARE;
             raw_attr.config = ev.into_u64();
         }
-        Event::Sw(ev) => {
+        Event::Software(ev) => {
             raw_attr.type_ = PERF_TYPE_SOFTWARE;
             raw_attr.config = ev.into_u64();
         }

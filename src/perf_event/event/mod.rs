@@ -12,6 +12,6 @@ pub use sw::*;
 #[derive(Clone, Debug)]
 pub enum Event {
     Hardware(HardwareEvent),
-    Sw(SwEvent),
+    Software(SoftwareEvent),
     Raw(RawEvent),
 }
