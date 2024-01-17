@@ -1,8 +1,7 @@
-use crate::event::tracing::TracepointEvent;
 use crate::sampling::record::{Record, RecordBody};
 use crate::test::{cpu_workload, read_file};
 use crate::tracing::{Config, ExtraConfig};
-use crate::{Builder, EventScope};
+use crate::{Builder, EventScope, TracepointEvent};
 use std::str::FromStr;
 
 fn gen_builder(mmap_pages: usize) -> Builder {

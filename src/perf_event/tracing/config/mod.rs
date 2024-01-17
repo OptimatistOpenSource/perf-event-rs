@@ -1,8 +1,7 @@
 mod new;
 
-use crate::event::tracing::TracingEvent;
 use crate::perf_event::RawAttr;
-use crate::EventScope;
+use crate::{Event, EventScope};
 use std::ffi::CString;
 
 pub type ExtraConfig = crate::sampling::ExtraConfig;
@@ -18,7 +17,7 @@ pub struct Config {
 
 impl Config {
     pub fn new(
-        event: impl Into<TracingEvent>,
+        event: impl Into<Event>,
         scopes: impl IntoIterator<Item = EventScope>,
         extra_config: &ExtraConfig,
     ) -> Self {

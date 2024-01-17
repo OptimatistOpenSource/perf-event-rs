@@ -1,4 +1,4 @@
-use crate::perf_event::event::tracing::TracingEvent;
+use crate::perf_event::event::Event;
 use crate::syscall::bindings::*;
 
 #[derive(Clone, Debug)]
@@ -50,7 +50,7 @@ impl BreakpointLen {
     }
 }
 
-impl From<BreakpointEvent> for TracingEvent {
+impl From<BreakpointEvent> for Event {
     fn from(value: BreakpointEvent) -> Self {
         Self::Breakpoint(value)
     }

@@ -1,7 +1,6 @@
-use crate::event::tracing::{BreakpointEvent, BreakpointLen, BreakpointType};
 use crate::sampling::record::{Record, RecordBody};
 use crate::tracing::{Config, ExtraConfig};
-use crate::{Builder, EventScope};
+use crate::{BreakpointEvent, BreakpointLen, BreakpointType, Builder, EventScope};
 
 fn gen_builder(mmap_pages: usize) -> Builder {
     Builder::new()

@@ -1,4 +1,4 @@
-use crate::perf_event::event::tracing::TracingEvent;
+use crate::perf_event::event::Event;
 use std::ffi::CString;
 
 #[derive(Clone, Debug)]
@@ -41,7 +41,7 @@ pub enum DynamicPmuEvent {
     },
 }
 
-impl From<DynamicPmuEvent> for TracingEvent {
+impl From<DynamicPmuEvent> for Event {
     fn from(value: DynamicPmuEvent) -> Self {
         Self::DynamicPmu(value)
     }
