@@ -168,11 +168,11 @@ pub fn new(
     });
 
     match event.into() {
-        Event::Hw(ev) if ev.is_cache_event() => {
+        Event::Hardware(ev) if ev.is_cache_event() => {
             raw_attr.type_ = PERF_TYPE_HW_CACHE;
             raw_attr.config = ev.into_u64();
         }
-        Event::Hw(ev) => {
+        Event::Hardware(ev) => {
             raw_attr.type_ = PERF_TYPE_HARDWARE;
             raw_attr.config = ev.into_u64();
         }

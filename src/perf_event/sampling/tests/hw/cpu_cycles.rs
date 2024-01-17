@@ -1,7 +1,7 @@
 use crate::sampling::record::{Record, RecordBody};
 use crate::sampling::{Config, ExtraConfig, OverflowBy};
 use crate::test::cpu_workload;
-use crate::{Builder, EventScope, HwEvent};
+use crate::{Builder, EventScope, HardwareEvent};
 
 fn gen_builder(mmap_pages: usize) -> Builder {
     Builder::new()
@@ -11,7 +11,7 @@ fn gen_builder(mmap_pages: usize) -> Builder {
 }
 
 fn gen_cfg() -> Config {
-    let event = HwEvent::CpuCycles;
+    let event = HardwareEvent::CpuCycles;
     let scopes = [EventScope::User, EventScope::Host];
     let overflow_by = OverflowBy::Period(1000);
     let mut extra_config = ExtraConfig::default();
