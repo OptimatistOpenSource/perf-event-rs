@@ -38,7 +38,7 @@ impl CacheOpResult {
 }
 
 #[derive(Clone, Debug)]
-pub enum HwEvent {
+pub enum HardwareEvent {
     CpuCycles,
     Instructions,
     CacheReferences,
@@ -58,9 +58,9 @@ pub enum HwEvent {
     CacheNode(CacheOp, CacheOpResult),
 }
 
-impl HwEvent {
+impl HardwareEvent {
     pub(crate) const fn is_cache_event(&self) -> bool {
-        use HwEvent::*;
+        use HardwareEvent::*;
         matches!(
             self,
             CacheL1d(..)
@@ -73,7 +73,7 @@ impl HwEvent {
         )
     }
     pub(crate) const fn into_u64(self) -> u64 {
-        use HwEvent::*;
+        use HardwareEvent::*;
         const fn calc_cache_config(id: perf_hw_id, op: u64, op_result: u64) -> perf_hw_id {
             (id as u64 | (op << 8) | (op_result << 16)) as _
         }
