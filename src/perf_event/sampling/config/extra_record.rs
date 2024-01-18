@@ -33,11 +33,12 @@ impl ExtraRecord {
         ]
     }
 
-    pub fn all_but_exclude(records: impl IntoIterator<Item = Self>) -> Vec<Self> {
+    pub fn all_but_exclude<'t>(records: impl IntoIterator<Item = &'t Self>) -> Vec<Self> {
         let excludes = records.into_iter().collect::<Vec<_>>();
         Self::all()
-            .into_iter()
+            .iter()
             .filter(|s| excludes.contains(s).not())
+            .cloned()
             .collect()
     }
 

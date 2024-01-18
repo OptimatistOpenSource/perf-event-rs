@@ -39,7 +39,7 @@ pub enum BreakpointLen {
 }
 
 impl BreakpointLen {
-    pub(crate) const fn into_u64(self) -> u64 {
+    pub(crate) const fn as_u64(&self) -> u64 {
         let val = match self {
             Self::Len1 => HW_BREAKPOINT_LEN_1,
             Self::Len2 => HW_BREAKPOINT_LEN_2,

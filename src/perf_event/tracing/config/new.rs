@@ -3,13 +3,13 @@ use crate::perf_event::RawAttr;
 use crate::sampling::{ClockId, ExtraConfig, SampleIpSkid, Wakeup};
 use crate::syscall::bindings::*;
 use crate::tracing::config::Config;
-use crate::{Event, EventScope};
+use crate::{DynamicPmuEvent, Event, EventScope, KprobeConfig, UprobeConfig};
 use libc::{CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI};
 use std::ops::Not;
 
-pub fn new(
-    event: impl Into<Event>,
-    scopes: impl IntoIterator<Item = EventScope>,
+pub fn new<'t>(
+    event: &Event,
+    scopes: impl IntoIterator<Item = &'t EventScope>,
     extra_config: &ExtraConfig,
 ) -> Config {
     let sample_record_fields = &extra_config.sample_record_fields;
@@ -145,7 +145,7 @@ pub fn new(
     #[cfg(feature = "linux-5.13")]
     raw_attr.set_sigtrap(extra_config.sigtrap.is_some() as _);
 
-    event.into().enable_in_raw_attr(&mut raw_attr);
+    event.enable_in_raw_attr(&mut raw_attr);
 
     scopes
         .into_iter()
@@ -156,9 +156,20 @@ pub fn new(
         .iter()
         .for_each(|it| it.enable_in_raw_attr(&mut raw_attr));
 
+    let kprobe_func_or_uprobe_path = match event {
+        Event::DynamicPmu(DynamicPmuEvent::Kprobe {
+            cfg: KprobeConfig::FuncAndOffset { kprobe_func, .. },
+            ..
+        }) => Some(kprobe_func.clone()),
+        Event::DynamicPmu(DynamicPmuEvent::Uprobe {
+            cfg: UprobeConfig { uprobe_path, .. },
+            ..
+        }) => Some(uprobe_path.clone()),
+        _ => None,
+    };
+
     Config {
-        kprobe_func,
-        uprobe_path,
+        kprobe_func_or_uprobe_path,
         raw_attr,
     }
 }

@@ -2,12 +2,12 @@ use crate::counting::{Config, ExtraConfig};
 use crate::infra::SizedExt;
 use crate::perf_event::RawAttr;
 use crate::syscall::bindings::*;
-use crate::{Event, EventScope};
+use crate::{DynamicPmuEvent, Event, EventScope, KprobeConfig, UprobeConfig};
 
-pub fn new(
-    event: impl Into<Event>,
-    scopes: impl IntoIterator<Item = EventScope>,
-    extra_config: ExtraConfig,
+pub fn new<'t>(
+    event: &Event,
+    scopes: impl IntoIterator<Item = &'t EventScope>,
+    extra_config: &ExtraConfig,
 ) -> Config {
     let mut raw_attr = RawAttr {
         type_: 0,
@@ -108,11 +108,26 @@ pub fn new(
     #[cfg(feature = "linux-5.13")]
     raw_attr.set_sigtrap(0); // not use in counting mode
 
-    event.into().enable_in_raw_attr(&mut raw_attr);
+    event.enable_in_raw_attr(&mut raw_attr);
 
     scopes
         .into_iter()
         .for_each(|scope| scope.enable_in_raw_attr(&mut raw_attr));
 
-    Config { raw_attr }
+    let kprobe_func_or_uprobe_path = match event {
+        Event::DynamicPmu(DynamicPmuEvent::Kprobe {
+            cfg: KprobeConfig::FuncAndOffset { kprobe_func, .. },
+            ..
+        }) => Some(kprobe_func.clone()),
+        Event::DynamicPmu(DynamicPmuEvent::Uprobe {
+            cfg: UprobeConfig { uprobe_path, .. },
+            ..
+        }) => Some(uprobe_path.clone()),
+        _ => None,
+    };
+
+    Config {
+        kprobe_func_or_uprobe_path,
+        raw_attr,
+    }
 }

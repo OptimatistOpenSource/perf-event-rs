@@ -27,11 +27,12 @@ impl EventScope {
         ]
     }
 
-    pub fn all_but_exclude(scopes: impl IntoIterator<Item = Self>) -> Vec<Self> {
+    pub fn all_but_exclude<'t>(scopes: impl IntoIterator<Item = &'t Self>) -> Vec<Self> {
         let excludes = scopes.into_iter().collect::<Vec<_>>();
         Self::all()
-            .into_iter()
+            .iter()
             .filter(|s| excludes.contains(s).not())
+            .cloned()
             .collect()
     }
 
