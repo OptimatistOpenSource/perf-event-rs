@@ -1,13 +1,13 @@
 use crate::counting::{Config, Counter};
 use crate::test::cpu_workload;
-use crate::{Builder, EventScope, SoftwareEvent};
+use crate::{Builder, Event, EventScope, SoftwareEvent};
 
 fn gen_counting() -> Counter {
     let builder = Builder::new().calling_process().any_cpu();
 
     let event = SoftwareEvent::CpuClock;
     let scopes = [EventScope::User, EventScope::Host];
-    let cfg = Config::new(event, scopes, Default::default());
+    let cfg = Config::new(&Event::from(event), &scopes, &Default::default());
 
     builder.build_counting(&cfg).unwrap()
 }
