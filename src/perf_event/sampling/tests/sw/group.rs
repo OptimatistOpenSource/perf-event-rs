@@ -1,7 +1,7 @@
 use crate::sampling::record::{Record, RecordBody};
 use crate::sampling::{Config, ExtraConfig, FixedSamplerGroup, OverflowBy, SamplerGuard};
 use crate::test::cpu_workload;
-use crate::{Builder, EventScope, SoftwareEvent};
+use crate::{Builder, Event, EventScope, SoftwareEvent};
 
 fn gen_builder() -> Builder {
     Builder::new()
@@ -14,7 +14,7 @@ fn gen_cfg(event: SoftwareEvent) -> Config {
     let scopes = [EventScope::User, EventScope::Host];
     let overflow_by = OverflowBy::Period(1000);
     let extra_config = ExtraConfig::default();
-    Config::new(event, scopes, overflow_by, &extra_config)
+    Config::new(&Event::from(event), &scopes, &overflow_by, &extra_config)
 }
 
 #[test]
