@@ -3,22 +3,22 @@ mod new;
 use crate::perf_event::RawAttr;
 use crate::{Event, EventScope};
 use std::ffi::CString;
+use std::rc::Rc;
 
 pub type ExtraConfig = crate::sampling::ExtraConfig;
 
 #[derive(Debug, Clone)]
 pub struct Config {
+    // This will keep the ptr of `kprobe_func` or `uprobe_path` valid if present.
     #[allow(dead_code)]
-    kprobe_func: Option<CString>, // This keep ptr to `kprobe_func` valid, if it exists.
-    #[allow(dead_code)]
-    uprobe_path: Option<CString>, // This keep ptr to `uprobe_path` valid, if it exists.
+    kprobe_func_or_uprobe_path: Option<Rc<CString>>,
     raw_attr: RawAttr,
 }
 
 impl Config {
-    pub fn new(
-        event: impl Into<Event>,
-        scopes: impl IntoIterator<Item = EventScope>,
+    pub fn new<'t>(
+        event: &Event,
+        scopes: impl IntoIterator<Item = &'t EventScope>,
         extra_config: &ExtraConfig,
     ) -> Self {
         new::new(event, scopes, extra_config)
@@ -30,8 +30,7 @@ impl Config {
     /// `perf_event_attr` struct for counting mode.
     pub const unsafe fn from_raw(raw_attr: RawAttr) -> Self {
         Self {
-            kprobe_func: None,
-            uprobe_path: None,
+            kprobe_func_or_uprobe_path: None,
             raw_attr,
         }
     }

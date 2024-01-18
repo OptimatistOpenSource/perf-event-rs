@@ -2,21 +2,26 @@ mod extra_config;
 mod new;
 
 use crate::perf_event::RawAttr;
+use std::ffi::CString;
 use std::fmt::Debug;
+use std::rc::Rc;
 
 use crate::{Event, EventScope};
 pub use extra_config::*;
 
 #[derive(Debug, Clone)]
 pub struct Config {
+    // This will keep the ptr of `kprobe_func` or `uprobe_path` valid if present.
+    #[allow(dead_code)]
+    kprobe_func_or_uprobe_path: Option<Rc<CString>>,
     raw_attr: RawAttr,
 }
 
 impl Config {
-    pub fn new(
-        event: impl Into<Event>,
-        scopes: impl IntoIterator<Item = EventScope>,
-        extra_config: ExtraConfig,
+    pub fn new<'t>(
+        event: &Event,
+        scopes: impl IntoIterator<Item = &'t EventScope>,
+        extra_config: &ExtraConfig,
     ) -> Self {
         new::new(event, scopes, extra_config)
     }
@@ -26,10 +31,13 @@ impl Config {
     /// The `raw_attr` argument must be a properly initialized
     /// `perf_event_attr` struct for counting mode.
     pub const unsafe fn from_raw(raw_attr: RawAttr) -> Self {
-        Self { raw_attr }
+        Self {
+            kprobe_func_or_uprobe_path: None,
+            raw_attr,
+        }
     }
 
-    pub const fn into_raw(self) -> RawAttr {
+    pub fn into_raw(self) -> RawAttr {
         self.raw_attr
     }
 
