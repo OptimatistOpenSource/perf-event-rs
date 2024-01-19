@@ -1,12 +1,14 @@
 name: Check
 description: Check the code with audit, fmt and clippy
+
 inputs:
   target:
     description: Build for the target triple
     required: true
   feature:
-    description: Build feature
+    description: Build feature (use `auto` for auto feature)
     required: true
+
 runs:
   using: composite
   steps:
@@ -21,6 +23,13 @@ runs:
       run: cargo fmt --check
 
     - name: Clippy
+      if: inputs.feature != 'auto'
       shell: bash
       # You need to run 'cargo clippy -r' in the local to get the same output with CI
       run: cargo clippy --target ${{ inputs.target }} --features ${{ inputs.feature }} -- -D warnings
+
+    - name: Clippy (auto feature)
+      if: inputs.feature == 'auto'
+      shell: bash
+      # You need to run 'cargo clippy -r' in the local to get the same output with CI
+      run: cargo clippy --target ${{ inputs.target }} -- -D warnings
