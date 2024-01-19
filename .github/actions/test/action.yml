@@ -1,19 +1,33 @@
 name: Test
 description: Run tests
+
 inputs:
   target:
     description: Build for the target triple
     required: true
   feature:
-    description: Build feature
+    description: Build feature (use `auto` for auto feature)
     required: true
+
 runs:
   using: composite
   steps:
     - name: Test dev
+      if: inputs.feature != 'auto'
       shell: bash
       run: cargo test --target ${{ inputs.target }} --features ${{ inputs.feature }} --verbose
 
+    - name: Test dev (auto feature)
+      if: inputs.feature == 'auto'
+      shell: bash
+      run: cargo test --target ${{ inputs.target }} --verbose
+
     - name: Test release
+      if: inputs.feature != 'auto'
       shell: bash
       run: cargo test --target ${{ inputs.target }} --features ${{ inputs.feature }} --verbose --release
+
+    - name: Test release (auto feature)
+      if: inputs.feature == 'auto'
+      shell: bash
+      run: cargo test --target ${{ inputs.target }} --verbose --release

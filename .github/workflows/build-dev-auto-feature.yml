@@ -1,4 +1,4 @@
-name: Build / Development
+name: Build / Development (auto feature)
 
 on:
   push:
@@ -13,20 +13,18 @@ on:
 
 jobs:
   build-dev:
-    name: ${{ matrix.target.alias }}-${{ matrix.linux-source.alias }}
+    name: ${{ matrix.target.alias }}
     runs-on: ${{ matrix.target.os }}
 
     strategy:
       fail-fast: false
       matrix:
         target:
+          # TODO: Build in ubuntu-20.04 from GitHub Actions fails due to missing some definitions in `linux/version.h`
+          #- { os: ubuntu-20.04, triple: x86_64-unknown-linux-gnu , alias: amd64-gnu-ubuntu-20.04 }
+          #- { os: ubuntu-20.04, triple: x86_64-unknown-linux-musl, alias: amd64-musl-ubuntu-20.04 }
           - { os: ubuntu-22.04, triple: x86_64-unknown-linux-gnu , alias: amd64-gnu-ubuntu-22.04 }
           - { os: ubuntu-22.04, triple: x86_64-unknown-linux-musl, alias: amd64-musl-ubuntu-22.04 }
-        linux-source:
-          - { pkg: linux-source-5.15.0, alias: 5.15, feature: linux-5.13 }
-          - { pkg: linux-source-5.19.0, alias: 5.19, feature: linux-5.16 }
-          - { pkg: linux-source-6.2.0 , alias: 6.2 , feature: linux-6.0 }
-          - { pkg: linux-source-6.5.0 , alias: 6.5 , feature: linux-6.3 }
 
     steps:
       - name: Checkout
@@ -59,7 +57,7 @@ jobs:
       - name: Cache APT packages
         uses: awalsh128/cache-apt-pkgs-action@v1.3.1
         with:
-          packages: musl-tools ${{ matrix.linux-source.pkg }}
+          packages: musl-tools
           version: 1.0
 
       - name: Setup musl-tools
@@ -82,27 +80,17 @@ jobs:
         with:
           version: ${{ steps.gen-version.outputs.VERSION }}
 
-      - name: Install linux headers
-        uses: ./.github/actions/install-linux-headers
-        with:
-          src-pkg: ${{ matrix.linux-source.pkg }}
-          install-path: ${{ github.workspace }}/linux-headers
-
       - name: Run build
         uses: ./.github/actions/build
         with:
           target: ${{ matrix.target.triple }}
-          feature: ${{ matrix.linux-source.feature }}
+          feature: auto
           release: false
-        env:
-          LINUX_HEADERS_PATH: ${{ github.workspace }}/linux-headers
 
       - name: Run check
         uses: ./.github/actions/check
         with:
           target: ${{ matrix.target.triple }}
-          feature: ${{ matrix.linux-source.feature }}
-        env:
-          LINUX_HEADERS_PATH: ${{ github.workspace }}/linux-headers
+          feature: auto
 
       # TODO: Some tests will fail in GitHub Actions environment

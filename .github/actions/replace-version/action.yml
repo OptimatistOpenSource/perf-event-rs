@@ -1,9 +1,11 @@
 name: Replace version
 description: Replace package version in Cargo.toml
+
 inputs:
   version:
     description: Version to set
     required: true
+
 runs:
   using: composite
   steps:

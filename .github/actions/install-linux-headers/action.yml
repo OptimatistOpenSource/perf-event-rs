@@ -1,5 +1,6 @@
 name: Install linux headers
 description: Install linux headers by `make headers_install`
+
 inputs:
   src-pkg:
     description: Linux source package
@@ -7,6 +8,7 @@ inputs:
   install-path:
     description: Linux headers install path
     required: true
+
 runs:
   using: composite
   steps:

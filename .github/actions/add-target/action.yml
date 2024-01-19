@@ -1,9 +1,11 @@
 name: Add Target
 description: Add target via rustup
+
 inputs:
   target:
     description: Target triple
     required: true
+
 runs:
   using: composite
   steps:

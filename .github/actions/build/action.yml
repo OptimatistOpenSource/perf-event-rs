@@ -1,5 +1,6 @@
 name: Build
 description: Build artifacts
+
 inputs:
   release:
     description: Build in release mode
@@ -8,16 +9,28 @@ inputs:
     description: Build for the target triple
     required: true
   feature:
-    description: Build feature
+    description: Build feature (use `auto` for auto feature)
     required: true
+
 runs:
   using: composite
   steps:
     - name: Build dev
-      if: ${{ inputs.release == 'false' }}
+      if: inputs.feature != 'auto' && inputs.release == 'false'
       shell: bash
       run: cargo build --target ${{ inputs.target }} --features ${{ inputs.feature }}
+
+    - name: Build dev (auto feature)
+      if: inputs.feature == 'auto' && inputs.release == 'false'
+      shell: bash
+      run: cargo build --target ${{ inputs.target }}
+
     - name: Build release
-      if: ${{ inputs.release == 'true' }}
+      if: inputs.feature != 'auto' && inputs.release == 'true'
       shell: bash
       run: cargo build --target ${{ inputs.target }} --features ${{ inputs.feature }} -r
+
+    - name: Build release (auto feature)
+      if: inputs.feature == 'auto' && inputs.release == 'true'
+      shell: bash
+      run: cargo build --target ${{ inputs.target }} -r
