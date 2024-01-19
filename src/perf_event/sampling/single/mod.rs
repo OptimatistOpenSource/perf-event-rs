@@ -104,6 +104,10 @@ impl Sampler {
         ioctl_wrapped(&self.file, PERF_EVENT_IOCTL_REFRESH, Some(refresh))
     }
 
+    pub fn update_period(&self, new: u64) -> io::Result<()> {
+        ioctl_wrapped(&self.file, PERF_EVENT_IOCTL_PERIOD, Some(&new))
+    }
+
     pub fn next_record(&mut self) -> Option<Record> {
         next_record(self)
     }
