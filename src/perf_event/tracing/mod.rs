@@ -5,11 +5,14 @@ mod iter;
 #[cfg(test)]
 mod tests;
 
-use crate::infra::{Vla, WrapResult};
+#[cfg(feature = "linux-4.17")]
+use crate::infra::Vla;
+use crate::infra::WrapResult;
 use crate::sampling::record::Record;
 use crate::sampling::Sampler;
 use crate::syscall::bindings::*;
 use crate::syscall::ioctl_wrapped;
+#[cfg(feature = "linux-4.17")]
 use std::alloc::{alloc, Layout};
 use std::io;
 
@@ -44,15 +47,16 @@ impl Tracer {
         self.sampler.disable()
     }
 
+    #[cfg(feature = "linux-4.7")]
     pub fn pause(&self) -> io::Result<()> {
         self.sampler.pause()
     }
 
+    #[cfg(feature = "linux-4.7")]
     pub fn resume(&self) -> io::Result<()> {
         self.sampler.resume()
     }
 
-    // TODO: rm?
     pub fn refresh(&self, refresh: i32) -> io::Result<()> {
         self.sampler.refresh(refresh)
     }
@@ -79,10 +83,14 @@ impl Tracer {
     /// # Safety
     /// The `bpf_fd` argument should be a valid BPF program
     /// file descriptor that was created by a previous bpf(2) system call.
+    #[cfg(feature = "linux-4.1")]
     pub unsafe fn set_bpf(&self, bpf_fd: i32) -> io::Result<()> {
         ioctl_wrapped(&self.sampler.file, PERF_EVENT_IOCTL_SET_BPF, Some(bpf_fd))
     }
 
+    /// This allows querying which Berkeley Packet Filter (BPF)
+    /// programs are attached to an existing kprobe tracepoint.
+    #[cfg(feature = "linux-4.17")]
     pub fn query_bpf(&self, ids_len: u32) -> io::Result<Vec<u32>> {
         /*
         struct perf_event_query_bpf {
@@ -104,6 +112,10 @@ impl Tracer {
         vla.as_slice().to_vec().wrap_ok()
     }
 
+    /// This allows modifying an existing event without the
+    /// overhead of closing and reopening a new event.
+    /// Currently this is supported only for breakpoint events.
+    #[cfg(feature = "linux-4.17")]
     pub fn update_cfg(&self, new: &Config) -> io::Result<()> {
         ioctl_wrapped(
             &self.sampler.file,

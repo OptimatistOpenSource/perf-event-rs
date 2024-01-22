@@ -23,9 +23,13 @@ impl Debug for perf_event_attr {
                 branch_sample_type
                 sample_regs_user
                 sample_stack_user
+                #[cfg(feature = "linux-4.1")]
                 clockid
+                #[cfg(feature = "linux-3.19")]
                 sample_regs_intr
+                #[cfg(feature = "linux-4.1")]
                 aux_watermark
+                #[cfg(feature = "linux-4.8")]
                 sample_max_stack
                 #[cfg(feature = "linux-5.5")]
                 aux_sample_size
@@ -68,19 +72,27 @@ impl Debug for perf_event_attr {
                 exclude_callchain_kernel
                 exclude_callchain_user
 
+                #[cfg(feature = "linux-3.12")]
                 mmap2
+                #[cfg(feature = "linux-3.16")]
                 comm_exec
+                #[cfg(feature = "linux-4.1")]
                 use_clockid
+                #[cfg(feature = "linux-4.3")]
                 context_switch
+                #[cfg(feature = "linux-4.7")]
                 write_backward
+                #[cfg(feature = "linux-4.12")]
                 namespaces
+                #[cfg(feature = "linux-5.1")]
                 ksymbol
+                #[cfg(feature = "linux-5.1")]
                 bpf_event
                 #[cfg(feature = "linux-5.4")]
                 aux_output
                 #[cfg(feature = "linux-5.7")]
                 cgroup
-                #[cfg(feature = "linux-5.8")]
+                #[cfg(feature = "linux-5.9")]
                 text_poke
                 #[cfg(feature = "linux-5.12")]
                 build_id

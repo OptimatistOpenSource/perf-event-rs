@@ -14,6 +14,7 @@ pub use weight::*;
 
 #[derive(Debug, Clone)]
 pub struct Body {
+    #[cfg(feature = "linux-3.12")]
     pub sample_id: Option<u64>,
     pub ip: Option<u64>,
     pub pid: Option<u32>,
@@ -31,11 +32,17 @@ pub struct Body {
     pub data_stack_user: Option<Vec<u8>>,
     pub weight: Option<Weight>,
     pub data_src: Option<DataSrc>,
+    #[cfg(feature = "linux-3.13")]
     pub transaction: Option<u64>,
+    #[cfg(feature = "linux-3.19")]
     pub abi_and_regs_intr: Option<AbiAndRegs>,
+    #[cfg(feature = "linux-4.14")]
     pub phys_addr: Option<u64>,
+    #[cfg(feature = "linux-5.7")]
     pub cgroup: Option<u64>,
+    #[cfg(feature = "linux-5.11")]
     pub data_page_size: Option<u64>,
+    #[cfg(feature = "linux-5.11")]
     pub code_page_size: Option<u64>,
 }
 
@@ -44,7 +51,7 @@ impl Body {
         ptr: *const u8,
         sample_type: u64,
         regs_user_len: usize,
-        regs_intr_len: usize,
+        #[cfg(feature = "linux-3.19")] regs_intr_len: usize,
     ) -> Self {
         let mut raw = raw::Raw {
             read_ptr: ptr,
@@ -52,6 +59,7 @@ impl Body {
         };
 
         Self {
+            #[cfg(feature = "linux-3.12")]
             sample_id: raw.sample_id().cloned(),
             ip: raw.ip().cloned(),
             pid: raw.pid().cloned(),
@@ -83,13 +91,19 @@ impl Body {
                 Weight::from_raw(*it, repr)
             }),
             data_src: raw.data_src().cloned().map(DataSrc::from_raw),
+            #[cfg(feature = "linux-3.13")]
             transaction: raw.transaction().cloned(),
+            #[cfg(feature = "linux-3.19")]
             abi_and_regs_intr: raw
                 .abi_and_regs_intr(regs_intr_len)
                 .map(AbiAndRegs::from_raw),
+            #[cfg(feature = "linux-4.14")]
             phys_addr: raw.phys_addr().cloned(),
+            #[cfg(feature = "linux-5.7")]
             cgroup: raw.cgroup().cloned(),
+            #[cfg(feature = "linux-5.11")]
             data_page_size: raw.data_page_size().cloned(),
+            #[cfg(feature = "linux-5.11")]
             code_page_size: raw.code_page_size().cloned(),
         }
     }

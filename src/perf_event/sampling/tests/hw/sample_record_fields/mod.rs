@@ -1,3 +1,4 @@
+#[cfg(feature = "linux-3.19")]
 mod abi_and_regs_intr;
 mod abi_and_regs_user;
 mod all;
@@ -52,6 +53,7 @@ macro_rules! gen_test {
     };
 }
 
+#[cfg(feature = "linux-3.12")]
 gen_test!(sample_id);
 gen_test!(ip);
 
@@ -88,8 +90,13 @@ gen_test!(period);
 gen_test!(v);
 gen_test!(data_raw);
 gen_test!(data_src);
+#[cfg(feature = "linux-3.13")]
 gen_test!(transaction);
+#[cfg(feature = "linux-4.14")]
 gen_test!(phys_addr);
+#[cfg(feature = "linux-5.7")]
 gen_test!(cgroup);
+#[cfg(feature = "linux-5.11")]
 gen_test!(data_page_size);
+#[cfg(feature = "linux-5.11")]
 gen_test!(code_page_size);

@@ -64,5 +64,6 @@ impl Raw {
         cpu_ptr.as_ref()
     }
 
+    #[cfg(feature = "linux-3.12")]
     gen_fn! { u64, id_2 PERF_SAMPLE_IDENTIFIER }
 }

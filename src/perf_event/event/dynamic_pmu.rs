@@ -1,7 +1,8 @@
 use crate::perf_event::event::Event;
-use std::ffi::CString;
-use std::rc::Rc;
+#[cfg(feature = "linux-4.17")]
+use std::{ffi::CString, rc::Rc};
 
+#[cfg(feature = "linux-4.17")]
 #[derive(Clone, Debug)]
 pub enum KprobeConfig {
     FuncAndOffset {
@@ -11,6 +12,7 @@ pub enum KprobeConfig {
     KprobeAddr(u64),
 }
 
+#[cfg(feature = "linux-4.17")]
 #[derive(Clone, Debug)]
 pub struct UprobeConfig {
     pub uprobe_path: Rc<CString>,
@@ -26,6 +28,7 @@ pub enum DynamicPmuEvent {
         /// and `/sys/bus/event_source/devices/*/events/*`
         config: u64,
     },
+    #[cfg(feature = "linux-4.17")]
     Kprobe {
         /// The content of `/sys/bus/event_source/devices/kprobe/type`
         r#type: u32,
@@ -33,6 +36,7 @@ pub enum DynamicPmuEvent {
         retprobe: bool,
         cfg: KprobeConfig,
     },
+    #[cfg(feature = "linux-4.17")]
     Uprobe {
         /// The content of `/sys/bus/event_source/devices/uprobe/type`
         r#type: u32,

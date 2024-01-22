@@ -4,7 +4,8 @@ use crate::syscall::bindings::*;
 /// Select the fields contained in `sample::Body`
 #[derive(Debug, Clone, Default)]
 pub struct SampleRecordFields {
-    pub sample_id: bool,   // PERF_SAMPLE_IDENTIFIER
+    #[cfg(feature = "linux-3.12")]
+    pub sample_id: bool, // PERF_SAMPLE_IDENTIFIER
     pub ip: bool,          // PERF_SAMPLE_IP
     pub pid_and_tid: bool, // PERF_SAMPLE_TID
     pub time: bool,        // PERF_SAMPLE_TIME
@@ -47,12 +48,18 @@ pub struct SampleRecordFields {
     // PERF_SAMPLE_WEIGHT_STRUCT when WeightRepr::Vars
     pub weight: Option<WeightRepr>,
 
-    pub data_src: bool,    // PERF_SAMPLE_DATA_SRC
+    pub data_src: bool, // PERF_SAMPLE_DATA_SRC
+    #[cfg(feature = "linux-3.13")]
     pub transaction: bool, // PERF_SAMPLE_TRANSACTION
 
     /// Wrap `sample_regs_intr` with `Some` to enable this field
+    #[cfg(feature = "linux-3.19")]
     pub abi_and_regs_intr: Option<u64>, // PERF_SAMPLE_REGS_INTR
 
+    // The `PERF_RECORD_KSYMBOL` was first added to the Linux kernel in 4.14
+    // the man documentation incorrectly says "since Linux 4.13"
+    // See: https://github.com/torvalds/linux/commit/fc7ce9c74c3ad232b084d80148654f926d01ece7
+    #[cfg(feature = "linux-4.14")]
     pub phys_addr: bool, // PERF_SAMPLE_PHYS_ADDR
     #[cfg(feature = "linux-5.7")]
     pub cgroup: bool, // PERF_SAMPLE_CGROUP
@@ -85,6 +92,7 @@ impl SampleRecordFields {
         }
 
         gen! {
+            @#[cfg(feature = "linux-3.12")]
             self.sample_id                  , PERF_SAMPLE_IDENTIFIER
             self.ip                         , PERF_SAMPLE_IP
             self.pid_and_tid                , PERF_SAMPLE_TID
@@ -104,8 +112,11 @@ impl SampleRecordFields {
             @#[cfg(feature = "linux-5.12")]
             matches!(self.weight, Some(WeightRepr::Vars)), PERF_SAMPLE_WEIGHT_STRUCT
             self.data_src                   , PERF_SAMPLE_DATA_SRC
+            @#[cfg(feature = "linux-3.13")]
             self.transaction                , PERF_SAMPLE_TRANSACTION
+            @#[cfg(feature = "linux-3.19")]
             self.abi_and_regs_intr.is_some(), PERF_SAMPLE_REGS_INTR
+            @#[cfg(feature = "linux-4.14")]
             self.phys_addr                  , PERF_SAMPLE_PHYS_ADDR
             @#[cfg(feature = "linux-5.7")]
             self.cgroup                     , PERF_SAMPLE_CGROUP

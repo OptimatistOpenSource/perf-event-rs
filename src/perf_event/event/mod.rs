@@ -83,6 +83,7 @@ impl Event {
                     raw_attr.type_ = *r#type;
                     raw_attr.config = *config;
                 }
+                #[cfg(feature = "linux-4.17")]
                 DynamicPmuEvent::Kprobe {
                     r#type,
                     retprobe,
@@ -104,6 +105,7 @@ impl Event {
                         }
                     }
                 }
+                #[cfg(feature = "linux-4.17")]
                 DynamicPmuEvent::Uprobe {
                     r#type,
                     retprobe,

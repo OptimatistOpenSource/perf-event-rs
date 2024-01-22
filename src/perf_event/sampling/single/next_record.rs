@@ -5,6 +5,7 @@ use crate::syscall::bindings::*;
 use std::alloc::{alloc, dealloc, Layout};
 use std::slice;
 
+#[inline]
 pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
     let metapage =
         unsafe { (sampler.mmap.as_mut_ptr() as *mut perf_event_mmap_page).as_mut() }.unwrap();
@@ -16,7 +17,7 @@ pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
         return None;
     }
 
-    let data_ptr = unsafe { sampler.mmap.as_mut_ptr().add(metapage.data_offset as _) };
+    let data_ptr = unsafe { sampler.mmap.as_mut_ptr().add(sampler.data_offset as _) };
 
     let record_len = match data_tail as isize + 8 - data_size as isize {
         left if left <= 0 => {
@@ -132,10 +133,12 @@ pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
                     follow_mem_ptr,
                     sampler.sample_type,
                     sampler.regs_user_len,
+                    #[cfg(feature = "linux-3.19")]
                     sampler.regs_intr_len,
                 );
                 RecordBody::Sample(record.wrap_box())
             }
+            #[cfg(feature = "linux-3.12")]
             PERF_RECORD_MMAP2 => {
                 let record = mmap2::Body::from_ptr(
                     follow_mem_ptr,
@@ -145,15 +148,18 @@ pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
                 );
                 RecordBody::Mmap2(record.wrap_box())
             }
+            #[cfg(feature = "linux-4.1")]
             PERF_RECORD_AUX => {
                 let record =
                     aux::Body::from_ptr(follow_mem_ptr, sampler.sample_type, sampler.sample_id_all);
                 RecordBody::Aux(record.wrap_box())
             }
+            #[cfg(feature = "linux-4.1")]
             PERF_RECORD_ITRACE_START => {
                 let ptr = follow_mem_ptr as *const intrace_start::Body;
                 RecordBody::ItraceStart(ptr.read().wrap_box())
             }
+            #[cfg(feature = "linux-4.2")]
             PERF_RECORD_LOST_SAMPLES => {
                 let record = lost_samples::Body::from_ptr(
                     follow_mem_ptr,
@@ -162,6 +168,7 @@ pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
                 );
                 RecordBody::LostSamples(record.wrap_box())
             }
+            #[cfg(feature = "linux-4.3")]
             PERF_RECORD_SWITCH => {
                 let record = switch::Body::from_ptr(
                     follow_mem_ptr,
@@ -170,6 +177,7 @@ pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
                 );
                 RecordBody::Switch(record.wrap_box())
             }
+            #[cfg(feature = "linux-4.3")]
             PERF_RECORD_SWITCH_CPU_WIDE => {
                 let record = switch_cpu_wide::Body::from_ptr(
                     follow_mem_ptr,
@@ -178,6 +186,7 @@ pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
                 );
                 RecordBody::SwitchCpuWide(record.wrap_box())
             }
+            #[cfg(feature = "linux-4.12")]
             PERF_RECORD_NAMESPACES => {
                 let record = namespaces::Body::from_ptr(
                     follow_mem_ptr,
@@ -186,6 +195,7 @@ pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
                 );
                 RecordBody::Namespaces(record.wrap_box())
             }
+            #[cfg(feature = "linux-5.1")]
             PERF_RECORD_KSYMBOL => {
                 let record = ksymbol::Body::from_ptr(
                     follow_mem_ptr,
@@ -194,6 +204,7 @@ pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
                 );
                 RecordBody::Ksymbol(record.wrap_box())
             }
+            #[cfg(feature = "linux-5.1")]
             PERF_RECORD_BPF_EVENT => {
                 let record = bpf_event::Body::from_ptr(
                     follow_mem_ptr,
@@ -202,6 +213,7 @@ pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
                 );
                 RecordBody::BpfEvent(record.wrap_box())
             }
+            #[cfg(feature = "linux-5.7")]
             PERF_RECORD_CGROUP => {
                 let record = cgroup::Body::from_ptr(
                     follow_mem_ptr,
@@ -210,6 +222,7 @@ pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
                 );
                 RecordBody::Cgroup(record.wrap_box())
             }
+            #[cfg(feature = "linux-5.9")]
             PERF_RECORD_TEXT_POKE => {
                 let record = text_poke::Body::from_ptr(
                     follow_mem_ptr,

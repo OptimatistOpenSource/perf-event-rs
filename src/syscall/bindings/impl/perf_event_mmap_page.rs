@@ -27,7 +27,9 @@ impl Debug for perf_event_mmap_page {
                 time_mask
                 data_head
                 data_tail
+                #[cfg(feature = "linux-4.1")]
                 data_offset
+                #[cfg(feature = "linux-4.1")]
                 data_size
                 aux_head
                 aux_tail

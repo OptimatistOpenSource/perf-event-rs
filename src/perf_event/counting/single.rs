@@ -39,20 +39,19 @@ impl Counter {
 
     pub fn result(&mut self) -> io::Result<CounterResult> {
         #[repr(C)]
-        #[allow(non_camel_case_types)]
-        struct read_format {
+        struct Layout {
             header: read_format_header,
             body: read_format_body, // This group has only one member
         }
 
-        let mut buf = unsafe { <[u8; std::mem::size_of::<read_format>()]>::uninit() };
+        let mut buf = unsafe { <[u8; std::mem::size_of::<Layout>()]>::uninit() };
         self.file.read_exact(&mut buf)?;
 
-        let read_format = unsafe { &*(buf.as_ptr() as *const read_format) };
+        let layout = unsafe { &*(buf.as_ptr() as *const Layout) };
         CounterResult {
-            event_count: read_format.body.event_count,
-            time_enabled: read_format.header.time_enabled,
-            time_running: read_format.header.time_running,
+            event_count: layout.body.event_count,
+            time_enabled: layout.header.time_enabled,
+            time_running: layout.header.time_running,
         }
         .wrap_ok()
     }
@@ -90,6 +89,7 @@ impl Counter {
         )
     }
 
+    #[cfg(feature = "linux-3.12")]
     pub fn event_id(&self) -> io::Result<u64> {
         let mut id = 0_u64;
         ioctl_wrapped(

@@ -10,7 +10,9 @@ impl Debug for perf_event_attr__bindgen_ty_4 {
             fmt: f
             fields:
                 bp_len
+                #[cfg(feature = "linux-4.17")]
                 kprobe_addr
+                #[cfg(feature = "linux-4.17")]
                 probe_offset
                 config2
         }
