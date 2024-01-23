@@ -2,12 +2,12 @@ use crate::counting::{Config, ExtraConfig};
 use crate::infra::SizedExt;
 use crate::perf_event::RawAttr;
 use crate::syscall::bindings::*;
-use crate::{Event, EventScope};
+use crate::{DynamicPmuEvent, Event, EventScope, KprobeConfig, UprobeConfig};
 
-pub fn new(
-    event: impl Into<Event>,
-    scopes: impl IntoIterator<Item = EventScope>,
-    extra_config: ExtraConfig,
+pub fn new<'t>(
+    event: &Event,
+    scopes: impl IntoIterator<Item = &'t EventScope>,
+    extra_config: &ExtraConfig,
 ) -> Config {
     let mut raw_attr = RawAttr {
         type_: 0,
@@ -108,36 +108,26 @@ pub fn new(
     #[cfg(feature = "linux-5.13")]
     raw_attr.set_sigtrap(0); // not use in counting mode
 
-    use EventScope::*;
-    scopes.into_iter().for_each(|scope| match scope {
-        User => raw_attr.set_exclude_user(0),
-        Kernel => raw_attr.set_exclude_kernel(0),
-        Hv => raw_attr.set_exclude_hv(0),
-        Idle => raw_attr.set_exclude_idle(0),
-        Host => raw_attr.set_exclude_host(0),
-        Guest => raw_attr.set_exclude_guest(0),
-        CallchainKernel => raw_attr.set_exclude_callchain_kernel(0),
-        CallchainUser => raw_attr.set_exclude_callchain_user(0),
-    });
+    event.enable_in_raw_attr(&mut raw_attr);
 
-    match event.into() {
-        Event::Hw(ev) if ev.is_cache_event() => {
-            raw_attr.type_ = PERF_TYPE_HW_CACHE;
-            raw_attr.config = ev.into_u64();
-        }
-        Event::Hw(ev) => {
-            raw_attr.type_ = PERF_TYPE_HARDWARE;
-            raw_attr.config = ev.into_u64();
-        }
-        Event::Sw(ev) => {
-            raw_attr.type_ = PERF_TYPE_SOFTWARE;
-            raw_attr.config = ev.into_u64();
-        }
-        Event::Raw(ev) => {
-            raw_attr.type_ = PERF_TYPE_RAW;
-            raw_attr.config = ev.into_u64();
-        }
+    scopes
+        .into_iter()
+        .for_each(|scope| scope.enable_in_raw_attr(&mut raw_attr));
+
+    let kprobe_func_or_uprobe_path = match event {
+        Event::DynamicPmu(DynamicPmuEvent::Kprobe {
+            cfg: KprobeConfig::FuncAndOffset { kprobe_func, .. },
+            ..
+        }) => Some(kprobe_func.clone()),
+        Event::DynamicPmu(DynamicPmuEvent::Uprobe {
+            cfg: UprobeConfig { uprobe_path, .. },
+            ..
+        }) => Some(uprobe_path.clone()),
+        _ => None,
+    };
+
+    Config {
+        kprobe_func_or_uprobe_path,
+        raw_attr,
     }
-
-    Config { raw_attr }
 }

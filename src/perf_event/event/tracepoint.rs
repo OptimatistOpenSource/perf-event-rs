@@ -1,4 +1,4 @@
-use crate::perf_event::event::tracing::TracingEvent;
+use crate::perf_event::event::Event;
 
 #[derive(Clone, Debug)]
 pub struct TracepointEvent {
@@ -12,7 +12,7 @@ impl TracepointEvent {
     }
 }
 
-impl From<TracepointEvent> for TracingEvent {
+impl From<TracepointEvent> for Event {
     fn from(value: TracepointEvent) -> Self {
         Self::Tracepoint(value)
     }

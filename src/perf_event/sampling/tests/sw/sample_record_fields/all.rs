@@ -2,7 +2,7 @@ use crate::sampling::record::sample::WeightRepr;
 use crate::sampling::record::{Record, RecordBody};
 use crate::sampling::{Config, ExtraConfig, OverflowBy, SampleRecordFields};
 use crate::test::cpu_workload;
-use crate::{Builder, EventScope, SwEvent};
+use crate::{Builder, Event, EventScope, SoftwareEvent};
 
 fn gen_builder() -> Builder {
     let mmap_pages = 1 + 512;
@@ -13,10 +13,10 @@ fn gen_builder() -> Builder {
 }
 
 fn gen_cfg(extra_config: ExtraConfig) -> Config {
-    let event = SwEvent::CpuClock;
+    let event = SoftwareEvent::CpuClock;
     let scopes = [EventScope::User, EventScope::Host];
     let overflow_by = OverflowBy::Period(1000);
-    Config::new(event, scopes, overflow_by, &extra_config)
+    Config::new(&Event::from(event), &scopes, &overflow_by, &extra_config)
 }
 
 #[test]

@@ -9,7 +9,7 @@ pub enum CacheOp {
 }
 
 impl CacheOp {
-    const fn into_u64(self) -> u64 {
+    const fn as_u64(&self) -> u64 {
         use CacheOp::*;
         let id = match self {
             Read => PERF_COUNT_HW_CACHE_OP_READ,
@@ -27,7 +27,7 @@ pub enum CacheOpResult {
 }
 
 impl CacheOpResult {
-    const fn into_u64(self) -> u64 {
+    const fn as_u64(&self) -> u64 {
         use CacheOpResult::*;
         let id = match self {
             Access => PERF_COUNT_HW_CACHE_RESULT_ACCESS,
@@ -38,7 +38,7 @@ impl CacheOpResult {
 }
 
 #[derive(Clone, Debug)]
-pub enum HwEvent {
+pub enum HardwareEvent {
     CpuCycles,
     Instructions,
     CacheReferences,
@@ -58,9 +58,9 @@ pub enum HwEvent {
     CacheNode(CacheOp, CacheOpResult),
 }
 
-impl HwEvent {
+impl HardwareEvent {
     pub(crate) const fn is_cache_event(&self) -> bool {
-        use HwEvent::*;
+        use HardwareEvent::*;
         matches!(
             self,
             CacheL1d(..)
@@ -72,8 +72,8 @@ impl HwEvent {
                 | CacheNode(..)
         )
     }
-    pub(crate) const fn into_u64(self) -> u64 {
-        use HwEvent::*;
+    pub(crate) const fn as_u64(&self) -> u64 {
+        use HardwareEvent::*;
         const fn calc_cache_config(id: perf_hw_id, op: u64, op_result: u64) -> perf_hw_id {
             (id as u64 | (op << 8) | (op_result << 16)) as _
         }
@@ -89,39 +89,33 @@ impl HwEvent {
             StalledCyclesBackend => PERF_COUNT_HW_STALLED_CYCLES_BACKEND,
             RefCpuCycles => PERF_COUNT_HW_REF_CPU_CYCLES,
             CacheL1d(op, op_result) => {
-                calc_cache_config(PERF_COUNT_HW_CACHE_L1D, op.into_u64(), op_result.into_u64())
+                calc_cache_config(PERF_COUNT_HW_CACHE_L1D, op.as_u64(), op_result.as_u64())
             }
             CacheL1i(op, op_result) => {
-                calc_cache_config(PERF_COUNT_HW_CACHE_L1I, op.into_u64(), op_result.into_u64())
+                calc_cache_config(PERF_COUNT_HW_CACHE_L1I, op.as_u64(), op_result.as_u64())
             }
             CacheLl(op, op_result) => {
-                calc_cache_config(PERF_COUNT_HW_CACHE_LL, op.into_u64(), op_result.into_u64())
+                calc_cache_config(PERF_COUNT_HW_CACHE_LL, op.as_u64(), op_result.as_u64())
             }
-            CacheDtlb(op, op_result) => calc_cache_config(
-                PERF_COUNT_HW_CACHE_DTLB,
-                op.into_u64(),
-                op_result.into_u64(),
-            ),
-            CacheItlb(op, op_result) => calc_cache_config(
-                PERF_COUNT_HW_CACHE_ITLB,
-                op.into_u64(),
-                op_result.into_u64(),
-            ),
+            CacheDtlb(op, op_result) => {
+                calc_cache_config(PERF_COUNT_HW_CACHE_DTLB, op.as_u64(), op_result.as_u64())
+            }
+            CacheItlb(op, op_result) => {
+                calc_cache_config(PERF_COUNT_HW_CACHE_ITLB, op.as_u64(), op_result.as_u64())
+            }
             CacheBpu(op, op_result) => {
-                calc_cache_config(PERF_COUNT_HW_CACHE_BPU, op.into_u64(), op_result.into_u64())
+                calc_cache_config(PERF_COUNT_HW_CACHE_BPU, op.as_u64(), op_result.as_u64())
             }
-            CacheNode(op, op_result) => calc_cache_config(
-                PERF_COUNT_HW_CACHE_NODE,
-                op.into_u64(),
-                op_result.into_u64(),
-            ),
+            CacheNode(op, op_result) => {
+                calc_cache_config(PERF_COUNT_HW_CACHE_NODE, op.as_u64(), op_result.as_u64())
+            }
         };
         config as _
     }
 }
 
-impl From<HwEvent> for Event {
-    fn from(value: HwEvent) -> Self {
-        Self::Hw(value)
+impl From<HardwareEvent> for Event {
+    fn from(value: HardwareEvent) -> Self {
+        Self::Hardware(value)
     }
 }

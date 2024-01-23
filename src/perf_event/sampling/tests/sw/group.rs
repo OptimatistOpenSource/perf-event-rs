@@ -1,7 +1,7 @@
 use crate::sampling::record::{Record, RecordBody};
 use crate::sampling::{Config, ExtraConfig, FixedSamplerGroup, OverflowBy, SamplerGuard};
 use crate::test::cpu_workload;
-use crate::{Builder, EventScope, SwEvent};
+use crate::{Builder, Event, EventScope, SoftwareEvent};
 
 fn gen_builder() -> Builder {
     Builder::new()
@@ -10,19 +10,19 @@ fn gen_builder() -> Builder {
         .ring_buffer_pages(1 + 512)
 }
 
-fn gen_cfg(event: SwEvent) -> Config {
+fn gen_cfg(event: SoftwareEvent) -> Config {
     let scopes = [EventScope::User, EventScope::Host];
     let overflow_by = OverflowBy::Period(1000);
     let extra_config = ExtraConfig::default();
-    Config::new(event, scopes, overflow_by, &extra_config)
+    Config::new(&Event::from(event), &scopes, &overflow_by, &extra_config)
 }
 
 #[test]
 fn test_basic() {
     let builder = gen_builder();
     let mut group = builder.build_sampling_group().unwrap();
-    let cpu_clock_guard1 = group.add_member(&gen_cfg(SwEvent::CpuClock)).unwrap();
-    let cpu_clock_guard2 = group.add_member(&gen_cfg(SwEvent::CpuClock)).unwrap();
+    let cpu_clock_guard1 = group.add_member(&gen_cfg(SoftwareEvent::CpuClock)).unwrap();
+    let cpu_clock_guard2 = group.add_member(&gen_cfg(SoftwareEvent::CpuClock)).unwrap();
 
     assert!(group.next_record(&cpu_clock_guard1).is_none());
     assert!(group.next_record(&cpu_clock_guard2).is_none());
@@ -56,8 +56,8 @@ fn test_basic() {
 fn test_enable_disable() {
     let builder = gen_builder();
     let mut group = builder.build_sampling_group().unwrap();
-    let cpu_clock_guard1 = group.add_member(&gen_cfg(SwEvent::CpuClock)).unwrap();
-    let cpu_clock_guard2 = group.add_member(&gen_cfg(SwEvent::CpuClock)).unwrap();
+    let cpu_clock_guard1 = group.add_member(&gen_cfg(SoftwareEvent::CpuClock)).unwrap();
+    let cpu_clock_guard2 = group.add_member(&gen_cfg(SoftwareEvent::CpuClock)).unwrap();
 
     assert!(group.next_record(&cpu_clock_guard1).is_none());
     assert!(group.next_record(&cpu_clock_guard2).is_none());
@@ -91,8 +91,8 @@ fn test_enable_disable() {
 fn test_guard_basic() {
     let builder = gen_builder();
     let mut group = builder.build_sampling_group().unwrap();
-    let mut cpu_clock_guard1 = group.add_member(&gen_cfg(SwEvent::CpuClock)).unwrap();
-    let mut cpu_clock_guard2 = group.add_member(&gen_cfg(SwEvent::CpuClock)).unwrap();
+    let mut cpu_clock_guard1 = group.add_member(&gen_cfg(SoftwareEvent::CpuClock)).unwrap();
+    let mut cpu_clock_guard2 = group.add_member(&gen_cfg(SoftwareEvent::CpuClock)).unwrap();
 
     assert!(cpu_clock_guard1.next_record().is_none());
     assert!(cpu_clock_guard2.next_record().is_none());
@@ -122,8 +122,8 @@ fn test_guard_basic() {
 fn test_guard_enable_disable() {
     let builder = gen_builder();
     let mut group = builder.build_sampling_group().unwrap();
-    let mut cpu_clock_guard1 = group.add_member(&gen_cfg(SwEvent::CpuClock)).unwrap();
-    let mut cpu_clock_guard2 = group.add_member(&gen_cfg(SwEvent::CpuClock)).unwrap();
+    let mut cpu_clock_guard1 = group.add_member(&gen_cfg(SoftwareEvent::CpuClock)).unwrap();
+    let mut cpu_clock_guard2 = group.add_member(&gen_cfg(SoftwareEvent::CpuClock)).unwrap();
 
     assert!(cpu_clock_guard1.next_record().is_none());
     assert!(cpu_clock_guard2.next_record().is_none());

@@ -12,7 +12,7 @@ impl RawEvent {
         Self { config }
     }
 
-    pub const fn into_u64(self) -> u64 {
+    pub const fn as_u64(&self) -> u64 {
         self.config
     }
 }

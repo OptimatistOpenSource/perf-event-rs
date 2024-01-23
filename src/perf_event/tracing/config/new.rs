@@ -1,19 +1,15 @@
-use crate::event::tracing::*;
 use crate::infra::SizedExt;
-use crate::perf_event::event::tracing::TracingEvent;
 use crate::perf_event::RawAttr;
-use crate::sampling::{ClockId, ExtraConfig, ExtraRecord, SampleIpSkid, Wakeup};
+use crate::sampling::{ClockId, ExtraConfig, SampleIpSkid, Wakeup};
 use crate::syscall::bindings::*;
 use crate::tracing::config::Config;
-use crate::EventScope;
-use libc::{
-    c_long, CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI,
-};
+use crate::{DynamicPmuEvent, Event, EventScope, KprobeConfig, UprobeConfig};
+use libc::{CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI};
 use std::ops::Not;
 
-pub fn new(
-    event: impl Into<TracingEvent>,
-    scopes: impl IntoIterator<Item = EventScope>,
+pub fn new<'t>(
+    event: &Event,
+    scopes: impl IntoIterator<Item = &'t EventScope>,
     extra_config: &ExtraConfig,
 ) -> Config {
     let sample_record_fields = &extra_config.sample_record_fields;
@@ -149,114 +145,31 @@ pub fn new(
     #[cfg(feature = "linux-5.13")]
     raw_attr.set_sigtrap(extra_config.sigtrap.is_some() as _);
 
-    use EventScope::*;
-    scopes.into_iter().for_each(|scope| match scope {
-        User => raw_attr.set_exclude_user(0),
-        Kernel => raw_attr.set_exclude_kernel(0),
-        Hv => raw_attr.set_exclude_hv(0),
-        Idle => raw_attr.set_exclude_idle(0),
-        Host => raw_attr.set_exclude_host(0),
-        Guest => raw_attr.set_exclude_guest(0),
-        CallchainKernel => raw_attr.set_exclude_callchain_kernel(0),
-        CallchainUser => raw_attr.set_exclude_callchain_user(0),
-    });
+    event.enable_in_raw_attr(&mut raw_attr);
 
-    let mut kprobe_func = None;
-    let mut uprobe_path = None;
-    match event.into() {
-        TracingEvent::Tracepoint(ev) => {
-            raw_attr.type_ = PERF_TYPE_TRACEPOINT;
-            raw_attr.config = ev.id
-        }
-        TracingEvent::Breakpoint(ev) => {
-            raw_attr.type_ = PERF_TYPE_BREAKPOINT;
-            raw_attr.config = 0;
-            use BreakpointType::*;
-            match ev.bp_type {
-                R { addr, len } => {
-                    raw_attr.bp_type = HW_BREAKPOINT_R;
-                    raw_attr.__bindgen_anon_3.bp_addr = addr;
-                    raw_attr.__bindgen_anon_4.bp_len = len.into_u64();
-                }
-                W { addr, len } => {
-                    raw_attr.bp_type = HW_BREAKPOINT_W;
-                    raw_attr.__bindgen_anon_3.bp_addr = addr;
-                    raw_attr.__bindgen_anon_4.bp_len = len.into_u64();
-                }
-                Rw { addr, len } => {
-                    raw_attr.bp_type = HW_BREAKPOINT_RW;
-                    raw_attr.__bindgen_anon_3.bp_addr = addr;
-                    raw_attr.__bindgen_anon_4.bp_len = len.into_u64();
-                }
-                X { addr } => {
-                    raw_attr.bp_type = HW_BREAKPOINT_X;
-                    raw_attr.__bindgen_anon_3.bp_addr = addr;
-                    raw_attr.__bindgen_anon_4.bp_len = c_long::size() as _;
-                }
-            };
-        }
-        TracingEvent::DynamicPmu(ev) => match ev {
-            DynamicPmuEvent::Other { r#type, config } => {
-                raw_attr.type_ = r#type;
-                raw_attr.config = config;
-            }
-            DynamicPmuEvent::Kprobe {
-                r#type,
-                retprobe,
-                cfg,
-            } => {
-                raw_attr.type_ = r#type;
-                raw_attr.config |= retprobe as u64;
-                match cfg {
-                    KprobeConfig::FuncAndOffset {
-                        kprobe_func: kf,
-                        probe_offset,
-                    } => {
-                        kprobe_func = Some(kf);
-                        raw_attr.__bindgen_anon_3.kprobe_func =
-                            kprobe_func.as_ref().unwrap().as_ptr() as _;
-                        raw_attr.__bindgen_anon_4.probe_offset = probe_offset;
-                    }
-                    KprobeConfig::KprobeAddr(addr) => {
-                        raw_attr.__bindgen_anon_3.kprobe_func = 0;
-                        raw_attr.__bindgen_anon_4.kprobe_addr = addr;
-                    }
-                }
-            }
-            DynamicPmuEvent::Uprobe {
-                r#type,
-                retprobe,
-                cfg,
-            } => {
-                raw_attr.type_ = r#type;
-                raw_attr.config |= retprobe as u64;
-                uprobe_path = Some(cfg.uprobe_path);
-                raw_attr.__bindgen_anon_3.uprobe_path = uprobe_path.as_ref().unwrap().as_ptr() as _;
-                raw_attr.__bindgen_anon_4.probe_offset = cfg.probe_offset;
-            }
-        },
-    }
+    scopes
+        .into_iter()
+        .for_each(|scope| scope.enable_in_raw_attr(&mut raw_attr));
 
     extra_config
         .extra_record_types
         .iter()
-        .for_each(|it| match it {
-            ExtraRecord::Mmap => raw_attr.set_mmap(1),
-            ExtraRecord::Mmap2 => raw_attr.set_mmap2(1),
-            ExtraRecord::ContextSwitch => raw_attr.set_context_switch(1),
-            ExtraRecord::Namespaces => raw_attr.set_namespaces(1),
-            ExtraRecord::Ksymbol => raw_attr.set_ksymbol(1),
-            ExtraRecord::BpfEvent => raw_attr.set_bpf_event(1),
-            #[cfg(feature = "linux-5.7")]
-            ExtraRecord::Cgroup => raw_attr.set_cgroup(1),
-            #[cfg(feature = "linux-5.8")]
-            ExtraRecord::TextPoke => raw_attr.set_text_poke(1),
-            ExtraRecord::ForkAndExit => raw_attr.set_task(1),
-        });
+        .for_each(|it| it.enable_in_raw_attr(&mut raw_attr));
+
+    let kprobe_func_or_uprobe_path = match event {
+        Event::DynamicPmu(DynamicPmuEvent::Kprobe {
+            cfg: KprobeConfig::FuncAndOffset { kprobe_func, .. },
+            ..
+        }) => Some(kprobe_func.clone()),
+        Event::DynamicPmu(DynamicPmuEvent::Uprobe {
+            cfg: UprobeConfig { uprobe_path, .. },
+            ..
+        }) => Some(uprobe_path.clone()),
+        _ => None,
+    };
 
     Config {
-        kprobe_func,
-        uprobe_path,
+        kprobe_func_or_uprobe_path,
         raw_attr,
     }
 }

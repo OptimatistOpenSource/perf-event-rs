@@ -1,10 +1,11 @@
-use crate::perf_event::event::tracing::TracingEvent;
+use crate::perf_event::event::Event;
 use std::ffi::CString;
+use std::rc::Rc;
 
 #[derive(Clone, Debug)]
 pub enum KprobeConfig {
     FuncAndOffset {
-        kprobe_func: CString,
+        kprobe_func: Rc<CString>,
         probe_offset: u64,
     },
     KprobeAddr(u64),
@@ -12,7 +13,7 @@ pub enum KprobeConfig {
 
 #[derive(Clone, Debug)]
 pub struct UprobeConfig {
-    pub uprobe_path: CString,
+    pub uprobe_path: Rc<CString>,
     pub probe_offset: u64,
 }
 
@@ -41,7 +42,7 @@ pub enum DynamicPmuEvent {
     },
 }
 
-impl From<DynamicPmuEvent> for TracingEvent {
+impl From<DynamicPmuEvent> for Event {
     fn from(value: DynamicPmuEvent) -> Self {
         Self::DynamicPmu(value)
     }

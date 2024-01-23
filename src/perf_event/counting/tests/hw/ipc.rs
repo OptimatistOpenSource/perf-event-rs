@@ -1,22 +1,26 @@
 use crate::counting::{Config, CounterGroup};
 use crate::test::cpu_workload;
-use crate::{Builder, EventScope, HwEvent};
+use crate::{Builder, Event, EventScope, HardwareEvent};
 
 fn gen_group() -> CounterGroup {
     let builder = Builder::new().calling_process().any_cpu();
     builder.build_counting_group().unwrap()
 }
 
-fn gen_cfg(event: HwEvent) -> Config {
+fn gen_cfg(event: HardwareEvent) -> Config {
     let scopes = [EventScope::User, EventScope::Host];
-    Config::new(event, scopes, Default::default())
+    Config::new(&Event::from(event), &scopes, &Default::default())
 }
 
 #[test]
 fn test_basic() {
     let mut group = gen_group();
-    let cpu_cycles_guard = group.add_member(&gen_cfg(HwEvent::CpuCycles)).unwrap();
-    let instructions_guard = group.add_member(&gen_cfg(HwEvent::Instructions)).unwrap();
+    let cpu_cycles_guard = group
+        .add_member(&gen_cfg(HardwareEvent::CpuCycles))
+        .unwrap();
+    let instructions_guard = group
+        .add_member(&gen_cfg(HardwareEvent::Instructions))
+        .unwrap();
 
     {
         let result = group.result().unwrap();
@@ -50,8 +54,12 @@ fn test_basic() {
 #[test]
 fn test_enable_disable() {
     let mut group = gen_group();
-    let cpu_cycles_guard = group.add_member(&gen_cfg(HwEvent::CpuCycles)).unwrap();
-    let instructions_guard = group.add_member(&gen_cfg(HwEvent::Instructions)).unwrap();
+    let cpu_cycles_guard = group
+        .add_member(&gen_cfg(HardwareEvent::CpuCycles))
+        .unwrap();
+    let instructions_guard = group
+        .add_member(&gen_cfg(HardwareEvent::Instructions))
+        .unwrap();
 
     {
         let result = group.result().unwrap();
@@ -88,8 +96,12 @@ fn test_enable_disable() {
 #[test]
 fn test_reset_count() {
     let mut group = gen_group();
-    let cpu_cycles_guard = group.add_member(&gen_cfg(HwEvent::CpuCycles)).unwrap();
-    let instructions_guard = group.add_member(&gen_cfg(HwEvent::Instructions)).unwrap();
+    let cpu_cycles_guard = group
+        .add_member(&gen_cfg(HardwareEvent::CpuCycles))
+        .unwrap();
+    let instructions_guard = group
+        .add_member(&gen_cfg(HardwareEvent::Instructions))
+        .unwrap();
 
     let mut group = group.enable().unwrap();
     cpu_workload();
@@ -117,8 +129,12 @@ fn test_reset_count() {
 #[test]
 fn test_guard() {
     let mut group = gen_group();
-    let mut cpu_cycles_guard = group.add_member(&gen_cfg(HwEvent::CpuCycles)).unwrap();
-    let mut instructions_guard = group.add_member(&gen_cfg(HwEvent::Instructions)).unwrap();
+    let mut cpu_cycles_guard = group
+        .add_member(&gen_cfg(HardwareEvent::CpuCycles))
+        .unwrap();
+    let mut instructions_guard = group
+        .add_member(&gen_cfg(HardwareEvent::Instructions))
+        .unwrap();
 
     {
         let cpu_cycles = cpu_cycles_guard.result().unwrap().event_count;

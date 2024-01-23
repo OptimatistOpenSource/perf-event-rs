@@ -1,8 +1,7 @@
-use crate::event::tracing::TracepointEvent;
 use crate::sampling::record::{Record, RecordBody};
 use crate::test::{cpu_workload, read_file};
 use crate::tracing::{Config, ExtraConfig};
-use crate::{Builder, EventScope};
+use crate::{Builder, Event, EventScope, TracepointEvent};
 use std::str::FromStr;
 
 fn gen_builder(mmap_pages: usize) -> Builder {
@@ -19,7 +18,7 @@ fn gen_cfg(id: u64) -> Config {
     let mut extra_config = ExtraConfig::default();
     extra_config.sample_record_fields.data_raw = true;
 
-    Config::new(event, scopes, &extra_config)
+    Config::new(&Event::from(event), &scopes, &extra_config)
 }
 
 #[test]
