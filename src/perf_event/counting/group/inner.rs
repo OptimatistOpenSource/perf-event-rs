@@ -1,6 +1,5 @@
-use crate::counting::{Config, Counter, CounterGroupResult};
-use crate::infra::VecExt;
-use crate::infra::WrapResult;
+use crate::counting::{Config, Counter, CounterGroupStat};
+use crate::infra::{BoxSliceExt, WrapResult};
 use crate::syscall;
 use crate::syscall::bindings::*;
 use crate::syscall::ioctl_wrapped;
@@ -91,7 +90,7 @@ impl Inner {
         let buf = {
             let len = size_of::<read_format_header>() + size_of::<read_format_body>() * members_len;
 
-            let mut buf = unsafe { Vec::<u8>::with_len_uninit(len) };
+            let mut buf = unsafe { Box::<[u8]>::uninit(len) };
             leader.file.read_exact(&mut buf)?;
 
             buf
