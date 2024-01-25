@@ -82,6 +82,7 @@ impl Raw {
         ptr.as_ref()
     }
 
+    #[cfg(feature = "linux-3.12")]
     gen_fn! { u64, sample_id PERF_SAMPLE_IDENTIFIER }
     gen_fn! { u64, ip        PERF_SAMPLE_IP         }
     gen_fn! { u32, pid       PERF_SAMPLE_TID        }
@@ -199,11 +200,14 @@ impl Raw {
     }
 
     pub unsafe fn weight(&mut self) -> Option<&perf_sample_weight> {
+        #[cfg(not(feature = "linux-5.12"))]
         if self.is_enabled(PERF_SAMPLE_WEIGHT).not() {
             return None;
         }
         #[cfg(feature = "linux-5.12")]
-        if self.is_enabled(PERF_SAMPLE_WEIGHT_STRUCT).not() {
+        if self.is_enabled(PERF_SAMPLE_WEIGHT).not()
+            && self.is_enabled(PERF_SAMPLE_WEIGHT_STRUCT).not()
+        {
             return None;
         }
 
@@ -213,8 +217,10 @@ impl Raw {
     }
 
     gen_fn! { u64, data_src    PERF_SAMPLE_DATA_SRC    }
+    #[cfg(feature = "linux-3.13")]
     gen_fn! { u64, transaction PERF_SAMPLE_TRANSACTION }
 
+    #[cfg(feature = "linux-3.19")]
     pub unsafe fn abi_and_regs_intr(&mut self, regs_len: usize) -> Option<(&u64, &[u64])> {
         if self.is_enabled(PERF_SAMPLE_REGS_INTR).not() {
             return None;
@@ -238,6 +244,7 @@ impl Raw {
         (abi, regs).wrap_some()
     }
 
+    #[cfg(feature = "linux-4.14")]
     gen_fn! { u64, phys_addr      PERF_SAMPLE_PHYS_ADDR      }
     #[cfg(feature = "linux-5.7")]
     gen_fn! { u64, cgroup         PERF_SAMPLE_CGROUP         }

@@ -10,7 +10,9 @@ impl Debug for perf_event_attr__bindgen_ty_3 {
             fmt: f
             fields:
                 bp_addr
+                #[cfg(feature = "linux-4.17")]
                 kprobe_func
+                #[cfg(feature = "linux-4.17")]
                 uprobe_path
                 config1
         }

@@ -7,7 +7,9 @@ mod perf_event_attr__bindgen_ty_2;
 mod perf_event_attr__bindgen_ty_3;
 #[allow(non_snake_case)]
 mod perf_event_attr__bindgen_ty_4;
+#[cfg(feature = "linux-5.9")]
 mod perf_event_mmap_page;
+#[cfg(feature = "linux-5.9")]
 #[allow(non_snake_case)]
 mod perf_event_mmap_page__bindgen_ty_1;
 #[cfg(feature = "linux-5.12")]
@@ -23,8 +25,10 @@ pub use perf_event_attr__bindgen_ty_2::*;
 pub use perf_event_attr__bindgen_ty_3::*;
 #[allow(unused_imports)]
 pub use perf_event_attr__bindgen_ty_4::*;
+#[cfg(feature = "linux-5.9")]
 #[allow(unused_imports)]
 pub use perf_event_mmap_page::*;
+#[cfg(feature = "linux-5.9")]
 #[allow(unused_imports)]
 pub use perf_event_mmap_page__bindgen_ty_1::*;
 

@@ -90,6 +90,7 @@ fn test_enable_disable() {
     assert!(sampler.next_record().is_some());
 }
 
+#[cfg(feature = "linux-4.7")]
 #[test]
 fn test_pause_resume() {
     let builder = gen_builder(1 + (1 << 16));

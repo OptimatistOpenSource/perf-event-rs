@@ -23,6 +23,7 @@ fn gen_cfg(extra_config: ExtraConfig) -> Config {
 fn test() {
     let mut extra_config = ExtraConfig::default();
     extra_config.sample_record_fields = SampleRecordFields {
+        #[cfg(feature = "linux-3.12")]
         sample_id: true,
         ip: true,
         pid_and_tid: true,
@@ -39,11 +40,17 @@ fn test() {
         data_stack_user: Some(2_u16.pow(3)),
         weight: Some(WeightRepr::Full),
         data_src: true,
+        #[cfg(feature = "linux-3.13")]
         transaction: true,
+        #[cfg(feature = "linux-3.19")]
         abi_and_regs_intr: Some(1),
+        #[cfg(feature = "linux-4.14")]
         phys_addr: true,
+        #[cfg(feature = "linux-5.7")]
         cgroup: true,
+        #[cfg(feature = "linux-5.11")]
         data_page_size: true,
+        #[cfg(feature = "linux-5.11")]
         code_page_size: true,
     };
     let builder = gen_builder();
@@ -57,6 +64,7 @@ fn test() {
     let mut sample_count = 0_usize;
     for Record { body, .. } in sampler.iter() {
         if let RecordBody::Sample(body) = body {
+            #[cfg(feature = "linux-3.12")]
             assert!(body.sample_id.is_some());
             assert!(body.ip.is_some());
             assert!(body.pid.is_some());
@@ -74,11 +82,17 @@ fn test() {
             assert!(body.data_stack_user.is_some());
             assert!(body.weight.is_some());
             assert!(body.data_src.is_some());
+            #[cfg(feature = "linux-3.13")]
             assert!(body.transaction.is_some());
+            #[cfg(feature = "linux-3.19")]
             assert!(body.abi_and_regs_intr.is_some());
+            #[cfg(feature = "linux-4.14")]
             assert!(body.phys_addr.is_some());
+            #[cfg(feature = "linux-5.7")]
             assert!(body.cgroup.is_some());
+            #[cfg(feature = "linux-5.11")]
             assert!(body.data_page_size.is_some());
+            #[cfg(feature = "linux-5.11")]
             assert!(body.code_page_size.is_some());
             sample_count += 1;
         }

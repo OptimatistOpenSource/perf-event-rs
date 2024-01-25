@@ -42,6 +42,7 @@ fn test_full() {
     assert!(sample_count > 0);
 }
 
+#[cfg(feature = "linux-5.12")]
 #[test]
 fn test_vars() {
     let builder = gen_builder();

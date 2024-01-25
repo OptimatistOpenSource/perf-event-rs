@@ -51,7 +51,9 @@ impl Body {
             pgoff: sizd.pgoff,
             anon_enum: {
                 let anon_union = sizd.anon_union;
-                match misc as _ {
+                #[cfg(feature = "linux-5.12")]
+                let misc = misc as _;
+                match misc {
                     #[cfg(feature = "linux-5.12")]
                     PERF_RECORD_MISC_MMAP_BUILD_ID => {
                         let build_id_len = anon_union.anon_struct_2.build_id_size as _;

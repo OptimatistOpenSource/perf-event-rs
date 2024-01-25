@@ -5,13 +5,11 @@ mod sample_record_fields;
 
 use crate::perf_event::RawAttr;
 use crate::{Event, EventScope};
-pub use extra_record::*;
 use std::ffi::CString;
 use std::fmt::Debug;
 use std::rc::Rc;
 
 pub use extra_config::*;
-#[allow(unused_imports)]
 pub use extra_record::*;
 pub use sample_record_fields::*;
 

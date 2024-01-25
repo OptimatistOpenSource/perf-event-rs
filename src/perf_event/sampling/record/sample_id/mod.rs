@@ -8,6 +8,7 @@ pub struct SampleId {
     pub id_1: Option<u64>,
     pub stream_id: Option<u64>,
     pub cpu: Option<u32>,
+    #[cfg(feature = "linux-3.12")]
     pub id_2: Option<u64>,
 }
 
@@ -25,6 +26,7 @@ impl SampleId {
             id_1: raw.id_1().cloned(),
             stream_id: raw.stream_id().cloned(),
             cpu: raw.cpu().cloned(),
+            #[cfg(feature = "linux-3.12")]
             id_2: raw.id_2().cloned(),
         }
     }

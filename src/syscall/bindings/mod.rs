@@ -17,9 +17,10 @@ pub use bindgen::*;
 pub use r#impl::*;
 pub use read_format::*;
 
-#[cfg(not(feature = "linux-5.12"))]
-#[allow(non_upper_case_globals)]
-pub type perf_sample_weight = u64;
 #[cfg(feature = "linux-5.12")]
 #[allow(non_camel_case_types)]
 pub type perf_sample_weight = bindgen::perf_sample_weight;
+
+#[cfg(not(feature = "linux-5.12"))]
+#[allow(non_camel_case_types)]
+pub type perf_sample_weight = u64;

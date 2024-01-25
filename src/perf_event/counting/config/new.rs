@@ -2,8 +2,11 @@ use crate::counting::{Config, ExtraConfig};
 use crate::infra::SizedExt;
 use crate::perf_event::RawAttr;
 use crate::syscall::bindings::*;
-use crate::{DynamicPmuEvent, Event, EventScope, KprobeConfig, UprobeConfig};
+#[cfg(feature = "linux-4.17")]
+use crate::{DynamicPmuEvent, KprobeConfig, UprobeConfig};
+use crate::{Event, EventScope};
 
+#[inline]
 pub fn new<'t>(
     event: &Event,
     scopes: impl IntoIterator<Item = &'t EventScope>,
@@ -13,8 +16,9 @@ pub fn new<'t>(
         type_: 0,
         size: RawAttr::size() as _,
         config: 0,
-        __bindgen_anon_1: perf_event_attr__bindgen_ty_1::default(), // not use in counting mode
-        sample_type: 0,                                             // ditto
+        // not use in counting mode
+        __bindgen_anon_1: perf_event_attr__bindgen_ty_1::default(),
+        sample_type: 0, // ditto
         read_format: {
             #[allow(unused_mut)]
             #[allow(clippy::identity_op)] // for readable
@@ -33,23 +37,30 @@ pub fn new<'t>(
             read_format
         } as _,
         _bitfield_align_1: [],
-        _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]), // set latter via raw_attr.set_...
+        // set later via raw_attr.set_...
+        _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]),
         __bindgen_anon_2: perf_event_attr__bindgen_ty_2::default(), // not use in counting mode
-        bp_type: 0,                                             // ditto
-        __bindgen_anon_3: perf_event_attr__bindgen_ty_3::default(), // ditto
-        __bindgen_anon_4: perf_event_attr__bindgen_ty_4::default(), // ditto
-        // TODO: config1 in __bindgen_anon_3
-        // TODO: config2 in __bindgen_anon_4
-        branch_sample_type: 0, // ditto
+
+        // The following 3 items are later set through event.enable_in_raw_attr...
+        bp_type: 0,
+        __bindgen_anon_3: perf_event_attr__bindgen_ty_3::default(),
+        __bindgen_anon_4: perf_event_attr__bindgen_ty_4::default(),
+
+        branch_sample_type: 0, // not use in counting mode
         sample_regs_user: 0,   // ditto
         sample_stack_user: 0,  // ditto
-        clockid: 0,            // ditto
-        sample_regs_intr: 0,   // ditto
-        aux_watermark: 0,      // ditto
-        sample_max_stack: 0,   // ditto
+        #[cfg(feature = "linux-4.1")]
+        clockid: 0, // ditto
+        #[cfg(feature = "linux-3.19")]
+        sample_regs_intr: 0, // ditto
+        #[cfg(feature = "linux-4.1")]
+        aux_watermark: 0, // ditto
+        #[cfg(feature = "linux-4.8")]
+        sample_max_stack: 0, // ditto
         __reserved_2: 0,
         #[cfg(feature = "linux-5.5")]
         aux_sample_size: 0, // not use in counting mode
+        #[cfg(feature = "linux-5.5")]
         __reserved_3: 0,
         #[cfg(feature = "linux-5.13")]
         sig_data: 0, // not use in counting mode
@@ -85,19 +96,32 @@ pub fn new<'t>(
     raw_attr.set_exclude_callchain_kernel(1);
     raw_attr.set_exclude_callchain_user(1);
 
+    #[cfg(feature = "linux-3.12")]
     raw_attr.set_mmap2(0); // not use in counting mode
+    #[cfg(feature = "linux-3.16")]
     raw_attr.set_comm_exec(0); // ditto
+    #[cfg(feature = "linux-4.1")]
     raw_attr.set_use_clockid(0); // ditto
+    #[cfg(feature = "linux-4.3")]
     raw_attr.set_context_switch(0); // ditto
+
+    // The `write_backward` was first added to the Linux kernel in 4.7
+    // the man documentation incorrectly says "since Linux 4.6"
+    // See: https://github.com/torvalds/linux/commit/9ecda41acb971ebd07c8fb35faf24005c0baea12
+    #[cfg(feature = "linux-4.7")]
     raw_attr.set_write_backward(0); // ditto
+
+    #[cfg(feature = "linux-4.12")]
     raw_attr.set_namespaces(0); // ditto
+    #[cfg(feature = "linux-5.1")]
     raw_attr.set_ksymbol(0); // ditto
+    #[cfg(feature = "linux-5.1")]
     raw_attr.set_bpf_event(0); // ditto
     #[cfg(feature = "linux-5.4")]
     raw_attr.set_aux_output(0); // ditto
     #[cfg(feature = "linux-5.7")]
     raw_attr.set_cgroup(0); // ditto
-    #[cfg(feature = "linux-5.8")]
+    #[cfg(feature = "linux-5.9")]
     raw_attr.set_text_poke(0); // ditto
     #[cfg(feature = "linux-5.12")]
     raw_attr.set_build_id(0); // ditto
@@ -115,10 +139,12 @@ pub fn new<'t>(
         .for_each(|scope| scope.enable_in_raw_attr(&mut raw_attr));
 
     let kprobe_func_or_uprobe_path = match event {
+        #[cfg(feature = "linux-4.17")]
         Event::DynamicPmu(DynamicPmuEvent::Kprobe {
             cfg: KprobeConfig::FuncAndOffset { kprobe_func, .. },
             ..
         }) => Some(kprobe_func.clone()),
+        #[cfg(feature = "linux-4.17")]
         Event::DynamicPmu(DynamicPmuEvent::Uprobe {
             cfg: UprobeConfig { uprobe_path, .. },
             ..

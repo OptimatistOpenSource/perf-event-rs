@@ -20,9 +20,8 @@ jobs:
       fail-fast: false
       matrix:
         target:
-          # TODO: Build in ubuntu-20.04 from GitHub Actions fails due to missing some definitions in `linux/version.h`
-          #- { os: ubuntu-20.04, triple: x86_64-unknown-linux-gnu , alias: amd64-gnu-ubuntu-20.04 }
-          #- { os: ubuntu-20.04, triple: x86_64-unknown-linux-musl, alias: amd64-musl-ubuntu-20.04 }
+          - { os: ubuntu-20.04, triple: x86_64-unknown-linux-gnu , alias: amd64-gnu-ubuntu-20.04 }
+          - { os: ubuntu-20.04, triple: x86_64-unknown-linux-musl, alias: amd64-musl-ubuntu-20.04 }
           - { os: ubuntu-22.04, triple: x86_64-unknown-linux-gnu , alias: amd64-gnu-ubuntu-22.04 }
           - { os: ubuntu-22.04, triple: x86_64-unknown-linux-musl, alias: amd64-musl-ubuntu-22.04 }
 
@@ -48,6 +47,7 @@ jobs:
           cargo fmt -- -V
           rustc -V
           uname -a
+          cat /usr/include/linux/version.h
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2

@@ -9,6 +9,7 @@ pub struct ExtraConfig {
     pub mmap_data: bool,
 
     pub comm: bool,
+    #[cfg(feature = "linux-3.16")]
     pub comm_exec: bool,
 
     /// TODO: `inherit` can't be turned on when `sample_record_fields.v` is enabled
@@ -25,6 +26,7 @@ pub struct ExtraConfig {
     #[cfg(feature = "linux-5.13")]
     pub remove_on_exec: bool,
 
+    #[cfg(feature = "linux-4.1")]
     pub clockid: Option<ClockId>,
     pub precise_ip: SampleIpSkid,
     pub wakeup: Wakeup,
@@ -46,6 +48,7 @@ impl Default for ExtraConfig {
             mmap_data: false,
 
             comm: false,
+            #[cfg(feature = "linux-3.16")]
             comm_exec: false,
 
             inherit: false,
@@ -61,6 +64,7 @@ impl Default for ExtraConfig {
             #[cfg(feature = "linux-5.13")]
             remove_on_exec: false,
 
+            #[cfg(feature = "linux-4.1")]
             clockid: None,
             precise_ip: SampleIpSkid::Arbitrary,
             wakeup: Events(1),

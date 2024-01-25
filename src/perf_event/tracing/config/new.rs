@@ -1,12 +1,18 @@
 use crate::infra::SizedExt;
 use crate::perf_event::RawAttr;
-use crate::sampling::{ClockId, ExtraConfig, SampleIpSkid, Wakeup};
+#[cfg(feature = "linux-4.1")]
+use crate::sampling::ClockId;
+use crate::sampling::{ExtraConfig, SampleIpSkid, Wakeup};
 use crate::syscall::bindings::*;
 use crate::tracing::config::Config;
-use crate::{DynamicPmuEvent, Event, EventScope, KprobeConfig, UprobeConfig};
+#[cfg(feature = "linux-4.17")]
+use crate::{DynamicPmuEvent, KprobeConfig, UprobeConfig};
+use crate::{Event, EventScope};
+#[cfg(feature = "linux-4.1")]
 use libc::{CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI};
 use std::ops::Not;
 
+#[inline]
 pub fn new<'t>(
     event: &Event,
     scopes: impl IntoIterator<Item = &'t EventScope>,
@@ -37,7 +43,7 @@ pub fn new<'t>(
             read_format
         } as _,
         _bitfield_align_1: [],
-        _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]), // set latter via raw_attr.set_...
+        _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]), // set later via raw_attr.set_...
         __bindgen_anon_2: match &extra_config.wakeup {
             Wakeup::Events(val) => perf_event_attr__bindgen_ty_2 {
                 wakeup_events: *val,
@@ -46,12 +52,16 @@ pub fn new<'t>(
                 wakeup_watermark: *val,
             },
         },
+
+        // The following 3 items are later set through event.enable_in_raw_attr...
         bp_type: 0,
         __bindgen_anon_3: perf_event_attr__bindgen_ty_3::default(),
         __bindgen_anon_4: perf_event_attr__bindgen_ty_4::default(),
+
         branch_sample_type: 0, // TODO: Not all hardware supports this feature
         sample_regs_user: sample_record_fields.abi_and_regs_user.unwrap_or(0),
         sample_stack_user: sample_record_fields.data_stack_user.unwrap_or(0) as _,
+        #[cfg(feature = "linux-4.1")]
         clockid: extra_config.clockid.as_ref().map_or(0, |id| match id {
             ClockId::Monotonic => CLOCK_MONOTONIC,
             ClockId::MonotonicRaw => CLOCK_MONOTONIC_RAW,
@@ -59,12 +69,16 @@ pub fn new<'t>(
             ClockId::BootTime => CLOCK_BOOTTIME,
             ClockId::Tai => CLOCK_TAI,
         }) as _,
+        #[cfg(feature = "linux-3.19")]
         sample_regs_intr: sample_record_fields.abi_and_regs_intr.unwrap_or(0),
+        #[cfg(feature = "linux-4.1")]
         aux_watermark: 0, // TODO
+        #[cfg(feature = "linux-4.8")]
         sample_max_stack: sample_record_fields.ips.unwrap_or(0),
         __reserved_2: 0,
         #[cfg(feature = "linux-5.5")]
         aux_sample_size: 0, // TODO
+        #[cfg(feature = "linux-5.5")]
         __reserved_3: 0,
         #[cfg(feature = "linux-5.13")]
         sig_data: extra_config.sigtrap.unwrap_or(0),
@@ -121,20 +135,28 @@ pub fn new<'t>(
     raw_attr.set_exclude_callchain_kernel(1);
     raw_attr.set_exclude_callchain_user(1);
 
+    #[cfg(feature = "linux-3.12")]
     raw_attr.set_mmap2(0);
+    #[cfg(feature = "linux-3.16")]
     raw_attr.set_comm_exec(extra_config.comm_exec as _);
+    #[cfg(feature = "linux-4.1")]
     raw_attr.set_use_clockid(extra_config.clockid.is_some() as _);
+    #[cfg(feature = "linux-4.3")]
     raw_attr.set_context_switch(0);
+    #[cfg(feature = "linux-4.7")]
     raw_attr.set_write_backward(0);
+    #[cfg(feature = "linux-4.12")]
     raw_attr.set_namespaces(0);
+    #[cfg(feature = "linux-5.1")]
     raw_attr.set_ksymbol(0);
+    #[cfg(feature = "linux-5.1")]
     raw_attr.set_bpf_event(0);
     #[cfg(feature = "linux-5.4")]
     //raw_attr.set_aux_output(extra_config.aux_output as _);
     raw_attr.set_aux_output(0);
     #[cfg(feature = "linux-5.7")]
     raw_attr.set_cgroup(0);
-    #[cfg(feature = "linux-5.8")]
+    #[cfg(feature = "linux-5.9")]
     raw_attr.set_text_poke(0);
     #[cfg(feature = "linux-5.12")]
     raw_attr.set_build_id(extra_config.build_id as _);
@@ -157,10 +179,12 @@ pub fn new<'t>(
         .for_each(|it| it.enable_in_raw_attr(&mut raw_attr));
 
     let kprobe_func_or_uprobe_path = match event {
+        #[cfg(feature = "linux-4.17")]
         Event::DynamicPmu(DynamicPmuEvent::Kprobe {
             cfg: KprobeConfig::FuncAndOffset { kprobe_func, .. },
             ..
         }) => Some(kprobe_func.clone()),
+        #[cfg(feature = "linux-4.17")]
         Event::DynamicPmu(DynamicPmuEvent::Uprobe {
             cfg: UprobeConfig { uprobe_path, .. },
             ..

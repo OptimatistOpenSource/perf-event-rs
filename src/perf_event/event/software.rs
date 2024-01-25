@@ -12,7 +12,9 @@ pub enum SoftwareEvent {
     PageFaultsMaj,
     AlignmentFaults,
     EmulationFaults,
+    #[cfg(feature = "linux-3.12")]
     Dummy,
+    #[cfg(feature = "linux-4.4")]
     BpfOutput,
     #[cfg(feature = "linux-5.13")]
     CgroupSwitches,
@@ -31,7 +33,9 @@ impl SoftwareEvent {
             PageFaultsMaj => PERF_COUNT_SW_PAGE_FAULTS_MAJ,
             AlignmentFaults => PERF_COUNT_SW_ALIGNMENT_FAULTS,
             EmulationFaults => PERF_COUNT_SW_EMULATION_FAULTS,
+            #[cfg(feature = "linux-3.12")]
             Dummy => PERF_COUNT_SW_DUMMY,
+            #[cfg(feature = "linux-4.4")]
             BpfOutput => PERF_COUNT_SW_BPF_OUTPUT,
             #[cfg(feature = "linux-5.13")]
             CgroupSwitches => PERF_COUNT_SW_CGROUP_SWITCHES,
