@@ -1,10 +1,10 @@
 use crate::counting::{Config, ExtraConfig};
-use crate::infra::SizedExt;
 use crate::perf_event::RawAttr;
 use crate::syscall::bindings::*;
 #[cfg(feature = "linux-4.17")]
 use crate::{DynamicPmuEvent, KprobeConfig, UprobeConfig};
 use crate::{Event, EventScope};
+use std::mem::size_of;
 
 #[inline]
 pub fn new<'t>(
@@ -14,7 +14,7 @@ pub fn new<'t>(
 ) -> Config {
     let mut raw_attr = RawAttr {
         type_: 0,
-        size: RawAttr::size() as _,
+        size: size_of::<RawAttr>() as _,
         config: 0,
         // not use in counting mode
         __bindgen_anon_1: perf_event_attr__bindgen_ty_1::default(),

@@ -44,8 +44,9 @@ struct {
 };
 */
 
-use crate::infra::{SizedExt, SliceExt, Vla, WrapOption};
+use crate::infra::{SliceExt, Vla, WrapOption};
 use crate::syscall::bindings::*;
+use std::mem::size_of;
 use std::ops::Not;
 use std::slice;
 
@@ -78,7 +79,7 @@ impl Raw {
             return None;
         }
         let ptr = self.read_ptr as *const T;
-        self.read_ptr = self.read_ptr.add(T::size());
+        self.read_ptr = self.read_ptr.add(size_of::<T>());
         ptr.as_ref()
     }
 
@@ -212,7 +213,7 @@ impl Raw {
         }
 
         let ptr = self.read_ptr as *const perf_sample_weight;
-        self.read_ptr = self.read_ptr.add(perf_sample_weight::size());
+        self.read_ptr = self.read_ptr.add(size_of::<perf_sample_weight>());
         ptr.as_ref()
     }
 

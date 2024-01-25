@@ -6,6 +6,7 @@ use crate::syscall::{ioctl_wrapped, perf_event_open};
 use std::fs::File;
 use std::io;
 use std::io::Read;
+use std::mem::size_of;
 use std::os::fd::{AsRawFd, FromRawFd};
 
 pub struct Counter {
@@ -44,7 +45,7 @@ impl Counter {
             body: read_format_body, // This group has only one member
         }
 
-        let mut buf = unsafe { <[u8; std::mem::size_of::<Layout>()]>::uninit() };
+        let mut buf = unsafe { <[u8; size_of::<Layout>()]>::uninit() };
         self.file.read_exact(&mut buf)?;
 
         let layout = unsafe { &*(buf.as_ptr() as *const Layout) };

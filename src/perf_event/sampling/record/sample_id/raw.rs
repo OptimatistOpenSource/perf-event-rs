@@ -9,8 +9,8 @@ struct sample_id {
 };
 */
 
-use crate::infra::SizedExt;
 use crate::syscall::bindings::*;
+use std::mem::size_of;
 use std::ops::Not;
 
 #[repr(C)]
@@ -44,7 +44,7 @@ impl Raw {
             return None;
         }
         let ptr = self.read_ptr as *const T;
-        self.read_ptr = self.read_ptr.add(T::size());
+        self.read_ptr = self.read_ptr.add(size_of::<T>());
         ptr.as_ref()
     }
 
