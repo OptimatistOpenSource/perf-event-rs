@@ -1,5 +1,5 @@
 use crate::counting::group::inner::Inner;
-use crate::counting::CounterGroupResult;
+use crate::counting::CounterGroupStat;
 use std::io;
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
@@ -32,7 +32,7 @@ impl FixedCounterGroup {
         self.inner().reset_count()
     }
 
-    pub fn result(&mut self) -> io::Result<CounterGroupResult> {
-        self.inner_mut().result()
+    pub fn stat(&mut self) -> io::Result<CounterGroupStat> {
+        self.inner_mut().stat()
     }
 }

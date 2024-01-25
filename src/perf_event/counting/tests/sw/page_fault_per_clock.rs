@@ -21,7 +21,7 @@ fn test_basic() {
         .unwrap();
 
     {
-        let result = group.result().unwrap();
+        let result = group.stat().unwrap();
         let cpu_clock = result.member_count(&cpu_clock_guard).unwrap();
         dbg!(cpu_clock);
         assert_eq!(cpu_clock, 0);
@@ -35,7 +35,7 @@ fn test_basic() {
     group.disable().unwrap();
 
     let rate = {
-        let events = group.result().unwrap();
+        let events = group.stat().unwrap();
         let cpu_clock = events.member_count(&cpu_clock_guard).unwrap();
         dbg!(cpu_clock);
         assert!(cpu_clock > 0);
@@ -58,7 +58,7 @@ fn test_enable_disable() {
         .unwrap();
 
     {
-        let result = group.result().unwrap();
+        let result = group.stat().unwrap();
         let cpu_clock = result.member_count(&cpu_clock_guard).unwrap();
         assert_eq!(cpu_clock, 0);
         let page_faults = result.member_count(&page_faults_guard).unwrap();
@@ -69,13 +69,13 @@ fn test_enable_disable() {
     mem_workload();
     group.disable().unwrap();
 
-    let events = group.result().unwrap();
+    let events = group.stat().unwrap();
     let cpu_clock = events.member_count(&cpu_clock_guard).unwrap();
     assert!(cpu_clock > 0);
     let page_faults = events.member_count(&page_faults_guard).unwrap();
     assert!(page_faults > 0);
 
-    let events = group.result().unwrap();
+    let events = group.stat().unwrap();
     assert_eq!(events.member_count(&cpu_clock_guard).unwrap(), cpu_clock);
     assert_eq!(
         events.member_count(&page_faults_guard).unwrap(),
@@ -84,7 +84,7 @@ fn test_enable_disable() {
 
     group.enable().unwrap();
     mem_workload();
-    let events = group.result().unwrap();
+    let events = group.stat().unwrap();
     assert!(events.member_count(&cpu_clock_guard).unwrap() > cpu_clock);
     assert!(events.member_count(&page_faults_guard).unwrap() > page_faults);
 }
@@ -102,7 +102,7 @@ fn test_reset_count() {
     group.disable().unwrap();
 
     {
-        let events = group.result().unwrap();
+        let events = group.stat().unwrap();
         let cpu_clock = events.member_count(&cpu_clock_guard).unwrap();
         assert!(cpu_clock > 0);
         let page_faults = events.member_count(&page_faults_guard).unwrap();
@@ -112,7 +112,7 @@ fn test_reset_count() {
     group.reset_count().unwrap();
 
     {
-        let events = group.result().unwrap();
+        let events = group.stat().unwrap();
         let cpu_clock = events.member_count(&cpu_clock_guard).unwrap();
         assert_eq!(cpu_clock, 0);
         let page_faults = events.member_count(&page_faults_guard).unwrap();
@@ -129,10 +129,10 @@ fn test_guard() {
         .unwrap();
 
     {
-        let cpu_clock = cpu_clock_guard.result().unwrap().event_count;
+        let cpu_clock = cpu_clock_guard.stat().unwrap().event_count;
         dbg!(cpu_clock);
         assert_eq!(cpu_clock, 0);
-        let page_faults = page_faults_guard.result().unwrap().event_count;
+        let page_faults = page_faults_guard.stat().unwrap().event_count;
         dbg!(page_faults);
         assert_eq!(page_faults, 0);
     };
@@ -142,10 +142,10 @@ fn test_guard() {
     group.disable().unwrap();
 
     let rate = {
-        let cpu_clock = cpu_clock_guard.result().unwrap().event_count;
+        let cpu_clock = cpu_clock_guard.stat().unwrap().event_count;
         dbg!(cpu_clock);
         assert!(cpu_clock > 0);
-        let page_faults = page_faults_guard.result().unwrap().event_count;
+        let page_faults = page_faults_guard.stat().unwrap().event_count;
         dbg!(page_faults);
         assert!(page_faults > 0);
 

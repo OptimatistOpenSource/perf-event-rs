@@ -20,22 +20,14 @@ pub fn new<'t>(
         __bindgen_anon_1: perf_event_attr__bindgen_ty_1::default(),
         sample_type: 0, // ditto
         read_format: {
-            #[allow(unused_mut)]
             #[allow(clippy::identity_op)] // for readable
-            let mut read_format = 0
+            let val = 0
                 | PERF_FORMAT_TOTAL_TIME_ENABLED
                 | PERF_FORMAT_TOTAL_TIME_RUNNING
                 | PERF_FORMAT_ID
                 | PERF_FORMAT_GROUP;
-
-            // WARN: set for read_format align, event_lost should not be used.
-            #[cfg(feature = "linux-6.0")]
-            {
-                read_format |= PERF_FORMAT_LOST;
-            }
-
-            read_format
-        } as _,
+            val as _
+        },
         _bitfield_align_1: [],
         // set later via raw_attr.set_...
         _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]),

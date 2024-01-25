@@ -23,7 +23,7 @@ fn test_basic() {
         .unwrap();
 
     {
-        let result = group.result().unwrap();
+        let result = group.stat().unwrap();
         let cpu_cycles = result.member_count(&cpu_cycles_guard).unwrap();
         dbg!(cpu_cycles);
         assert_eq!(cpu_cycles, 0);
@@ -37,7 +37,7 @@ fn test_basic() {
     group.disable().unwrap();
 
     let rate = {
-        let events = group.result().unwrap();
+        let events = group.stat().unwrap();
         let cpu_cycles = events.member_count(&cpu_cycles_guard).unwrap();
         dbg!(cpu_cycles);
         assert!(cpu_cycles > 0);
@@ -62,7 +62,7 @@ fn test_enable_disable() {
         .unwrap();
 
     {
-        let result = group.result().unwrap();
+        let result = group.stat().unwrap();
         let cpu_cycles = result.member_count(&cpu_cycles_guard).unwrap();
         assert_eq!(cpu_cycles, 0);
         let instructions = result.member_count(&instructions_guard).unwrap();
@@ -73,13 +73,13 @@ fn test_enable_disable() {
     cpu_workload();
     group.disable().unwrap();
 
-    let events = group.result().unwrap();
+    let events = group.stat().unwrap();
     let cpu_cycles = events.member_count(&cpu_cycles_guard).unwrap();
     assert!(cpu_cycles > 0);
     let instructions = events.member_count(&instructions_guard).unwrap();
     assert!(instructions > 0);
 
-    let events = group.result().unwrap();
+    let events = group.stat().unwrap();
     assert_eq!(events.member_count(&cpu_cycles_guard).unwrap(), cpu_cycles);
     assert_eq!(
         events.member_count(&instructions_guard).unwrap(),
@@ -88,7 +88,7 @@ fn test_enable_disable() {
 
     group.enable().unwrap();
     cpu_workload();
-    let events = group.result().unwrap();
+    let events = group.stat().unwrap();
     assert!(events.member_count(&cpu_cycles_guard).unwrap() > cpu_cycles);
     assert!(events.member_count(&instructions_guard).unwrap() > instructions);
 }
@@ -108,7 +108,7 @@ fn test_reset_count() {
     group.disable().unwrap();
 
     {
-        let events = group.result().unwrap();
+        let events = group.stat().unwrap();
         let cpu_cycles = events.member_count(&cpu_cycles_guard).unwrap();
         assert!(cpu_cycles > 0);
         let instructions = events.member_count(&instructions_guard).unwrap();
@@ -118,7 +118,7 @@ fn test_reset_count() {
     group.reset_count().unwrap();
 
     {
-        let events = group.result().unwrap();
+        let events = group.stat().unwrap();
         let cpu_cycles = events.member_count(&cpu_cycles_guard).unwrap();
         assert_eq!(cpu_cycles, 0);
         let instructions = events.member_count(&instructions_guard).unwrap();
@@ -137,10 +137,10 @@ fn test_guard() {
         .unwrap();
 
     {
-        let cpu_cycles = cpu_cycles_guard.result().unwrap().event_count;
+        let cpu_cycles = cpu_cycles_guard.stat().unwrap().event_count;
         dbg!(cpu_cycles);
         assert_eq!(cpu_cycles, 0);
-        let instructions = instructions_guard.result().unwrap().event_count;
+        let instructions = instructions_guard.stat().unwrap().event_count;
         dbg!(instructions);
         assert_eq!(instructions, 0);
     };
@@ -150,10 +150,10 @@ fn test_guard() {
     group.disable().unwrap();
 
     let rate = {
-        let cpu_cycles = cpu_cycles_guard.result().unwrap().event_count;
+        let cpu_cycles = cpu_cycles_guard.stat().unwrap().event_count;
         dbg!(cpu_cycles);
         assert!(cpu_cycles > 0);
-        let instructions = instructions_guard.result().unwrap().event_count;
+        let instructions = instructions_guard.stat().unwrap().event_count;
         dbg!(instructions);
         assert!(instructions > 0);
 
