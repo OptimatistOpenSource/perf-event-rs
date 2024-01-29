@@ -1,4 +1,3 @@
-use crate::infra::SizedExt;
 use crate::perf_event::RawAttr;
 #[cfg(feature = "linux-4.1")]
 use crate::sampling::ClockId;
@@ -10,6 +9,7 @@ use crate::{DynamicPmuEvent, KprobeConfig, UprobeConfig};
 use crate::{Event, EventScope};
 #[cfg(feature = "linux-4.1")]
 use libc::{CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI};
+use std::mem::size_of;
 use std::ops::Not;
 
 #[inline]
@@ -22,7 +22,7 @@ pub fn new<'t>(
 
     let mut raw_attr = RawAttr {
         type_: 0,
-        size: RawAttr::size() as _,
+        size: size_of::<RawAttr>() as _,
         config: 0,
         __bindgen_anon_1: perf_event_attr__bindgen_ty_1 { sample_period: 1 },
         sample_type: sample_record_fields.as_sample_type(),

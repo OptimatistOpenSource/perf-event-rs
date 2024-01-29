@@ -1,6 +1,7 @@
 use crate::sampling::group::guard::SamplerGuard;
 use crate::sampling::group::inner::Inner;
 use crate::sampling::record::Record;
+use crate::sampling::SamplerGroupStat;
 use std::io;
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
@@ -31,5 +32,9 @@ impl FixedSamplerGroup {
 
     pub fn next_record(&mut self, guard: &SamplerGuard) -> Option<Record> {
         self.inner_mut().next_record(guard.event_id())
+    }
+
+    pub fn stat(&mut self) -> io::Result<SamplerGroupStat> {
+        self.inner_mut().stat()
     }
 }

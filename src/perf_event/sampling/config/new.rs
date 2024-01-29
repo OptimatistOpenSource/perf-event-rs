@@ -1,4 +1,3 @@
-use crate::infra::SizedExt;
 use crate::perf_event::RawAttr;
 #[cfg(feature = "linux-4.1")]
 use crate::sampling::ClockId;
@@ -9,6 +8,7 @@ use crate::{DynamicPmuEvent, KprobeConfig, UprobeConfig};
 use crate::{Event, EventScope};
 #[cfg(feature = "linux-4.1")]
 use libc::{CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI};
+use std::mem::size_of;
 use std::ops::Not;
 
 #[inline]
@@ -22,7 +22,7 @@ pub fn new<'t>(
 
     let mut raw_attr = RawAttr {
         type_: 0,
-        size: RawAttr::size() as _,
+        size: size_of::<RawAttr>() as _,
         config: 0,
         __bindgen_anon_1: match overflow_by {
             OverflowBy::Freq(f) => perf_event_attr__bindgen_ty_1 { sample_freq: *f },
@@ -32,7 +32,7 @@ pub fn new<'t>(
         read_format: {
             #[allow(unused_mut)]
             #[allow(clippy::identity_op)] // for readable
-            let mut read_format = 0
+            let mut val = 0
                 | PERF_FORMAT_TOTAL_TIME_ENABLED
                 | PERF_FORMAT_TOTAL_TIME_RUNNING
                 | PERF_FORMAT_ID
@@ -40,11 +40,11 @@ pub fn new<'t>(
 
             #[cfg(feature = "linux-6.0")]
             {
-                read_format |= PERF_FORMAT_LOST;
+                val |= PERF_FORMAT_LOST;
             }
 
-            read_format
-        } as _,
+            val as _
+        },
         _bitfield_align_1: [],
         // set later via raw_attr.set_...
         _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]),

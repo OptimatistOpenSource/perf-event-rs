@@ -1,5 +1,5 @@
 use crate::counting::group::inner::Inner;
-use crate::counting::CounterResult;
+use crate::counting::CounterStat;
 use crate::infra::WrapResult;
 use std::io;
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
@@ -26,9 +26,10 @@ impl CounterGuard {
         self.event_id
     }
 
-    pub fn result(&mut self) -> io::Result<CounterResult> {
-        let result = self.as_inner_mut().result()?;
-        CounterResult {
+    pub fn stat(&mut self) -> io::Result<CounterStat> {
+        let result = self.as_inner_mut().stat()?;
+        CounterStat {
+            event_id: self.event_id,
             event_count: result.member_count(self)?,
             time_enabled: result.time_enabled,
             time_running: result.time_running,

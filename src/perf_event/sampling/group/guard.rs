@@ -1,5 +1,8 @@
+use crate::infra::WrapResult;
 use crate::sampling::group::inner::Inner;
 use crate::sampling::record::Record;
+use crate::sampling::SamplerStat;
+use std::io;
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 pub struct SamplerGuard {
@@ -26,6 +29,20 @@ impl SamplerGuard {
 
     pub fn next_record(&mut self) -> Option<Record> {
         self.as_inner_mut().next_record(self.event_id)
+    }
+
+    pub fn stat(&mut self) -> io::Result<SamplerStat> {
+        let result = self.as_inner_mut().stat()?;
+        let member_count = result.member_count(self)?;
+        SamplerStat {
+            event_id: self.event_id,
+            event_count: member_count.event_count,
+            #[cfg(feature = "linux-6.0")]
+            event_lost: member_count.event_lost,
+            time_enabled: result.time_enabled,
+            time_running: result.time_running,
+        }
+        .wrap_ok()
     }
 }
 

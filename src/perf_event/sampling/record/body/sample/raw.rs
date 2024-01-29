@@ -44,8 +44,10 @@ struct {
 };
 */
 
-use crate::infra::{SizedExt, SliceExt, Vla, WrapOption};
+use crate::infra::{SliceExt, Vla, WrapOption};
+use crate::sampling::{ReadFormatHead, ReadFormatValue};
 use crate::syscall::bindings::*;
+use std::mem::size_of;
 use std::ops::Not;
 use std::slice;
 
@@ -78,7 +80,7 @@ impl Raw {
             return None;
         }
         let ptr = self.read_ptr as *const T;
-        self.read_ptr = self.read_ptr.add(T::size());
+        self.read_ptr = self.read_ptr.add(size_of::<T>());
         ptr.as_ref()
     }
 
@@ -104,20 +106,20 @@ impl Raw {
 
     gen_fn! { u64, period    PERF_SAMPLE_PERIOD     }
 
-    pub unsafe fn v(&mut self) -> Option<(&read_format_header, &[read_format_body])> {
+    pub unsafe fn v(&mut self) -> Option<(&ReadFormatHead, &[ReadFormatValue])> {
         if self.is_enabled(PERF_SAMPLE_READ).not() {
             return None;
         }
 
-        let header_ptr = self.read_ptr as *const read_format_header;
-        let header = &*header_ptr;
+        let head_ptr = self.read_ptr as *const ReadFormatHead;
+        let head = &*head_ptr;
 
-        let body_ptr = header_ptr.add(1) as *const read_format_body;
-        let slice = slice::from_raw_parts(body_ptr, header.members_len as _);
+        let body_ptr = head_ptr.add(1) as *const ReadFormatValue;
+        let slice = slice::from_raw_parts(body_ptr, head.members_len as _);
 
         self.read_ptr = slice.follow_mem_ptr() as _;
 
-        (header, slice).wrap_some()
+        (head, slice).wrap_some()
     }
 
     pub unsafe fn ips(&mut self) -> Option<&[u64]> {
@@ -212,7 +214,7 @@ impl Raw {
         }
 
         let ptr = self.read_ptr as *const perf_sample_weight;
-        self.read_ptr = self.read_ptr.add(perf_sample_weight::size());
+        self.read_ptr = self.read_ptr.add(size_of::<perf_sample_weight>());
         ptr.as_ref()
     }
 

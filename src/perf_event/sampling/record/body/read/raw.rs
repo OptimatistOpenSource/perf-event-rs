@@ -8,7 +8,7 @@ struct {
 
 use crate::infra::SliceExt;
 use crate::sampling::record::sample_id::SampleId;
-use crate::syscall::bindings::{read_format_body, read_format_header};
+use crate::sampling::{ReadFormatHead, ReadFormatValue};
 use std::slice;
 
 #[repr(C)]
@@ -29,13 +29,13 @@ impl Raw {
         &*ptr
     }
 
-    pub unsafe fn values(&mut self) -> (&read_format_header, &[read_format_body]) {
-        let header_ptr = self.read_ptr as *const read_format_header;
-        let header = &*header_ptr;
-        let body_ptr = header_ptr.add(1) as *const read_format_body;
-        let slice = slice::from_raw_parts(body_ptr, header.members_len as _);
+    pub unsafe fn values(&mut self) -> (&ReadFormatHead, &[ReadFormatValue]) {
+        let head_ptr = self.read_ptr as *const ReadFormatHead;
+        let head = &*head_ptr;
+        let body_ptr = head_ptr.add(1) as *const ReadFormatValue;
+        let slice = slice::from_raw_parts(body_ptr, head.members_len as _);
         self.read_ptr = slice.follow_mem_ptr() as _;
-        (header, slice)
+        (head, slice)
     }
 
     pub unsafe fn sample_id(&self) -> SampleId {

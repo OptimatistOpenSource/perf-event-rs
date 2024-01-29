@@ -1,6 +1,9 @@
 mod fixed;
 mod guard;
 mod inner;
+mod stat;
+#[cfg(test)]
+mod tests;
 
 use crate::infra::WrapResult;
 use crate::sampling::group::inner::Inner;
@@ -12,6 +15,7 @@ use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 pub use fixed::*;
 pub use guard::*;
+pub use stat::{MemberCount, SamplerGroupStat};
 
 pub struct SamplerGroup {
     pid: pid_t,
@@ -52,5 +56,9 @@ impl SamplerGroup {
 
     pub fn next_record(&self, guard: &SamplerGuard) -> Option<Record> {
         self.inner_mut().next_record(guard.event_id())
+    }
+
+    pub fn stat(&mut self) -> io::Result<SamplerGroupStat> {
+        self.inner_mut().stat()
     }
 }

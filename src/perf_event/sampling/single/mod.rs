@@ -1,6 +1,9 @@
 mod into_iter;
 mod iter;
 mod next_record;
+mod stat;
+#[cfg(test)]
+mod tests;
 
 use crate::infra::WrapResult;
 use crate::perf_event::RawAttr;
@@ -14,8 +17,10 @@ use std::fs::File;
 use std::io;
 use std::os::fd::FromRawFd;
 
+use crate::sampling::single::stat::sampler_stat;
 pub use into_iter::*;
 pub use iter::*;
+pub use stat::SamplerStat;
 
 pub struct Sampler {
     pub(crate) mmap: MmapMut,
@@ -126,5 +131,9 @@ impl Sampler {
         let mut id = 0_u64;
         ioctl_wrapped(&self.file, PERF_EVENT_IOCTL_ID, Some(&mut id))?;
         Ok(id)
+    }
+
+    pub fn stat(&mut self) -> io::Result<SamplerStat> {
+        sampler_stat(self)
     }
 }

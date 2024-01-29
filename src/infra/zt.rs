@@ -1,5 +1,6 @@
 use crate::infra::SizedExt;
 use std::marker::PhantomData;
+use std::mem::size_of;
 use std::ops::Not;
 use std::slice;
 
@@ -20,7 +21,7 @@ impl<T> ZeroTerminated<T> {
 
         fn is_all_zero<T>(ptr: *const T) -> bool {
             let ptr = ptr as *const u8;
-            for i in 0..T::size() {
+            for i in 0..size_of::<T>() {
                 if unsafe { *ptr.add(i) } != 0 {
                     return false;
                 }

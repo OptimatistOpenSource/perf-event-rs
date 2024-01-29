@@ -6,10 +6,10 @@ mod scope;
 mod software;
 mod tracepoint;
 
-use crate::infra::SizedExt;
 use crate::perf_event::RawAttr;
 use crate::syscall::bindings::*;
 use libc::c_long;
+use std::mem::size_of;
 
 pub use breakpoint::*;
 pub use dynamic_pmu::*;
@@ -74,7 +74,7 @@ impl Event {
                     BreakpointType::X { addr } => {
                         raw_attr.bp_type = HW_BREAKPOINT_X;
                         raw_attr.__bindgen_anon_3.bp_addr = *addr;
-                        raw_attr.__bindgen_anon_4.bp_len = c_long::size() as _;
+                        raw_attr.__bindgen_anon_4.bp_len = size_of::<c_long>() as _;
                     }
                 };
             }

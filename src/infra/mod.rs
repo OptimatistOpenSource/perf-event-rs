@@ -8,7 +8,6 @@ mod ptr;
 mod result;
 mod sized;
 mod slice;
-mod vec;
 mod vla;
 mod zt;
 
@@ -19,6 +18,5 @@ pub use r#box::*;
 pub use result::*;
 pub use sized::*;
 pub use slice::*;
-pub use vec::*;
 pub use vla::*;
 pub use zt::*;

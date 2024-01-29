@@ -1,13 +1,10 @@
-use crate::counting::CounterGroupResult;
-
 mod abi_and_regs;
 mod data_src;
 mod raw;
 mod weight;
 
-use crate::syscall::bindings::PERF_SAMPLE_WEIGHT;
-#[cfg(feature = "linux-5.12")]
-use crate::syscall::bindings::PERF_SAMPLE_WEIGHT_STRUCT;
+use crate::sampling::SamplerGroupStat;
+use crate::syscall::bindings::*;
 pub use abi_and_regs::*;
 pub use data_src::*;
 pub use weight::*;
@@ -25,7 +22,7 @@ pub struct Body {
     pub stream_id: Option<u64>,
     pub cpu: Option<u32>,
     pub period: Option<u64>,
-    pub v: Option<CounterGroupResult>,
+    pub v: Option<SamplerGroupStat>,
     pub ips: Option<Vec<u64>>,
     pub data_raw: Option<Vec<u8>>,
     pub abi_and_regs_user: Option<AbiAndRegs>,
@@ -70,7 +67,7 @@ impl Body {
             stream_id: raw.stream_id().cloned(),
             cpu: raw.cpu().cloned(),
             period: raw.period().cloned(),
-            v: raw.v().map(|(h, b)| CounterGroupResult::from_raw(h, b)),
+            v: raw.v().map(|(h, b)| SamplerGroupStat::from_raw(h, b)),
             ips: raw.ips().map(|it| it.to_vec()),
             data_raw: raw.data_raw().map(|it| it.to_vec()),
             abi_and_regs_user: raw

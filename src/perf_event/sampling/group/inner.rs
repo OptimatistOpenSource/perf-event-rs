@@ -1,5 +1,6 @@
+use crate::sampling::group::stat::inner_stat;
 use crate::sampling::record::Record;
-use crate::sampling::{Config, Sampler};
+use crate::sampling::{Config, Sampler, SamplerGroupStat};
 use crate::syscall::bindings::*;
 use crate::syscall::ioctl_wrapped;
 use libc::pid_t;
@@ -10,7 +11,7 @@ use std::os::fd::AsRawFd;
 
 pub struct Inner {
     leader_event_id: Option<u64>,
-    members: HashMap<u64, Sampler>, // members[0] is the group leader, if it exists.
+    pub(crate) members: HashMap<u64, Sampler>, // members[0] is the group leader, if it exists.
 }
 
 impl Inner {
@@ -21,12 +22,12 @@ impl Inner {
         }
     }
 
-    fn leader(&self) -> Option<&Sampler> {
+    pub(crate) fn leader(&self) -> Option<&Sampler> {
         self.leader_event_id.and_then(|id| self.members.get(&id))
     }
 
     #[allow(dead_code)]
-    fn leader_mut(&mut self) -> Option<&mut Sampler> {
+    pub(crate) fn leader_mut(&mut self) -> Option<&mut Sampler> {
         self.leader_event_id
             .and_then(|id| self.members.get_mut(&id))
     }
@@ -38,13 +39,8 @@ impl Inner {
         cfg: &Config,
         mmap_pages: usize,
     ) -> io::Result<u64> {
-        let member = self.leader().map_or_else(
-            || unsafe { Sampler::new(cfg, pid, cpu, -1, 0, mmap_pages) },
-            |leader| {
-                let group_fd = leader.file.as_raw_fd();
-                unsafe { Sampler::new(cfg, pid, cpu, group_fd, 0, mmap_pages) }
-            },
-        )?;
+        let group_fd = self.leader().map(|it| it.file.as_raw_fd()).unwrap_or(-1);
+        let member = unsafe { Sampler::new(cfg, pid, cpu, group_fd, 0, mmap_pages) }?;
 
         let event_id = member.event_id()?;
         if self.leader_event_id.is_none() {
@@ -85,5 +81,9 @@ impl Inner {
         self.members
             .get_mut(&event_id)
             .and_then(|member| member.next_record())
+    }
+
+    pub fn stat(&mut self) -> io::Result<SamplerGroupStat> {
+        inner_stat(self)
     }
 }

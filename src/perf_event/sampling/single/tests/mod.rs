@@ -1,7 +1,23 @@
+mod hardware;
+mod sample_record_fields;
+mod software;
+
 use crate::sampling::record::{Record, RecordBody};
 use crate::sampling::{Config, ExtraConfig, OverflowBy};
-use crate::test::cpu_workload;
-use crate::{Builder, Event, EventScope, SoftwareEvent};
+use crate::{Builder, Event, EventScope};
+
+pub fn test_single<F>(ev: &Event, workload: &mut F)
+where
+    F: FnMut(),
+{
+    test_next_record(ev, workload);
+    test_all_records(ev, workload);
+    test_enable_disable(ev, workload);
+    #[cfg(feature = "linux-4.7")]
+    test_pause_resume(ev, workload);
+    test_ring_buffer(ev, workload);
+    test_stat(ev, workload);
+}
 
 fn gen_builder(mmap_pages: usize) -> Builder {
     Builder::new()
@@ -10,23 +26,23 @@ fn gen_builder(mmap_pages: usize) -> Builder {
         .ring_buffer_pages(mmap_pages)
 }
 
-fn gen_cfg() -> Config {
-    let event = SoftwareEvent::CpuClock;
+fn gen_cfg(ev: &Event) -> Config {
     let scopes = [EventScope::User, EventScope::Host];
     let overflow_by = OverflowBy::Period(1000);
     let mut extra_config = ExtraConfig::default();
     extra_config.sample_record_fields.time = true;
-    Config::new(&Event::from(event), &scopes, &overflow_by, &extra_config)
+    Config::new(&ev, &scopes, &overflow_by, &extra_config)
 }
 
-#[test]
-fn test_basic() {
+fn test_next_record<F>(ev: &Event, workload: &mut F)
+where
+    F: FnMut(),
+{
     let builder = gen_builder(1 + (1 << 16));
-    let cfg = gen_cfg();
-    let mut sampler = builder.build_sampling(&cfg).unwrap();
+    let mut sampler = builder.build_sampling(&gen_cfg(ev)).unwrap();
 
     sampler.enable().unwrap();
-    cpu_workload();
+    workload();
     sampler.disable().unwrap();
 
     let mut sample_count = 0_usize;
@@ -41,14 +57,15 @@ fn test_basic() {
     assert!(sample_count > 0);
 }
 
-#[test]
-fn test_all_records() {
+fn test_all_records<F>(ev: &Event, workload: &mut F)
+where
+    F: FnMut(),
+{
     let builder = gen_builder(1 + (1 << 16));
-    let cfg = gen_cfg();
-    let mut sampler = builder.build_sampling(&cfg).unwrap();
+    let mut sampler = builder.build_sampling(&gen_cfg(ev)).unwrap();
 
     sampler.enable().unwrap();
-    cpu_workload();
+    workload();
     sampler.disable().unwrap();
 
     let mut sample_count = 0_usize;
@@ -63,15 +80,16 @@ fn test_all_records() {
     assert!(sample_count > 0);
 }
 
-#[test]
-fn test_enable_disable() {
+fn test_enable_disable<F>(ev: &Event, workload: &mut F)
+where
+    F: FnMut(),
+{
     let builder = gen_builder(1 + (1 << 16));
-    let cfg = gen_cfg();
-    let mut sampler = builder.build_sampling(&cfg).unwrap();
+    let mut sampler = builder.build_sampling(&gen_cfg(ev)).unwrap();
 
     assert!(sampler.next_record().is_none());
     sampler.enable().unwrap();
-    cpu_workload();
+    workload();
     sampler.disable().unwrap();
 
     {
@@ -82,24 +100,25 @@ fn test_enable_disable() {
         assert!(sample_count > 0);
     }
 
-    cpu_workload();
+    workload();
     assert!(sampler.next_record().is_none());
 
     sampler.enable().unwrap();
-    cpu_workload();
+    workload();
     assert!(sampler.next_record().is_some());
 }
 
 #[cfg(feature = "linux-4.7")]
-#[test]
-fn test_pause_resume() {
+fn test_pause_resume<F>(ev: &Event, workload: &mut F)
+where
+    F: FnMut(),
+{
     let builder = gen_builder(1 + (1 << 16));
-    let cfg = gen_cfg();
-    let mut sampler = builder.build_sampling(&cfg).unwrap();
+    let mut sampler = builder.build_sampling(&gen_cfg(ev)).unwrap();
 
     assert!(sampler.next_record().is_none());
     sampler.enable().unwrap();
-    cpu_workload();
+    workload();
     sampler.pause().unwrap();
 
     {
@@ -110,22 +129,23 @@ fn test_pause_resume() {
         assert!(sample_count > 0);
     }
 
-    cpu_workload();
+    workload();
     assert!(sampler.next_record().is_none());
 
     sampler.resume().unwrap();
-    cpu_workload();
+    workload();
     assert!(sampler.next_record().is_some());
 }
 
-#[test]
-fn test_ring_buffer() {
-    let builder = gen_builder(1 + (1 << 16));
-    let cfg = gen_cfg();
-    let mut sampler = builder.build_sampling(&cfg).unwrap();
+fn test_ring_buffer<F>(ev: &Event, workload: &mut F)
+where
+    F: FnMut(),
+{
+    let builder = gen_builder(1 + 512);
+    let mut sampler = builder.build_sampling(&gen_cfg(ev)).unwrap();
 
     sampler.enable().unwrap();
-    cpu_workload();
+    workload();
 
     let mut sample_count = 0_usize;
     for Record { body, .. } in sampler.iter() {
@@ -135,4 +155,21 @@ fn test_ring_buffer() {
     }
 
     assert!(sample_count > 10100);
+}
+
+fn test_stat<F>(ev: &Event, workload: &mut F)
+where
+    F: FnMut(),
+{
+    let builder = gen_builder(1 + 512);
+    let mut sampler = builder.build_sampling(&gen_cfg(ev)).unwrap();
+
+    sampler.enable().unwrap();
+    workload();
+    sampler.disable().unwrap();
+
+    let stat = sampler.stat().unwrap();
+    assert!(stat.event_count > 0);
+    assert!(stat.time_enabled > 0);
+    assert!(stat.time_running > 0);
 }

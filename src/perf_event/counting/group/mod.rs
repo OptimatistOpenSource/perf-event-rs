@@ -1,13 +1,15 @@
 mod fixed;
 mod guard;
 mod inner;
-mod result;
+mod stat;
+#[cfg(test)]
+mod tests;
 
 use crate::counting::group::guard::CounterGuard;
 use crate::counting::Config;
 use crate::infra::WrapResult;
 use libc::pid_t;
-pub use result::*;
+pub use stat::*;
 use std::io;
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
@@ -16,7 +18,7 @@ pub use fixed::*;
 #[allow(unused_imports)]
 pub use guard::*;
 #[allow(unused_imports)]
-pub use result::*;
+pub use stat::CounterGroupStat;
 
 pub struct CounterGroup {
     pid: pid_t,
@@ -52,7 +54,7 @@ impl CounterGroup {
         FixedCounterGroup::new(self.inner).wrap_ok()
     }
 
-    pub fn result(&mut self) -> io::Result<CounterGroupResult> {
-        self.inner_mut().result()
+    pub fn stat(&mut self) -> io::Result<CounterGroupStat> {
+        self.inner_mut().stat()
     }
 }
