@@ -34,7 +34,16 @@ pub enum BreakpointType {
 pub enum BreakpointLen {
     Len1,
     Len2,
+    // Len{3,5,6,7}: https://github.com/torvalds/linux/commit/651be3cb085341a21847e47c694c249c3e1e4e5b
+    #[cfg(feature = "linux-4.10")]
+    Len3,
     Len4,
+    #[cfg(feature = "linux-4.10")]
+    Len5,
+    #[cfg(feature = "linux-4.10")]
+    Len6,
+    #[cfg(feature = "linux-4.10")]
+    Len7,
     Len8,
 }
 
@@ -43,7 +52,15 @@ impl BreakpointLen {
         let val = match self {
             Self::Len1 => HW_BREAKPOINT_LEN_1,
             Self::Len2 => HW_BREAKPOINT_LEN_2,
+            #[cfg(feature = "linux-4.10")]
+            Self::Len3 => HW_BREAKPOINT_LEN_3,
             Self::Len4 => HW_BREAKPOINT_LEN_4,
+            #[cfg(feature = "linux-4.10")]
+            Self::Len5 => HW_BREAKPOINT_LEN_5,
+            #[cfg(feature = "linux-4.10")]
+            Self::Len6 => HW_BREAKPOINT_LEN_6,
+            #[cfg(feature = "linux-4.10")]
+            Self::Len7 => HW_BREAKPOINT_LEN_7,
             Self::Len8 => HW_BREAKPOINT_LEN_8,
         };
         val as u64

@@ -32,7 +32,7 @@ pub fn new<'t>(
         read_format: {
             #[allow(unused_mut)]
             #[allow(clippy::identity_op)] // for readable
-            let mut read_format = 0
+            let mut val = 0
                 | PERF_FORMAT_TOTAL_TIME_ENABLED
                 | PERF_FORMAT_TOTAL_TIME_RUNNING
                 | PERF_FORMAT_ID
@@ -40,11 +40,11 @@ pub fn new<'t>(
 
             #[cfg(feature = "linux-6.0")]
             {
-                read_format |= PERF_FORMAT_LOST;
+                val |= PERF_FORMAT_LOST;
             }
 
-            read_format
-        } as _,
+            val as _
+        },
         _bitfield_align_1: [],
         // set later via raw_attr.set_...
         _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]),

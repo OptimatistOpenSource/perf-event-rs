@@ -1,5 +1,5 @@
-use crate::counting::CounterGroupStat;
 use crate::sampling::record::sample_id::SampleId;
+use crate::sampling::SamplerGroupStat;
 
 mod raw;
 
@@ -7,7 +7,7 @@ mod raw;
 pub struct Body {
     pub pid: u32,
     pub tid: u32,
-    pub values: CounterGroupStat,
+    pub values: SamplerGroupStat,
     pub sample_id: Option<SampleId>,
 }
 
@@ -23,8 +23,8 @@ impl Body {
             pid: sized.pid,
             tid: sized.tid,
             values: {
-                let (header, body) = raw.values();
-                CounterGroupStat::from_raw(header, body)
+                let (head, values) = raw.values();
+                SamplerGroupStat::from_raw(head, values)
             },
             sample_id: sample_id_all.then(|| raw.sample_id()),
         }
