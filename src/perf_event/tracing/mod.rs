@@ -9,7 +9,7 @@ mod tests;
 use crate::infra::Vla;
 use crate::infra::WrapResult;
 use crate::sampling::record::Record;
-use crate::sampling::Sampler;
+use crate::sampling::{Sampler, SamplerStat};
 use crate::syscall::bindings::*;
 use crate::syscall::ioctl_wrapped;
 #[cfg(feature = "linux-4.17")]
@@ -25,6 +25,8 @@ pub use iter::*;
 pub struct Tracer {
     pub(crate) sampler: Sampler,
 }
+
+pub type TracerStat = SamplerStat;
 
 impl Tracer {
     pub(crate) unsafe fn new(
@@ -63,6 +65,10 @@ impl Tracer {
 
     pub fn next_record(&mut self) -> Option<Record> {
         self.sampler.next_record()
+    }
+
+    pub fn stat(&mut self) -> io::Result<TracerStat> {
+        self.sampler.stat()
     }
 
     pub fn event_id(&self) -> io::Result<u64> {

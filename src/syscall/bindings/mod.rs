@@ -9,13 +9,11 @@
 #[rustfmt::skip]
 mod bindgen;
 mod r#impl;
-mod read_format;
 
 #[rustfmt::skip]
 pub use bindgen::*;
 #[allow(unused_imports)]
 pub use r#impl::*;
-pub use read_format::*;
 
 #[cfg(feature = "linux-5.12")]
 #[allow(non_camel_case_types)]

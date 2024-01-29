@@ -1,6 +1,6 @@
 use crate::sampling::record::{Record, RecordBody};
 use crate::tracing::{Config, ExtraConfig};
-use crate::{BreakpointEvent, BreakpointLen, BreakpointType, Builder, EventScope};
+use crate::{BreakpointEvent, BreakpointLen, BreakpointType, Builder, Event, EventScope};
 
 fn gen_builder(mmap_pages: usize) -> Builder {
     Builder::new()
@@ -14,7 +14,7 @@ fn gen_cfg(bp_type: BreakpointType) -> Config {
     let mut extra_config = ExtraConfig::default();
     extra_config.sample_record_fields.addr = true;
     let scopes = EventScope::all();
-    Config::new(Event::from(event), scopes, &extra_config)
+    Config::new(&Event::from(event), &scopes, &extra_config)
 }
 
 #[test]
