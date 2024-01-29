@@ -2,6 +2,8 @@ mod fixed;
 mod guard;
 mod inner;
 mod stat;
+#[cfg(test)]
+mod tests;
 
 use crate::counting::group::guard::CounterGuard;
 use crate::counting::Config;

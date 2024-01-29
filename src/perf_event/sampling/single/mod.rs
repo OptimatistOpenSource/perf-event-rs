@@ -2,6 +2,8 @@ mod into_iter;
 mod iter;
 mod next_record;
 mod stat;
+#[cfg(test)]
+mod tests;
 
 use crate::infra::WrapResult;
 use crate::perf_event::RawAttr;

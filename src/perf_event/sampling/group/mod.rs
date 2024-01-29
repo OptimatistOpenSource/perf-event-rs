@@ -2,6 +2,8 @@ mod fixed;
 mod guard;
 mod inner;
 mod stat;
+#[cfg(test)]
+mod tests;
 
 use crate::infra::WrapResult;
 use crate::sampling::group::inner::Inner;

@@ -1,4 +1,6 @@
 mod stat;
+#[cfg(test)]
+mod tests;
 
 use crate::counting::single::stat::counter_stat;
 use crate::counting::Config;
