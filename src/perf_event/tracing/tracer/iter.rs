@@ -1,5 +1,5 @@
 use crate::sampling::record::Record;
-use crate::tracing::Tracer;
+use crate::tracing::tracer::Tracer;
 
 impl Tracer {
     #[inline]

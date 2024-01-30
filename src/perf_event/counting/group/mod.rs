@@ -13,6 +13,8 @@ pub use stat::*;
 use std::io;
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
+use crate::config;
+use crate::config::{Cpu, Process};
 use crate::counting::group::inner::Inner;
 pub use fixed::*;
 #[allow(unused_imports)]
@@ -27,12 +29,14 @@ pub struct CounterGroup {
 }
 
 impl CounterGroup {
-    pub(crate) unsafe fn new(pid: pid_t, cpu: i32) -> Self {
-        Self {
-            pid,
-            cpu,
-            inner: Arc::new(RwLock::new(Inner::new())),
-        }
+    pub fn new(process: &Process, cpu: &Cpu) -> config::Result<Self> {
+        let (pid, cpu) = match (process.as_i32()?, cpu.as_i32()) {
+            (-1, -1) => return Err(config::Error::InvalidProcessCpu),
+            (pid, cpu) => (pid, cpu),
+        };
+        let inner = Arc::new(RwLock::new(Inner::new()));
+
+        Ok(Self { pid, cpu, inner })
     }
 
     #[allow(dead_code)]
@@ -45,7 +49,9 @@ impl CounterGroup {
     }
 
     pub fn add_member(&mut self, cfg: &Config) -> io::Result<CounterGuard> {
-        let event_id = self.inner_mut().add_member(self.cpu, self.pid, cfg)?;
+        let event_id = self
+            .inner_mut()
+            .add_member(self.cpu, self.pid, cfg.as_raw())?;
         CounterGuard::new(event_id, self.inner.clone()).wrap_ok()
     }
 

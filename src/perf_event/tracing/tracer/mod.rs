@@ -1,19 +1,27 @@
+mod into_iter;
+mod iter;
+
+use crate::config::Error;
 #[cfg(feature = "linux-4.17")]
 use crate::infra::Vla;
+#[cfg(feature = "linux-4.17")]
 use crate::infra::WrapResult;
 use crate::sampling::record::Record;
 use crate::sampling::{Sampler, SamplerStat};
 use crate::syscall::bindings::*;
-use crate::syscall::ioctl_wrapped;
+use crate::syscall::{ioctl_wrapped, perf_event_open_wrapped};
+use memmap2::MmapOptions;
 #[cfg(feature = "linux-4.17")]
 use std::alloc::{alloc, Layout};
+use std::fs::File;
 use std::io;
+use std::os::fd::FromRawFd;
 
-mod into_iter;
-mod iter;
-
+use crate::config::{Cpu, Process};
 use crate::tracing::Config;
+#[allow(unused_imports)]
 pub use into_iter::*;
+#[allow(unused_imports)]
 pub use iter::*;
 
 pub struct Tracer {
@@ -23,16 +31,43 @@ pub struct Tracer {
 pub type TracerStat = SamplerStat;
 
 impl Tracer {
-    pub(crate) unsafe fn new(
-        cfg: &Config,
-        pid: i32,
-        cpu: i32,
-        group_fd: i32,
-        flags: u64,
+    pub fn new(
+        process: &Process,
+        cpu: &Cpu,
         mmap_pages: usize,
-    ) -> io::Result<Self> {
-        let sampler = Sampler::new_from_raw(cfg.as_raw(), pid, cpu, group_fd, flags, mmap_pages)?;
-        Self { sampler }.wrap_ok()
+        cfg: &Config,
+    ) -> crate::config::Result<Self> {
+        let (pid, cpu) = match (process.as_i32()?, cpu.as_i32()) {
+            (-1, -1) => return Err(Error::InvalidProcessCpu),
+            (pid, cpu) => (pid, cpu),
+        };
+        let raw_attr = cfg.as_raw();
+        let fd = unsafe { perf_event_open_wrapped(raw_attr, pid, cpu, -1, 0) }
+            .map_err(Error::SyscallFailed)?;
+        let file = unsafe { File::from_raw_fd(fd) };
+
+        let mmap = unsafe {
+            MmapOptions::new()
+                .len(page_size::get() * mmap_pages)
+                .map_mut(&file)
+        }
+        .unwrap();
+
+        let page_size = page_size::get();
+
+        let sampler = Sampler {
+            mmap,
+            file,
+            data_size: ((mmap_pages - 1) * page_size) as _,
+            data_offset: page_size as _,
+            sample_type: raw_attr.sample_type,
+            sample_id_all: raw_attr.sample_id_all() > 0,
+            regs_user_len: raw_attr.sample_regs_user.count_ones() as _,
+            #[cfg(feature = "linux-3.19")]
+            regs_intr_len: raw_attr.sample_regs_intr.count_ones() as _,
+        };
+
+        Ok(Self { sampler })
     }
 
     pub fn enable(&self) -> io::Result<()> {
