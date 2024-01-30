@@ -23,22 +23,23 @@ pub enum SoftwareEvent {
 impl SoftwareEvent {
     pub(crate) const fn as_u64(&self) -> u64 {
         use SoftwareEvent::*;
+        #[rustfmt::skip]
         let config = match self {
-            CpuClock => PERF_COUNT_SW_CPU_CLOCK,
-            TaskClock => PERF_COUNT_SW_TASK_CLOCK,
-            PageFaults => PERF_COUNT_SW_PAGE_FAULTS,
+            CpuClock        => PERF_COUNT_SW_CPU_CLOCK,
+            TaskClock       => PERF_COUNT_SW_TASK_CLOCK,
+            PageFaults      => PERF_COUNT_SW_PAGE_FAULTS,
             ContextSwitches => PERF_COUNT_SW_CONTEXT_SWITCHES,
-            CpuMigrations => PERF_COUNT_SW_CPU_MIGRATIONS,
-            PageFaultsMin => PERF_COUNT_SW_PAGE_FAULTS_MIN,
-            PageFaultsMaj => PERF_COUNT_SW_PAGE_FAULTS_MAJ,
+            CpuMigrations   => PERF_COUNT_SW_CPU_MIGRATIONS,
+            PageFaultsMin   => PERF_COUNT_SW_PAGE_FAULTS_MIN,
+            PageFaultsMaj   => PERF_COUNT_SW_PAGE_FAULTS_MAJ,
             AlignmentFaults => PERF_COUNT_SW_ALIGNMENT_FAULTS,
             EmulationFaults => PERF_COUNT_SW_EMULATION_FAULTS,
             #[cfg(feature = "linux-3.12")]
-            Dummy => PERF_COUNT_SW_DUMMY,
+            Dummy           => PERF_COUNT_SW_DUMMY,
             #[cfg(feature = "linux-4.4")]
-            BpfOutput => PERF_COUNT_SW_BPF_OUTPUT,
+            BpfOutput       => PERF_COUNT_SW_BPF_OUTPUT,
             #[cfg(feature = "linux-5.13")]
-            CgroupSwitches => PERF_COUNT_SW_CGROUP_SWITCHES,
+            CgroupSwitches  => PERF_COUNT_SW_CGROUP_SWITCHES,
         };
         config as _
     }
