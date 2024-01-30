@@ -14,7 +14,7 @@ impl CacheOp {
         let id = match self {
             Read => PERF_COUNT_HW_CACHE_OP_READ,
             Write => PERF_COUNT_HW_CACHE_OP_WRITE,
-            Prefetch => PERF_COUNT_HW_CACHE_OP_WRITE,
+            Prefetch => PERF_COUNT_HW_CACHE_OP_PREFETCH,
         };
         id as _
     }
