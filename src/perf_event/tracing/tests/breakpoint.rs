@@ -1,5 +1,5 @@
 use crate::sampling::record::{Record, RecordBody};
-use crate::tracing::tests::{gen_builder, gen_cfg};
+use crate::tracing::tests::{gen_cfg, gen_tracer};
 use crate::{BreakpointEvent, BreakpointLen, BreakpointType, Event};
 
 fn test<F>(ev: &Event, workload: &mut F, addr: u64)
@@ -14,8 +14,7 @@ fn test_next_record<F>(ev: &Event, workload: &mut F, addr: u64)
 where
     F: FnMut(),
 {
-    let builder = gen_builder(1 + 512);
-    let mut tracer = builder.build_tracing(&gen_cfg(ev)).unwrap();
+    let mut tracer = gen_tracer(&gen_cfg(ev));
 
     tracer.enable().unwrap();
     workload();
@@ -35,8 +34,7 @@ fn test_stat<F>(ev: &Event, workload: &mut F)
 where
     F: FnMut(),
 {
-    let builder = gen_builder(1 + 512);
-    let mut tracer = builder.build_tracing(&gen_cfg(ev)).unwrap();
+    let mut tracer = gen_tracer(&gen_cfg(ev));
 
     tracer.enable().unwrap();
     workload();

@@ -1,9 +1,10 @@
 mod hardware;
 mod software;
 
+use crate::config::{Cpu, Process};
 use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Config, ExtraConfig, FixedSamplerGroup, OverflowBy, SamplerGuard};
-use crate::{Builder, Event, EventScope};
+use crate::sampling::{Config, FixedSamplerGroup, OverflowBy, SamplerGroup, SamplerGuard};
+use crate::{Event, EventScope};
 
 pub fn test_group<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)
 where
@@ -17,26 +18,22 @@ where
     test_guard_stat(ev_1, ev_2, workload);
 }
 
-fn gen_builder() -> Builder {
-    Builder::new()
-        .calling_process()
-        .any_cpu()
-        .ring_buffer_pages(1 + 512)
+fn gen_group() -> SamplerGroup {
+    let mmap_pages = 1 + 512;
+    SamplerGroup::new(&Process::Current, &Cpu::Any, mmap_pages).unwrap()
 }
 
 fn gen_cfg(ev: &Event) -> Config {
     let scopes = [EventScope::User, EventScope::Host];
     let overflow_by = OverflowBy::Period(1000);
-    let extra_config = ExtraConfig::default();
-    Config::new(&ev, &scopes, &overflow_by, &extra_config)
+    Config::new(&ev, &scopes, &overflow_by)
 }
 
 fn test_next_record<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)
 where
     F: FnMut(),
 {
-    let builder = gen_builder();
-    let mut group = builder.build_sampling_group().unwrap();
+    let mut group = gen_group();
     let ev_1_guard = group.add_member(&gen_cfg(ev_1)).unwrap();
     let ev_2_guard = group.add_member(&gen_cfg(ev_2)).unwrap();
 
@@ -72,8 +69,7 @@ fn test_enable_disable<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)
 where
     F: FnMut(),
 {
-    let builder = gen_builder();
-    let mut group = builder.build_sampling_group().unwrap();
+    let mut group = gen_group();
     let ev_1_guard = group.add_member(&gen_cfg(ev_1)).unwrap();
     let ev_2_guard = group.add_member(&gen_cfg(ev_2)).unwrap();
 
@@ -109,8 +105,7 @@ fn test_guard_basic<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)
 where
     F: FnMut(),
 {
-    let builder = gen_builder();
-    let mut group = builder.build_sampling_group().unwrap();
+    let mut group = gen_group();
     let mut ev_1_guard = group.add_member(&gen_cfg(ev_1)).unwrap();
     let mut ev_2_guard = group.add_member(&gen_cfg(ev_2)).unwrap();
 
@@ -142,8 +137,7 @@ fn test_guard_enable_disable<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)
 where
     F: FnMut(),
 {
-    let builder = gen_builder();
-    let mut group = builder.build_sampling_group().unwrap();
+    let mut group = gen_group();
     let mut ev_1_guard = group.add_member(&gen_cfg(ev_1)).unwrap();
     let mut ev_2_guard = group.add_member(&gen_cfg(ev_2)).unwrap();
 
@@ -179,8 +173,7 @@ fn test_stat<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)
 where
     F: FnMut(),
 {
-    let builder = gen_builder();
-    let mut group = builder.build_sampling_group().unwrap();
+    let mut group = gen_group();
     let ev_1_guard = group.add_member(&gen_cfg(ev_1)).unwrap();
     let ev_2_guard = group.add_member(&gen_cfg(ev_2)).unwrap();
 
@@ -209,8 +202,7 @@ fn test_guard_stat<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)
 where
     F: FnMut(),
 {
-    let builder = gen_builder();
-    let mut group = builder.build_sampling_group().unwrap();
+    let mut group = gen_group();
     let mut ev_1_guard = group.add_member(&gen_cfg(ev_1)).unwrap();
     let mut ev_2_guard = group.add_member(&gen_cfg(ev_2)).unwrap();
 

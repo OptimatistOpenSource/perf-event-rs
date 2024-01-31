@@ -1,8 +1,9 @@
 mod hardware;
 mod software;
 
+use crate::config::{Cpu, Process};
 use crate::counting::{Config, CounterGroup};
-use crate::{Builder, Event, EventScope};
+use crate::{Event, EventScope};
 
 /// rate = ev_1 / ev_2
 pub fn test_group<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)
@@ -16,13 +17,12 @@ where
 }
 
 fn gen_group() -> CounterGroup {
-    let builder = Builder::new().calling_process().any_cpu();
-    builder.build_counting_group().unwrap()
+    CounterGroup::new(&Process::Current, &Cpu::Any).unwrap()
 }
 
 fn gen_cfg(ev: &Event) -> Config {
     let scopes = [EventScope::User, EventScope::Host];
-    Config::new(ev, &scopes, &Default::default())
+    Config::new(ev, &scopes)
 }
 
 fn test_stat<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)

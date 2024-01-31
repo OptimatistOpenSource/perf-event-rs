@@ -2,11 +2,12 @@ mod stat;
 #[cfg(test)]
 mod tests;
 
+use crate::config;
+use crate::config::{Cpu, Error, Process};
 use crate::counting::single::stat::counter_stat;
 use crate::counting::Config;
-use crate::infra::WrapResult;
 use crate::syscall::bindings::*;
-use crate::syscall::{ioctl_wrapped, perf_event_open};
+use crate::syscall::{ioctl_wrapped, perf_event_open_wrapped};
 pub use stat::CounterStat;
 use std::fs::File;
 use std::io;
@@ -17,21 +18,16 @@ pub struct Counter {
 }
 
 impl Counter {
-    pub(crate) unsafe fn new(
-        cfg: &Config,
-        pid: i32,
-        cpu: i32,
-        group_fd: i32,
-        flags: u64,
-    ) -> io::Result<Self> {
-        let i32 = unsafe { perf_event_open(cfg.as_raw(), pid, cpu, group_fd, flags) };
-        match i32 {
-            -1 => Err(io::Error::last_os_error()),
-            fd => Self {
-                file: File::from_raw_fd(fd),
-            }
-            .wrap_ok(),
-        }
+    pub fn new(process: &Process, cpu: &Cpu, cfg: &Config) -> config::Result<Self> {
+        let (pid, cpu) = match (process.as_i32()?, cpu.as_i32()) {
+            (-1, -1) => return Err(Error::InvalidProcessCpu),
+            (pid, cpu) => (pid, cpu),
+        };
+        let fd = unsafe { perf_event_open_wrapped(cfg.as_raw(), pid, cpu, -1, 0) }
+            .map_err(Error::SyscallFailed)?;
+        let file = unsafe { File::from_raw_fd(fd) };
+
+        Ok(Self { file })
     }
 
     pub fn enable(&self) -> io::Result<()> {

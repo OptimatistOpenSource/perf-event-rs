@@ -13,6 +13,8 @@ use libc::pid_t;
 use std::io;
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
+use crate::config;
+use crate::config::{Cpu, Error, Process};
 pub use fixed::*;
 pub use guard::*;
 pub use stat::{MemberCount, SamplerGroupStat};
@@ -25,13 +27,20 @@ pub struct SamplerGroup {
 }
 
 impl SamplerGroup {
-    pub(crate) unsafe fn new(pid: pid_t, cpu: i32, mmap_pages: usize) -> Self {
+    pub fn new(process: &Process, cpu: &Cpu, mmap_pages: usize) -> config::Result<Self> {
+        let (pid, cpu) = match (process.as_i32()?, cpu.as_i32()) {
+            (-1, -1) => return Err(Error::InvalidProcessCpu),
+            (pid, cpu) => (pid, cpu),
+        };
+        let inner = Arc::new(RwLock::new(Inner::new()));
+
         Self {
             pid,
             cpu,
+            inner,
             mmap_pages,
-            inner: Arc::new(RwLock::new(Inner::new())),
         }
+        .wrap_ok()
     }
 
     fn inner(&self) -> RwLockReadGuard<'_, Inner> {
@@ -43,9 +52,9 @@ impl SamplerGroup {
     }
 
     pub fn add_member(&mut self, cfg: &Config) -> io::Result<SamplerGuard> {
-        let event_id = self
-            .inner_mut()
-            .add_member(self.pid, self.cpu, cfg, self.mmap_pages)?;
+        let event_id =
+            self.inner_mut()
+                .add_member(self.pid, self.cpu, self.mmap_pages, cfg.as_raw())?;
         SamplerGuard::new(event_id, self.inner.clone()).wrap_ok()
     }
 

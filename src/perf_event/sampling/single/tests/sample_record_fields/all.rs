@@ -1,22 +1,20 @@
+use crate::config::{Cpu, Process};
 use crate::sampling::record::sample::WeightRepr;
 use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Config, ExtraConfig, OverflowBy, SampleRecordFields};
+use crate::sampling::{Config, ExtraConfig, OverflowBy, SampleRecordFields, Sampler};
 use crate::test::cpu_workload;
-use crate::{Builder, Event, EventScope, HardwareEvent};
+use crate::{Event, EventScope, HardwareEvent};
 
-fn gen_builder() -> Builder {
+fn gen_sampler(cfg: &Config) -> Sampler {
     let mmap_pages = 1 + 512;
-    Builder::new()
-        .calling_process()
-        .any_cpu()
-        .ring_buffer_pages(mmap_pages)
+    Sampler::new(&Process::Current, &Cpu::Any, mmap_pages, cfg).unwrap()
 }
 
 fn gen_cfg(extra_config: ExtraConfig) -> Config {
     let event = HardwareEvent::CpuCycles;
     let scopes = [EventScope::User, EventScope::Host];
     let overflow_by = OverflowBy::Period(1000);
-    Config::new(&Event::from(event), &scopes, &overflow_by, &extra_config)
+    Config::extra_new(&Event::from(event), &scopes, &overflow_by, &extra_config)
 }
 
 #[test]
@@ -53,10 +51,9 @@ fn test() {
         #[cfg(feature = "linux-5.11")]
         code_page_size: true,
     };
-    let builder = gen_builder();
     let cfg = gen_cfg(extra_config);
+    let mut sampler = gen_sampler(&cfg);
 
-    let mut sampler = builder.build_sampling(&cfg).unwrap();
     sampler.enable().unwrap();
     cpu_workload();
     sampler.disable().unwrap();
