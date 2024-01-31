@@ -18,7 +18,11 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new<'t>(
+    pub fn new<'t>(event: &Event, scopes: impl IntoIterator<Item = &'t EventScope>) -> Self {
+        Self::extra_new(event, scopes, &Default::default())
+    }
+
+    pub fn extra_new<'t>(
         event: &Event,
         scopes: impl IntoIterator<Item = &'t EventScope>,
         extra_config: &ExtraConfig,

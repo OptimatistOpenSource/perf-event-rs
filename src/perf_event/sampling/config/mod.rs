@@ -32,6 +32,14 @@ impl Config {
         event: &Event,
         scopes: impl IntoIterator<Item = &'t EventScope>,
         overflow_by: &OverflowBy,
+    ) -> Self {
+        Self::extra_new(event, scopes, overflow_by, &Default::default())
+    }
+
+    pub fn extra_new<'t>(
+        event: &Event,
+        scopes: impl IntoIterator<Item = &'t EventScope>,
+        overflow_by: &OverflowBy,
         extra_config: &ExtraConfig,
     ) -> Self {
         new::new(event, scopes, overflow_by, extra_config)
