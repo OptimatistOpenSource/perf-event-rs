@@ -1,9 +1,9 @@
+use crate::config::{Cpu, Process};
 use crate::sampling::record::sample::WeightRepr;
 use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Config, ExtraConfig, OverflowBy, Sampler, SampleRecordFields};
+use crate::sampling::{Config, ExtraConfig, OverflowBy, SampleRecordFields, Sampler};
 use crate::test::cpu_workload;
 use crate::{Event, EventScope, HardwareEvent};
-use crate::config::{Cpu, Process};
 
 fn gen_sampler(cfg: &Config) -> Sampler {
     let mmap_pages = 1 + 512;

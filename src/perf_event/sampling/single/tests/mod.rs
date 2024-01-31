@@ -2,10 +2,10 @@ mod hardware;
 mod sample_record_fields;
 mod software;
 
+use crate::config::{Cpu, Process};
 use crate::sampling::record::{Record, RecordBody};
 use crate::sampling::{Config, ExtraConfig, OverflowBy, Sampler};
 use crate::{Event, EventScope};
-use crate::config::{Cpu, Process};
 
 pub fn test_single<F>(ev: &Event, workload: &mut F)
 where
