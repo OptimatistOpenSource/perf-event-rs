@@ -7,23 +7,21 @@ mod ips;
 mod weight;
 
 use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Config, ExtraConfig, OverflowBy};
+use crate::sampling::{Config, ExtraConfig, OverflowBy, Sampler};
 use crate::test::cpu_workload;
-use crate::{Builder, Event, EventScope, HardwareEvent};
+use crate::{Event, EventScope, HardwareEvent};
+use crate::config::{Cpu, Process};
 
-fn gen_builder() -> Builder {
+fn gen_sampler(cfg: &Config) -> Sampler {
     let mmap_pages = 1 + 512;
-    Builder::new()
-        .calling_process()
-        .any_cpu()
-        .ring_buffer_pages(mmap_pages)
+    Sampler::new(&Process::Current, &Cpu::Any, mmap_pages, cfg).unwrap()
 }
 
 fn gen_cfg(extra_config: ExtraConfig) -> Config {
     let event = HardwareEvent::CpuCycles;
     let scopes = [EventScope::User, EventScope::Host];
     let overflow_by = OverflowBy::Period(1000);
-    Config::new(&Event::from(event), &scopes, &overflow_by, &extra_config)
+    Config::extra_new(&Event::from(event), &scopes, &overflow_by, &extra_config)
 }
 
 macro_rules! gen_test {
@@ -33,10 +31,9 @@ macro_rules! gen_test {
             let mut extra_config = ExtraConfig::default();
             extra_config.sample_record_fields.$field = true;
 
-            let builder = gen_builder();
             let cfg = gen_cfg(extra_config);
+            let mut sampler = gen_sampler(&cfg);
 
-            let mut sampler = builder.build_sampling(&cfg).unwrap();
             sampler.enable().unwrap();
             cpu_workload();
             sampler.disable().unwrap();
@@ -62,10 +59,9 @@ fn pid_and_tid() {
     let mut extra_config = ExtraConfig::default();
     extra_config.sample_record_fields.pid_and_tid = true;
 
-    let builder = gen_builder();
     let cfg = gen_cfg(extra_config);
+    let mut sampler = gen_sampler(&cfg);
 
-    let mut sampler = builder.build_sampling(&cfg).unwrap();
     sampler.enable().unwrap();
     cpu_workload();
     sampler.disable().unwrap();
