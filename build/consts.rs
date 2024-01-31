@@ -1,6 +1,6 @@
 // [(major, patch_level, is_selected)]
 #[rustfmt::skip]
-pub const LINUX_FEATURE_VERSIONS: [(usize, usize, bool); 26] = [
+pub const LINUX_FEATURE_VERSIONS: [(usize, usize, bool); 27] = [
     (6, 3, cfg!(feature = "linux-6.3" )),
     (6, 0, cfg!(feature = "linux-6.0" )),
     (5,16, cfg!(feature = "linux-5.16")),
@@ -17,6 +17,7 @@ pub const LINUX_FEATURE_VERSIONS: [(usize, usize, bool); 26] = [
     (4,16, cfg!(feature = "linux-4.16")),
     (4,14, cfg!(feature = "linux-4.14")),
     (4,12, cfg!(feature = "linux-4.12")),
+    (4,10, cfg!(feature = "linux-4.10")),
     (4, 8, cfg!(feature = "linux-4.8" )),
     (4, 7, cfg!(feature = "linux-4.7" )),
     (4, 4, cfg!(feature = "linux-4.4" )),
