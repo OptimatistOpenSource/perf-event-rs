@@ -11,12 +11,13 @@ pub enum CacheOp {
 impl CacheOp {
     const fn as_u64(&self) -> u64 {
         use CacheOp::*;
-        let id = match self {
-            Read => PERF_COUNT_HW_CACHE_OP_READ,
-            Write => PERF_COUNT_HW_CACHE_OP_WRITE,
+        #[rustfmt::skip]
+        let val = match self {
+            Read     => PERF_COUNT_HW_CACHE_OP_READ,
+            Write    => PERF_COUNT_HW_CACHE_OP_WRITE,
             Prefetch => PERF_COUNT_HW_CACHE_OP_PREFETCH,
         };
-        id as _
+        val as _
     }
 }
 
@@ -29,14 +30,16 @@ pub enum CacheOpResult {
 impl CacheOpResult {
     const fn as_u64(&self) -> u64 {
         use CacheOpResult::*;
-        let id = match self {
+        #[rustfmt::skip]
+        let val = match self {
             Access => PERF_COUNT_HW_CACHE_RESULT_ACCESS,
-            Miss => PERF_COUNT_HW_CACHE_RESULT_MISS,
+            Miss   => PERF_COUNT_HW_CACHE_RESULT_MISS,
         };
-        id as _
+        val as _
     }
 }
 
+#[rustfmt::skip]
 #[derive(Clone, Debug)]
 pub enum HardwareEvent {
     CpuCycles,
@@ -49,12 +52,12 @@ pub enum HardwareEvent {
     StalledCyclesFrontend,
     StalledCyclesBackend,
     RefCpuCycles,
-    CacheL1d(CacheOp, CacheOpResult),
-    CacheL1i(CacheOp, CacheOpResult),
-    CacheLl(CacheOp, CacheOpResult),
+    CacheL1d (CacheOp, CacheOpResult),
+    CacheL1i (CacheOp, CacheOpResult),
+    CacheLl  (CacheOp, CacheOpResult),
     CacheDtlb(CacheOp, CacheOpResult),
     CacheItlb(CacheOp, CacheOpResult),
-    CacheBpu(CacheOp, CacheOpResult),
+    CacheBpu (CacheOp, CacheOpResult),
     CacheNode(CacheOp, CacheOpResult),
 }
 
@@ -77,40 +80,28 @@ impl HardwareEvent {
         const fn calc_cache_config(id: perf_hw_id, op: u64, op_result: u64) -> perf_hw_id {
             (id as u64 | (op << 8) | (op_result << 16)) as _
         }
-        let config = match self {
-            CpuCycles => PERF_COUNT_HW_CPU_CYCLES,
-            Instructions => PERF_COUNT_HW_INSTRUCTIONS,
-            CacheReferences => PERF_COUNT_HW_CACHE_REFERENCES,
-            CacheMisses => PERF_COUNT_HW_CACHE_MISSES,
-            BranchInstructions => PERF_COUNT_HW_BRANCH_INSTRUCTIONS,
-            BranchMisses => PERF_COUNT_HW_BRANCH_MISSES,
-            BusCycles => PERF_COUNT_HW_BUS_CYCLES,
+
+        #[rustfmt::skip]
+        let val = match self {
+            CpuCycles             => PERF_COUNT_HW_CPU_CYCLES,
+            Instructions          => PERF_COUNT_HW_INSTRUCTIONS,
+            CacheReferences       => PERF_COUNT_HW_CACHE_REFERENCES,
+            CacheMisses           => PERF_COUNT_HW_CACHE_MISSES,
+            BranchInstructions    => PERF_COUNT_HW_BRANCH_INSTRUCTIONS,
+            BranchMisses          => PERF_COUNT_HW_BRANCH_MISSES,
+            BusCycles             => PERF_COUNT_HW_BUS_CYCLES,
             StalledCyclesFrontend => PERF_COUNT_HW_STALLED_CYCLES_FRONTEND,
-            StalledCyclesBackend => PERF_COUNT_HW_STALLED_CYCLES_BACKEND,
-            RefCpuCycles => PERF_COUNT_HW_REF_CPU_CYCLES,
-            CacheL1d(op, op_result) => {
-                calc_cache_config(PERF_COUNT_HW_CACHE_L1D, op.as_u64(), op_result.as_u64())
-            }
-            CacheL1i(op, op_result) => {
-                calc_cache_config(PERF_COUNT_HW_CACHE_L1I, op.as_u64(), op_result.as_u64())
-            }
-            CacheLl(op, op_result) => {
-                calc_cache_config(PERF_COUNT_HW_CACHE_LL, op.as_u64(), op_result.as_u64())
-            }
-            CacheDtlb(op, op_result) => {
-                calc_cache_config(PERF_COUNT_HW_CACHE_DTLB, op.as_u64(), op_result.as_u64())
-            }
-            CacheItlb(op, op_result) => {
-                calc_cache_config(PERF_COUNT_HW_CACHE_ITLB, op.as_u64(), op_result.as_u64())
-            }
-            CacheBpu(op, op_result) => {
-                calc_cache_config(PERF_COUNT_HW_CACHE_BPU, op.as_u64(), op_result.as_u64())
-            }
-            CacheNode(op, op_result) => {
-                calc_cache_config(PERF_COUNT_HW_CACHE_NODE, op.as_u64(), op_result.as_u64())
-            }
+            StalledCyclesBackend  => PERF_COUNT_HW_STALLED_CYCLES_BACKEND,
+            RefCpuCycles          => PERF_COUNT_HW_REF_CPU_CYCLES,
+            CacheL1d (o, r) => calc_cache_config(PERF_COUNT_HW_CACHE_L1D,  o.as_u64(), r.as_u64()),
+            CacheL1i (o, r) => calc_cache_config(PERF_COUNT_HW_CACHE_L1I,  o.as_u64(), r.as_u64()),
+            CacheLl  (o, r) => calc_cache_config(PERF_COUNT_HW_CACHE_LL,   o.as_u64(), r.as_u64()),
+            CacheDtlb(o, r) => calc_cache_config(PERF_COUNT_HW_CACHE_DTLB, o.as_u64(), r.as_u64()),
+            CacheItlb(o, r) => calc_cache_config(PERF_COUNT_HW_CACHE_ITLB, o.as_u64(), r.as_u64()),
+            CacheBpu (o, r) => calc_cache_config(PERF_COUNT_HW_CACHE_BPU,  o.as_u64(), r.as_u64()),
+            CacheNode(o, r) => calc_cache_config(PERF_COUNT_HW_CACHE_NODE, o.as_u64(), r.as_u64()),
         };
-        config as _
+        val as _
     }
 }
 

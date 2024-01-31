@@ -76,23 +76,25 @@ impl ExtraRecord {
     }
 
     pub(crate) fn enable_in_raw_attr(&self, raw_attr: &mut RawAttr) {
-        match self {
-            Self::Mmap => raw_attr.set_mmap(1),
+        #[rustfmt::skip]
+        let val = match self {
+            Self::Mmap          => raw_attr.set_mmap(1),
             #[cfg(feature = "linux-3.12")]
-            Self::Mmap2 => raw_attr.set_mmap2(1),
+            Self::Mmap2         => raw_attr.set_mmap2(1),
             #[cfg(feature = "linux-4.3")]
             Self::ContextSwitch => raw_attr.set_context_switch(1),
             #[cfg(feature = "linux-4.12")]
-            Self::Namespaces => raw_attr.set_namespaces(1),
+            Self::Namespaces    => raw_attr.set_namespaces(1),
             #[cfg(feature = "linux-5.1")]
-            Self::Ksymbol => raw_attr.set_ksymbol(1),
+            Self::Ksymbol       => raw_attr.set_ksymbol(1),
             #[cfg(feature = "linux-5.1")]
-            Self::BpfEvent => raw_attr.set_bpf_event(1),
+            Self::BpfEvent      => raw_attr.set_bpf_event(1),
             #[cfg(feature = "linux-5.7")]
-            Self::Cgroup => raw_attr.set_cgroup(1),
+            Self::Cgroup        => raw_attr.set_cgroup(1),
             #[cfg(feature = "linux-5.9")]
-            Self::TextPoke => raw_attr.set_text_poke(1),
-            Self::ForkAndExit => raw_attr.set_task(1),
-        }
+            Self::TextPoke      => raw_attr.set_text_poke(1),
+            Self::ForkAndExit   => raw_attr.set_task(1),
+        };
+        val
     }
 }

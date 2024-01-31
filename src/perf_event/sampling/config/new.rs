@@ -65,13 +65,14 @@ pub fn new<'t>(
         branch_sample_type: 0, // TODO: Not all hardware supports this feature
         sample_regs_user: sample_record_fields.abi_and_regs_user.unwrap_or(0),
         sample_stack_user: sample_record_fields.data_stack_user.unwrap_or(0) as _,
+        #[rustfmt::skip]
         #[cfg(feature = "linux-4.1")]
         clockid: extra_config.clockid.as_ref().map_or(0, |id| match id {
-            ClockId::Monotonic => CLOCK_MONOTONIC,
+            ClockId::Monotonic    => CLOCK_MONOTONIC,
             ClockId::MonotonicRaw => CLOCK_MONOTONIC_RAW,
-            ClockId::RealTime => CLOCK_REALTIME,
-            ClockId::BootTime => CLOCK_BOOTTIME,
-            ClockId::Tai => CLOCK_TAI,
+            ClockId::RealTime     => CLOCK_REALTIME,
+            ClockId::BootTime     => CLOCK_BOOTTIME,
+            ClockId::Tai          => CLOCK_TAI,
         }) as _,
         #[cfg(feature = "linux-3.19")]
         sample_regs_intr: sample_record_fields.abi_and_regs_intr.unwrap_or(0),
