@@ -5,7 +5,6 @@ mod stat;
 #[cfg(test)]
 mod tests;
 
-use crate::counting::group::guard::CounterGuard;
 use crate::counting::Config;
 use crate::infra::WrapResult;
 use libc::pid_t;
