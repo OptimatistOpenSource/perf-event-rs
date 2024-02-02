@@ -26,6 +26,9 @@ pub struct ExtraConfig {
     #[cfg(feature = "linux-5.13")]
     pub remove_on_exec: bool,
 
+    pub include_callchain_kernel: bool,
+    pub include_callchain_user: bool,
+
     #[cfg(feature = "linux-4.1")]
     pub clockid: Option<ClockId>,
     pub precise_ip: SampleIpSkid,
@@ -63,6 +66,9 @@ impl Default for ExtraConfig {
             enable_on_exec: false,
             #[cfg(feature = "linux-5.13")]
             remove_on_exec: false,
+
+            include_callchain_kernel: false,
+            include_callchain_user: false,
 
             #[cfg(feature = "linux-4.1")]
             clockid: None,
