@@ -77,7 +77,7 @@ impl ExtraRecord {
 
     pub(crate) fn enable_in_raw_attr(&self, raw_attr: &mut RawAttr) {
         #[rustfmt::skip]
-        let val = match self {
+        match self {
             Self::Mmap          => raw_attr.set_mmap(1),
             #[cfg(feature = "linux-3.12")]
             Self::Mmap2         => raw_attr.set_mmap2(1),
@@ -95,6 +95,5 @@ impl ExtraRecord {
             Self::TextPoke      => raw_attr.set_text_poke(1),
             Self::ForkAndExit   => raw_attr.set_task(1),
         };
-        val
     }
 }
