@@ -9,8 +9,8 @@ use std::{io, slice};
 pub struct SamplerGroupStat {
     pub time_enabled: u64,
     pub time_running: u64,
-    // Map of event_id -> MemberCount
-    member_counts: HashMap<u64, MemberCount>,
+    /// Map of `event_id` -> [`MemberCount`]
+    pub member_counts: HashMap<u64, MemberCount>,
 }
 
 #[derive(Debug, Clone)]

@@ -10,8 +10,8 @@ use std::{io, slice};
 pub struct CounterGroupStat {
     pub time_enabled: u64,
     pub time_running: u64,
-    // Map of event_id -> event_count
-    member_counts: HashMap<u64, u64>,
+    /// Map of `event_id` -> `event_count`
+    pub member_counts: HashMap<u64, u64>,
 }
 
 impl CounterGroupStat {
