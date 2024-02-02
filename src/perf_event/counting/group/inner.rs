@@ -64,7 +64,7 @@ impl Inner {
         )
     }
 
-    pub fn reset_count(&self) -> io::Result<()> {
+    pub fn reset(&self) -> io::Result<()> {
         self.leader().map_or_else(
             || Err(io::Error::new(ErrorKind::Other, "Group has no members")),
             |leader| {

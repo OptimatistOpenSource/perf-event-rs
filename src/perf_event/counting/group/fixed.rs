@@ -28,8 +28,8 @@ impl FixedCounterGroup {
         self.inner().disable()
     }
 
-    pub fn reset_count(&self) -> io::Result<()> {
-        self.inner().reset_count()
+    pub fn reset(&self) -> io::Result<()> {
+        self.inner().reset()
     }
 
     pub fn stat(&mut self) -> io::Result<CounterGroupStat> {

@@ -12,7 +12,7 @@ where
 {
     test_stat(ev_1, ev_2, workload);
     test_enable_disable(ev_1, ev_2, workload);
-    test_reset_count(ev_1, ev_2, workload);
+    test_reset(ev_1, ev_2, workload);
     test_guard(ev_1, ev_2, workload);
 }
 
@@ -99,7 +99,7 @@ where
     assert!(evs.member_count(&ev_2_guard).unwrap() > ev_2);
 }
 
-fn test_reset_count<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)
+fn test_reset<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)
 where
     F: FnMut(),
 {
@@ -119,7 +119,7 @@ where
         assert!(ev_2 > 0);
     }
 
-    group.reset_count().unwrap();
+    group.reset().unwrap();
 
     {
         let evs = group.stat().unwrap();

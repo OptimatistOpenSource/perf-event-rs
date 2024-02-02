@@ -38,7 +38,7 @@ impl Counter {
         ioctl_wrapped::<()>(&self.file, PERF_EVENT_IOCTL_DISABLE, None)
     }
 
-    pub fn reset_count(&self) -> io::Result<()> {
+    pub fn reset(&self) -> io::Result<()> {
         ioctl_wrapped::<()>(&self.file, PERF_EVENT_IOCTL_RESET, None)
     }
 
