@@ -30,6 +30,10 @@ impl FixedSamplerGroup {
         self.inner().disable()
     }
 
+    pub fn reset(&self) -> io::Result<()> {
+        self.inner().reset()
+    }
+
     pub fn next_record(&mut self, guard: &SamplerGuard) -> Option<Record> {
         self.inner_mut().next_record(guard.event_id())
     }

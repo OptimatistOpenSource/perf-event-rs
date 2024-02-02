@@ -101,6 +101,19 @@ impl Inner {
         )
     }
 
+    pub fn reset(&self) -> io::Result<()> {
+        self.leader().map_or_else(
+            || Err(io::Error::new(ErrorKind::Other, "Group has no members")),
+            |leader| {
+                ioctl_wrapped(
+                    &leader.file,
+                    PERF_EVENT_IOCTL_RESET,
+                    Some(PERF_IOC_FLAG_GROUP),
+                )
+            },
+        )
+    }
+
     pub fn next_record(&mut self, event_id: u64) -> Option<Record> {
         self.members
             .get_mut(&event_id)
