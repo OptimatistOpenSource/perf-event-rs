@@ -95,6 +95,10 @@ impl Sampler {
         ioctl_wrapped::<()>(&self.file, PERF_EVENT_IOCTL_DISABLE, None)
     }
 
+    pub fn reset(&self) -> io::Result<()> {
+        ioctl_wrapped::<()>(&self.file, PERF_EVENT_IOCTL_RESET, None)
+    }
+
     #[cfg(feature = "linux-4.7")]
     pub fn pause(&self) -> io::Result<()> {
         ioctl_wrapped(&self.file, PERF_EVENT_IOCTL_PAUSE_OUTPUT, Some(1i32))

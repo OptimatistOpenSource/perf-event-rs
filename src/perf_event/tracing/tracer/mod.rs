@@ -78,6 +78,10 @@ impl Tracer {
         self.sampler.disable()
     }
 
+    pub fn reset(&self) -> io::Result<()> {
+        self.sampler.reset()
+    }
+
     #[cfg(feature = "linux-4.7")]
     pub fn pause(&self) -> io::Result<()> {
         self.sampler.pause()
