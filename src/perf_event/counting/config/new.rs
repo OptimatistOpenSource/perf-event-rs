@@ -85,6 +85,7 @@ pub fn new<'t>(
 
     raw_attr.set_exclude_host(1);
     raw_attr.set_exclude_guest(1);
+
     raw_attr.set_exclude_callchain_kernel(1);
     raw_attr.set_exclude_callchain_user(1);
 

@@ -140,8 +140,9 @@ pub fn new<'t>(
 
     raw_attr.set_exclude_host(1);
     raw_attr.set_exclude_guest(1);
-    raw_attr.set_exclude_callchain_kernel(1);
-    raw_attr.set_exclude_callchain_user(1);
+
+    raw_attr.set_exclude_callchain_kernel(extra_config.include_callchain_kernel.not() as _);
+    raw_attr.set_exclude_callchain_user(extra_config.include_callchain_user.not() as _);
 
     #[cfg(feature = "linux-3.12")]
     raw_attr.set_mmap2(0);
