@@ -11,7 +11,7 @@ where
 {
     test_stat(ev, workload);
     test_enable_disable(ev, workload);
-    test_reset_count(ev, workload);
+    test_reset(ev, workload);
 }
 
 fn gen_counter(ev: &Event) -> Counter {
@@ -58,7 +58,7 @@ where
     assert!(after < counter.stat().unwrap().event_count);
 }
 
-fn test_reset_count<F>(ev: &Event, workload: &mut F)
+fn test_reset<F>(ev: &Event, workload: &mut F)
 where
     F: FnMut(),
 {
@@ -71,7 +71,7 @@ where
     assert!(count > 0);
 
     counter.disable().unwrap();
-    counter.reset_count().unwrap();
+    counter.reset().unwrap();
     workload();
     assert_eq!(counter.stat().unwrap().event_count, 0);
 }
