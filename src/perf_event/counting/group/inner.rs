@@ -1,5 +1,5 @@
 use crate::counting::{inner_stat, Counter, CounterGroupStat};
-use crate::perf_event::RawAttr;
+use crate::perf_event::PerfEventAttr;
 use crate::syscall::bindings::*;
 use crate::syscall::{ioctl_wrapped, perf_event_open_wrapped};
 use libc::pid_t;
@@ -25,9 +25,14 @@ impl Inner {
         self.members.get_mut(0)
     }
 
-    pub fn add_member(&mut self, pid: pid_t, cpu: i32, raw_attr: &RawAttr) -> io::Result<u64> {
+    pub fn add_member(
+        &mut self,
+        pid: pid_t,
+        cpu: i32,
+        perf_event_attr: &PerfEventAttr,
+    ) -> io::Result<u64> {
         let group_fd = self.leader().map(|it| it.file.as_raw_fd()).unwrap_or(-1);
-        let fd = unsafe { perf_event_open_wrapped(raw_attr, pid, cpu, group_fd, 0) }?;
+        let fd = unsafe { perf_event_open_wrapped(perf_event_attr, pid, cpu, group_fd, 0) }?;
         let member = Counter {
             file: unsafe { File::from_raw_fd(fd) },
         };

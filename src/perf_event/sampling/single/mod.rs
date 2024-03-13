@@ -58,9 +58,9 @@ impl Sampler {
             (-1, -1) => return Err(Error::InvalidProcessCpu),
             (pid, cpu) => (pid, cpu),
         };
-        let raw_attr = cfg.as_raw();
+        let perf_event_attr = cfg.as_raw();
 
-        let fd = unsafe { perf_event_open_wrapped(raw_attr, pid, cpu, -1, 0) }
+        let fd = unsafe { perf_event_open_wrapped(perf_event_attr, pid, cpu, -1, 0) }
             .map_err(Error::SyscallFailed)?;
         let file = unsafe { File::from_raw_fd(fd) };
 
@@ -78,11 +78,11 @@ impl Sampler {
             file,
             data_size: ((mmap_pages - 1) * page_size) as _,
             data_offset: page_size as _,
-            sample_type: raw_attr.sample_type,
-            sample_id_all: raw_attr.sample_id_all() > 0,
-            regs_user_len: raw_attr.sample_regs_user.count_ones() as _,
+            sample_type: perf_event_attr.sample_type,
+            sample_id_all: perf_event_attr.sample_id_all() > 0,
+            regs_user_len: perf_event_attr.sample_regs_user.count_ones() as _,
             #[cfg(feature = "linux-3.19")]
-            regs_intr_len: raw_attr.sample_regs_intr.count_ones() as _,
+            regs_intr_len: perf_event_attr.sample_regs_intr.count_ones() as _,
         }
         .wrap_ok()
     }

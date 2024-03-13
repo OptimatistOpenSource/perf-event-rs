@@ -1,4 +1,4 @@
-use crate::perf_event::RawAttr;
+use crate::perf_event::PerfEventAttr;
 #[cfg(feature = "linux-4.1")]
 use crate::sampling::ClockId;
 use crate::sampling::{ExtraConfig, SampleIpSkid, Wakeup};
@@ -6,7 +6,7 @@ use crate::syscall::bindings::*;
 use crate::tracing::config::Config;
 #[cfg(feature = "linux-4.17")]
 use crate::{DynamicPmuEvent, KprobeConfig, UprobeConfig};
-use crate::{Event, EventScope};
+use crate::{Event, EventScope, RawPerfEventAttr};
 #[cfg(feature = "linux-4.1")]
 use libc::{CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI};
 use std::mem::size_of;
@@ -20,9 +20,9 @@ pub fn new<'t>(
 ) -> Config {
     let sample_record_fields = &extra_config.sample_record_fields;
 
-    let mut raw_attr = RawAttr {
+    let mut perf_event_attr = PerfEventAttr(RawPerfEventAttr {
         type_: 0,
-        size: size_of::<RawAttr>() as _,
+        size: size_of::<RawPerfEventAttr>() as _,
         config: 0,
         __bindgen_anon_1: perf_event_attr__bindgen_ty_1 { sample_period: 1 },
         sample_type: sample_record_fields.as_sample_type(),
@@ -43,7 +43,7 @@ pub fn new<'t>(
             read_format
         } as _,
         _bitfield_align_1: [],
-        _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]), // set later via raw_attr.set_...
+        _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]), // set later via perf_event_attr.set_...
         __bindgen_anon_2: match &extra_config.wakeup {
             Wakeup::Events(val) => perf_event_attr__bindgen_ty_2 {
                 wakeup_events: *val,
@@ -87,9 +87,9 @@ pub fn new<'t>(
         // TODO: https://github.com/torvalds/linux/commit/09519ec3b19e4144b5f6e269c54fbb9c294a9fcb
         #[cfg(feature = "linux-6.3")]
         config3: 0,
-    };
+    });
 
-    raw_attr.set_disabled(1);
+    perf_event_attr.set_disabled(1);
 
     /*
     Line 6402 of kernel/events/core.c:
@@ -97,88 +97,88 @@ pub fn new<'t>(
     create a performance issue due to all children writing to the
     same rb.
     */
-    raw_attr.set_inherit(extra_config.inherit as _);
-    raw_attr.set_pinned(extra_config.pinned as _);
-    raw_attr.set_exclusive(extra_config.exclusive as _);
+    perf_event_attr.set_inherit(extra_config.inherit as _);
+    perf_event_attr.set_pinned(extra_config.pinned as _);
+    perf_event_attr.set_exclusive(extra_config.exclusive as _);
 
-    raw_attr.set_exclude_user(1);
-    raw_attr.set_exclude_kernel(1);
-    raw_attr.set_exclude_hv(1);
-    raw_attr.set_exclude_idle(1);
+    perf_event_attr.set_exclude_user(1);
+    perf_event_attr.set_exclude_kernel(1);
+    perf_event_attr.set_exclude_hv(1);
+    perf_event_attr.set_exclude_idle(1);
 
-    raw_attr.set_mmap(0);
-    raw_attr.set_comm(extra_config.comm as _);
-    raw_attr.set_freq(0); // not use in tracing mode
-    raw_attr.set_inherit_stat(extra_config.inherit_stat as _); // `inherit_stat` requires `inherit` to be enabled
-    raw_attr.set_enable_on_exec(extra_config.enable_on_exec as _);
-    raw_attr.set_task(0);
-    raw_attr.set_watermark(match extra_config.wakeup {
+    perf_event_attr.set_mmap(0);
+    perf_event_attr.set_comm(extra_config.comm as _);
+    perf_event_attr.set_freq(0); // not use in tracing mode
+    perf_event_attr.set_inherit_stat(extra_config.inherit_stat as _); // `inherit_stat` requires `inherit` to be enabled
+    perf_event_attr.set_enable_on_exec(extra_config.enable_on_exec as _);
+    perf_event_attr.set_task(0);
+    perf_event_attr.set_watermark(match extra_config.wakeup {
         Wakeup::Watermark(_) => 1,
         Wakeup::Events(_) => 0,
     });
-    raw_attr.set_precise_ip(match extra_config.precise_ip {
+    perf_event_attr.set_precise_ip(match extra_config.precise_ip {
         SampleIpSkid::Arbitrary => 0,
         SampleIpSkid::Constant => 1,
         SampleIpSkid::TryZero => 2,
         SampleIpSkid::Zero => 3,
     });
-    raw_attr.set_mmap_data(extra_config.mmap_data as _);
+    perf_event_attr.set_mmap_data(extra_config.mmap_data as _);
 
     if extra_config.extra_record_with_sample_id && extra_config.extra_record_types.is_empty().not()
     {
-        raw_attr.set_sample_id_all(1);
+        perf_event_attr.set_sample_id_all(1);
     } else {
-        raw_attr.set_sample_id_all(0);
+        perf_event_attr.set_sample_id_all(0);
     }
 
-    raw_attr.set_exclude_host(1);
-    raw_attr.set_exclude_guest(1);
+    perf_event_attr.set_exclude_host(1);
+    perf_event_attr.set_exclude_guest(1);
 
-    raw_attr.set_exclude_callchain_kernel(extra_config.include_callchain_kernel.not() as _);
-    raw_attr.set_exclude_callchain_user(extra_config.include_callchain_user.not() as _);
+    perf_event_attr.set_exclude_callchain_kernel(extra_config.include_callchain_kernel.not() as _);
+    perf_event_attr.set_exclude_callchain_user(extra_config.include_callchain_user.not() as _);
 
     #[cfg(feature = "linux-3.12")]
-    raw_attr.set_mmap2(0);
+    perf_event_attr.set_mmap2(0);
     #[cfg(feature = "linux-3.16")]
-    raw_attr.set_comm_exec(extra_config.comm_exec as _);
+    perf_event_attr.set_comm_exec(extra_config.comm_exec as _);
     #[cfg(feature = "linux-4.1")]
-    raw_attr.set_use_clockid(extra_config.clockid.is_some() as _);
+    perf_event_attr.set_use_clockid(extra_config.clockid.is_some() as _);
     #[cfg(feature = "linux-4.3")]
-    raw_attr.set_context_switch(0);
+    perf_event_attr.set_context_switch(0);
     #[cfg(feature = "linux-4.7")]
-    raw_attr.set_write_backward(0);
+    perf_event_attr.set_write_backward(0);
     #[cfg(feature = "linux-4.12")]
-    raw_attr.set_namespaces(0);
+    perf_event_attr.set_namespaces(0);
     #[cfg(feature = "linux-5.1")]
-    raw_attr.set_ksymbol(0);
+    perf_event_attr.set_ksymbol(0);
     #[cfg(feature = "linux-5.1")]
-    raw_attr.set_bpf_event(0);
+    perf_event_attr.set_bpf_event(0);
     #[cfg(feature = "linux-5.4")]
-    //raw_attr.set_aux_output(extra_config.aux_output as _);
-    raw_attr.set_aux_output(0);
+    //perf_event_attr.set_aux_output(extra_config.aux_output as _);
+    perf_event_attr.set_aux_output(0);
     #[cfg(feature = "linux-5.7")]
-    raw_attr.set_cgroup(0);
+    perf_event_attr.set_cgroup(0);
     #[cfg(feature = "linux-5.9")]
-    raw_attr.set_text_poke(0);
+    perf_event_attr.set_text_poke(0);
     #[cfg(feature = "linux-5.12")]
-    raw_attr.set_build_id(extra_config.build_id as _);
+    perf_event_attr.set_build_id(extra_config.build_id as _);
     #[cfg(feature = "linux-5.13")]
-    raw_attr.set_inherit_thread(extra_config.inherit_thread as _);
+    perf_event_attr.set_inherit_thread(extra_config.inherit_thread as _);
     #[cfg(feature = "linux-5.13")]
-    raw_attr.set_remove_on_exec(extra_config.remove_on_exec as _);
+    perf_event_attr.set_remove_on_exec(extra_config.remove_on_exec as _);
     #[cfg(feature = "linux-5.13")]
-    raw_attr.set_sigtrap(extra_config.sigtrap.is_some() as _);
+    perf_event_attr.set_sigtrap(extra_config.sigtrap.is_some() as _);
 
-    event.enable_in_raw_attr(&mut raw_attr);
+    event.enable_in_raw_attr(&mut perf_event_attr);
 
     scopes
         .into_iter()
-        .for_each(|scope| scope.enable_in_raw_attr(&mut raw_attr));
+        .for_each(|scope| scope.enable_in_raw_attr(&mut perf_event_attr));
 
     extra_config
         .extra_record_types
         .iter()
-        .for_each(|it| it.enable_in_raw_attr(&mut raw_attr));
+        .for_each(|it| it.enable_in_raw_attr(&mut perf_event_attr));
 
     let kprobe_func_or_uprobe_path = match event {
         #[cfg(feature = "linux-4.17")]
@@ -196,6 +196,6 @@ pub fn new<'t>(
 
     Config {
         kprobe_func_or_uprobe_path,
-        raw_attr,
+        perf_event_attr,
     }
 }

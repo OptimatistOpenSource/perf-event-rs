@@ -1,4 +1,4 @@
-use crate::perf_event::RawAttr;
+use crate::perf_event::PerfEventAttr;
 use crate::sampling::group::stat::inner_stat;
 use crate::sampling::record::Record;
 use crate::sampling::{Sampler, SamplerGroupStat};
@@ -40,10 +40,10 @@ impl Inner {
         pid: pid_t,
         cpu: i32,
         mmap_pages: usize,
-        raw_attr: &RawAttr,
+        perf_event_attr: &PerfEventAttr,
     ) -> io::Result<u64> {
         let group_fd = self.leader().map(|it| it.file.as_raw_fd()).unwrap_or(-1);
-        let fd = unsafe { perf_event_open_wrapped(raw_attr, pid, cpu, group_fd, 0) }?;
+        let fd = unsafe { perf_event_open_wrapped(perf_event_attr, pid, cpu, group_fd, 0) }?;
         let file = unsafe { File::from_raw_fd(fd) };
         let mmap = unsafe {
             MmapOptions::new()
@@ -59,11 +59,11 @@ impl Inner {
             file,
             data_size: ((mmap_pages - 1) * page_size) as _,
             data_offset: page_size as _,
-            sample_type: raw_attr.sample_type,
-            sample_id_all: raw_attr.sample_id_all() > 0,
-            regs_user_len: raw_attr.sample_regs_user.count_ones() as _,
+            sample_type: perf_event_attr.sample_type,
+            sample_id_all: perf_event_attr.sample_id_all() > 0,
+            regs_user_len: perf_event_attr.sample_regs_user.count_ones() as _,
             #[cfg(feature = "linux-3.19")]
-            regs_intr_len: raw_attr.sample_regs_intr.count_ones() as _,
+            regs_intr_len: perf_event_attr.sample_regs_intr.count_ones() as _,
         };
 
         let event_id = member.event_id()?;
