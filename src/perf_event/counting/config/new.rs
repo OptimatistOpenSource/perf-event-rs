@@ -33,15 +33,9 @@ pub fn new<'t>(
         // not use in counting mode
         __bindgen_anon_1: perf_event_attr__bindgen_ty_1::default(),
         sample_type: 0, // ditto
-        read_format: {
-            #[allow(clippy::identity_op)] // for readable
-            let val = 0
-                | PERF_FORMAT_TOTAL_TIME_ENABLED
-                | PERF_FORMAT_TOTAL_TIME_RUNNING
-                | PERF_FORMAT_ID
-                | PERF_FORMAT_GROUP;
-            val as _
-        },
+        // `Counter::new` or `CounterGroup::add_member` will clone this struct
+        // and set `read_format` for their read format
+        read_format: 0,
         _bitfield_align_1: [],
         // set later via perf_event_attr.set_...
         _bitfield_1: __BindgenBitfieldUnit::new([0u8; 8usize]),

@@ -29,6 +29,7 @@ use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 use crate::config;
 use crate::config::{Cpu, Process};
 use crate::counting::group::inner::Inner;
+use crate::syscall::bindings::*;
 pub use fixed::*;
 #[allow(unused_imports)]
 pub use guard::*;
@@ -62,9 +63,19 @@ impl CounterGroup {
     }
 
     pub fn add_member(&mut self, cfg: &Config) -> io::Result<CounterGuard> {
+        let mut perf_event_attr = cfg.as_raw().clone();
+        // not inline `read_format` for readable
+        #[rustfmt::skip]
+        let read_format =
+              PERF_FORMAT_TOTAL_TIME_ENABLED
+            | PERF_FORMAT_TOTAL_TIME_RUNNING
+            | PERF_FORMAT_ID
+            | PERF_FORMAT_GROUP;
+        perf_event_attr.read_format = read_format as _;
+
         let event_id = self
             .inner_mut()
-            .add_member(self.cpu, self.pid, cfg.as_raw())?;
+            .add_member(self.cpu, self.pid, &perf_event_attr)?;
         CounterGuard::new(event_id, self.inner.clone()).wrap_ok()
     }
 

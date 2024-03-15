@@ -37,7 +37,17 @@ impl Counter {
             (-1, -1) => return Err(Error::InvalidProcessCpu),
             (pid, cpu) => (pid, cpu),
         };
-        let fd = unsafe { perf_event_open_wrapped(cfg.as_raw(), pid, cpu, -1, 0) }
+
+        let mut perf_event_attr = cfg.as_raw().clone();
+        // not inline `read_format` for readable
+        #[rustfmt::skip]
+        let read_format =
+              PERF_FORMAT_TOTAL_TIME_ENABLED
+            | PERF_FORMAT_TOTAL_TIME_RUNNING
+            | PERF_FORMAT_ID;
+        perf_event_attr.read_format = read_format as _;
+
+        let fd = unsafe { perf_event_open_wrapped(&perf_event_attr, pid, cpu, -1, 0) }
             .map_err(Error::SyscallFailed)?;
         let file = unsafe { File::from_raw_fd(fd) };
 
