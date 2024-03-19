@@ -65,7 +65,7 @@ use std::mem::size_of;
 use std::ops::Not;
 use std::slice;
 
-pub struct Raw {
+pub(super) struct Raw {
     pub read_ptr: *const u8,
     pub sample_type: u64,
 }

@@ -31,7 +31,7 @@ pub struct Sized {
     pub tid: u32,
 }
 
-pub struct Raw {
+pub(super) struct Raw {
     pub read_ptr: *const u8,
     pub sample_type: u64,
 }
