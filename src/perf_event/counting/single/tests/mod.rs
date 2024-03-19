@@ -30,9 +30,9 @@ where
 
 fn gen_counter(ev: &Event) -> Counter {
     let scopes = [EventScope::User, EventScope::Host];
-    let cfg = Config::new(ev, &scopes);
+    let mut cfg = Config::new(ev, &scopes);
 
-    Counter::new(&Process::Current, &Cpu::Any, &cfg).unwrap()
+    Counter::new(&Process::Current, &Cpu::Any, &mut cfg).unwrap()
 }
 
 fn test_stat<F>(ev: &Event, workload: &mut F)
