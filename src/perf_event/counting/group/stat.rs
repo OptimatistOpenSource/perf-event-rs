@@ -14,11 +14,26 @@
 
 use crate::counting::group::guard::CounterGuard;
 use crate::counting::group::inner::Inner;
-use crate::counting::{ReadFormatHead, ReadFormatValue};
 use crate::infra::{BoxSliceExt, WrapResult};
 use std::collections::HashMap;
 use std::io::{ErrorKind, Read};
 use std::{io, slice};
+
+#[repr(C)]
+#[derive(Debug, Clone)]
+struct ReadFormatHead {
+    pub members_len: u64,  // u64 nr;
+    pub time_enabled: u64, // u64 time_enabled;
+    pub time_running: u64, // u64 time_running;
+                           // ReadFormatValue values[nr];
+}
+
+#[repr(C)]
+#[derive(Debug, Clone)]
+struct ReadFormatValue {
+    pub event_count: u64, // u64 value;
+    pub event_id: u64,    // u64 id;
+}
 
 #[derive(Debug, Clone)]
 pub struct CounterGroupStat {
@@ -33,7 +48,7 @@ impl CounterGroupStat {
         (*self.member_counts.get(&guard.event_id()).unwrap()).wrap_ok()
     }
 
-    pub(crate) fn from_raw(head: &ReadFormatHead, values: &[ReadFormatValue]) -> Self {
+    fn from_raw(head: &ReadFormatHead, values: &[ReadFormatValue]) -> Self {
         Self {
             time_enabled: head.time_enabled,
             time_running: head.time_running,
