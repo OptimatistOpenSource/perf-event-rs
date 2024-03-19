@@ -62,8 +62,8 @@ impl CounterGroup {
         self.inner.write().unwrap()
     }
 
-    pub fn add_member(&mut self, cfg: &Config) -> io::Result<CounterGuard> {
-        let mut perf_event_attr = cfg.as_raw().clone();
+    pub fn add_member(&mut self, cfg: &mut Config) -> io::Result<CounterGuard> {
+        let perf_event_attr = cfg.as_raw_mut();
         // not inline `read_format` for readable
         #[rustfmt::skip]
         let read_format =
@@ -75,7 +75,7 @@ impl CounterGroup {
 
         let event_id = self
             .inner_mut()
-            .add_member(self.cpu, self.pid, &perf_event_attr)?;
+            .add_member(self.cpu, self.pid, perf_event_attr)?;
         CounterGuard::new(event_id, self.inner.clone()).wrap_ok()
     }
 
