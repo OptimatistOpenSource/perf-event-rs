@@ -36,3 +36,12 @@ pub(crate) struct ReadFormatValue {
     pub event_count: u64, // u64 value;
     pub event_id: u64,    // u64 id;
 }
+
+#[repr(C)]
+#[derive(Debug, Clone)]
+pub(crate) struct ReadOneValue {
+    pub event_count: u64,
+    pub time_enabled: u64, // u64 time_enabled;
+    pub time_running: u64, // u64 time_running;
+    pub event_id: u64,     // u64 id;
+}

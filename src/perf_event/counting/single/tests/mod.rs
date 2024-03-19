@@ -30,7 +30,7 @@ where
 
 fn gen_counter(ev: &Event) -> Counter {
     let scopes = [EventScope::User, EventScope::Host];
-    let cfg = Config::new(ev, &scopes);
+    let cfg = Config::new(ev, false, &scopes);
 
     Counter::new(&Process::Current, &Cpu::Any, &cfg).unwrap()
 }

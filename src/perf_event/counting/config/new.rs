@@ -23,6 +23,7 @@ use std::mem::size_of;
 #[inline]
 pub fn new<'t>(
     event: &Event,
+    group_leader: bool,
     scopes: impl IntoIterator<Item = &'t EventScope>,
     extra_config: &ExtraConfig,
 ) -> Config {
@@ -38,8 +39,12 @@ pub fn new<'t>(
             let val = 0
                 | PERF_FORMAT_TOTAL_TIME_ENABLED
                 | PERF_FORMAT_TOTAL_TIME_RUNNING
-                | PERF_FORMAT_ID
-                | PERF_FORMAT_GROUP;
+                | PERF_FORMAT_ID;
+            let val = if group_leader {
+                val | PERF_FORMAT_GROUP
+            } else {
+                val
+            };
             val as _
         },
         _bitfield_align_1: [],

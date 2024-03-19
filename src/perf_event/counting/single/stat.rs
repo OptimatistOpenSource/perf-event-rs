@@ -12,7 +12,7 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::counting::{Counter, ReadFormatHead, ReadFormatValue};
+use crate::counting::{Counter, ReadOneValue};
 use crate::infra::{SizedExt, WrapResult};
 use std::io;
 use std::io::Read;
@@ -28,21 +28,15 @@ pub struct CounterStat {
 
 #[inline]
 pub fn counter_stat(counter: &mut Counter) -> io::Result<CounterStat> {
-    #[repr(C)]
-    struct Layout {
-        head: ReadFormatHead,
-        value: ReadFormatValue,
-    }
-
-    let mut buf = unsafe { <[u8; size_of::<Layout>()]>::uninit() };
+    let mut buf = unsafe { <[u8; size_of::<ReadOneValue>()]>::uninit() };
     counter.file.read_exact(&mut buf)?;
 
-    let layout = unsafe { &*(buf.as_ptr() as *const Layout) };
+    let layout = unsafe { &*(buf.as_ptr() as *const ReadOneValue) };
     CounterStat {
-        event_id: layout.value.event_id,
-        event_count: layout.value.event_count,
-        time_enabled: layout.head.time_enabled,
-        time_running: layout.head.time_running,
+        event_id: layout.event_id,
+        event_count: layout.event_count,
+        time_enabled: layout.time_enabled,
+        time_running: layout.time_running,
     }
     .wrap_ok()
 }
