@@ -63,7 +63,7 @@ impl Config {
         &self.perf_event_attr
     }
 
-    pub fn as_mut_raw(&mut self) -> &mut PerfEventAttr {
+    pub fn as_raw_mut(&mut self) -> &mut PerfEventAttr {
         &mut self.perf_event_attr
     }
 }

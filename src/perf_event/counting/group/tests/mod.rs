@@ -44,8 +44,8 @@ where
     F: FnMut(),
 {
     let mut group = gen_group();
-    let ev_1_guard = group.add_member(&gen_cfg(ev_1)).unwrap();
-    let ev_2_guard = group.add_member(&gen_cfg(ev_2)).unwrap();
+    let ev_1_guard = group.add_member(&mut gen_cfg(ev_1)).unwrap();
+    let ev_2_guard = group.add_member(&mut gen_cfg(ev_2)).unwrap();
 
     {
         let result = group.stat().unwrap();
@@ -81,8 +81,8 @@ where
     F: FnMut(),
 {
     let mut group = gen_group();
-    let ev_1_guard = group.add_member(&gen_cfg(ev_1)).unwrap();
-    let ev_2_guard = group.add_member(&gen_cfg(ev_2)).unwrap();
+    let ev_1_guard = group.add_member(&mut gen_cfg(ev_1)).unwrap();
+    let ev_2_guard = group.add_member(&mut gen_cfg(ev_2)).unwrap();
 
     {
         let result = group.stat().unwrap();
@@ -118,8 +118,8 @@ where
     F: FnMut(),
 {
     let mut group = gen_group();
-    let ev_1_guard = group.add_member(&gen_cfg(ev_1)).unwrap();
-    let ev_2_guard = group.add_member(&gen_cfg(ev_2)).unwrap();
+    let ev_1_guard = group.add_member(&mut gen_cfg(ev_1)).unwrap();
+    let ev_2_guard = group.add_member(&mut gen_cfg(ev_2)).unwrap();
 
     let mut group = group.enable().unwrap();
     workload();
@@ -149,8 +149,8 @@ where
     F: FnMut(),
 {
     let mut group = gen_group();
-    let mut ev_1_guard = group.add_member(&gen_cfg(ev_1)).unwrap();
-    let mut ev_2_guard = group.add_member(&gen_cfg(ev_2)).unwrap();
+    let mut ev_1_guard = group.add_member(&mut gen_cfg(ev_1)).unwrap();
+    let mut ev_2_guard = group.add_member(&mut gen_cfg(ev_2)).unwrap();
 
     {
         let ev_1 = ev_1_guard.stat().unwrap().event_count;

@@ -12,7 +12,7 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::counting::{Counter, ReadFormatHead, ReadFormatValue};
+use crate::counting::Counter;
 use crate::infra::{SizedExt, WrapResult};
 use std::io;
 use std::io::Read;
@@ -28,21 +28,34 @@ pub struct CounterStat {
 
 #[inline]
 pub fn counter_stat(counter: &mut Counter) -> io::Result<CounterStat> {
+    /*
+    struct read_format {
+        u64 value;         /* The value of the event */
+        u64 time_enabled;  /* if PERF_FORMAT_TOTAL_TIME_ENABLED */
+        u64 time_running;  /* if PERF_FORMAT_TOTAL_TIME_RUNNING */
+        u64 id;            /* if PERF_FORMAT_ID */
+        u64 lost;          /* if PERF_FORMAT_LOST */
+    };
+    */
     #[repr(C)]
     struct Layout {
-        head: ReadFormatHead,
-        value: ReadFormatValue,
+        event_count: u64,
+        time_enabled: u64,
+        time_running: u64,
+        event_id: u64,
     }
 
     let mut buf = unsafe { <[u8; size_of::<Layout>()]>::uninit() };
     counter.file.read_exact(&mut buf)?;
 
-    let layout = unsafe { &*(buf.as_ptr() as *const Layout) };
+    let layout_ptr = buf.as_ptr() as *const Layout;
+    let layout = unsafe { &*layout_ptr };
+
     CounterStat {
-        event_id: layout.value.event_id,
-        event_count: layout.value.event_count,
-        time_enabled: layout.head.time_enabled,
-        time_running: layout.head.time_running,
+        event_id: layout.event_id,
+        event_count: layout.event_count,
+        time_enabled: layout.time_enabled,
+        time_running: layout.time_running,
     }
     .wrap_ok()
 }
