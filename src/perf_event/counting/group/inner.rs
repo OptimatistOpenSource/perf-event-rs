@@ -43,9 +43,17 @@ impl Inner {
         &mut self,
         pid: pid_t,
         cpu: i32,
-        perf_event_attr: &PerfEventAttr,
+        perf_event_attr: &mut PerfEventAttr,
     ) -> io::Result<u64> {
         let group_fd = self.leader().map(|it| it.file.as_raw_fd()).unwrap_or(-1);
+
+        // When creating an event group, typically the group leader is initialized with disabled set to 1
+        // and any child events are initialized with disabled set to 0.
+        // Despite disabled being 0, the child  events  will not start until the group leader is enabled.
+        if group_fd != -1 {
+            perf_event_attr.set_disabled(0);
+        }
+
         let fd = unsafe { perf_event_open_wrapped(perf_event_attr, pid, cpu, group_fd, 0) }?;
         let member = Counter {
             file: unsafe { File::from_raw_fd(fd) },
