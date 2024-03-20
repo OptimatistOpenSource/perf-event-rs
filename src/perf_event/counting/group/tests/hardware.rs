@@ -24,3 +24,13 @@ fn test_ipc() {
 
     test_group(&Event::from(ev_1), &Event::from(ev_2), &mut workload);
 }
+
+#[test]
+#[cfg(target_arch = "aarch64")]
+fn test_r11_r1b() {
+    let ev_1 = unsafe { crate::RawEvent::new(0x11) };
+    let ev_2 = unsafe { crate::RawEvent::new(0x1b) };
+    let mut workload = cpu_workload;
+
+    test_group(&Event::from(ev_1), &Event::from(ev_2), &mut workload);
+}
