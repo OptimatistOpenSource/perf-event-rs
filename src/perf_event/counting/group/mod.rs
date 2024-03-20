@@ -81,10 +81,14 @@ impl CounterGroup {
 
     pub fn enable(self) -> io::Result<FixedCounterGroup> {
         self.inner_mut().enable()?;
-        FixedCounterGroup::new(self.inner).wrap_ok()
+        self.into_fixed()
     }
 
     pub fn stat(&mut self) -> io::Result<CounterGroupStat> {
         self.inner_mut().stat()
+    }
+
+    pub fn into_fixed(self) -> io::Result<FixedCounterGroup> {
+        FixedCounterGroup::new(self.inner).wrap_ok()
     }
 }
