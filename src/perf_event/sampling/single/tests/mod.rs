@@ -40,7 +40,7 @@ fn gen_sampler(cfg: &Config) -> Sampler {
 }
 
 fn gen_cfg(ev: &Event) -> Config {
-    let scopes = [EventScope::User, EventScope::Host];
+    let scopes = EventScope::all();
     let overflow_by = OverflowBy::Period(1000);
     let mut extra_config = ExtraConfig::default();
     extra_config.sample_record_fields.time = true;

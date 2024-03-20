@@ -26,7 +26,7 @@ fn gen_sampler(cfg: &Config) -> Sampler {
 
 fn gen_cfg(extra_config: ExtraConfig) -> Config {
     let event = HardwareEvent::CpuCycles;
-    let scopes = [EventScope::User, EventScope::Host];
+    let scopes = EventScope::all();
     let overflow_by = OverflowBy::Period(1000);
     Config::extra_new(&Event::from(event), &scopes, &overflow_by, &extra_config)
 }

@@ -20,5 +20,24 @@ use crate::{Event, HardwareEvent};
 fn test_cpu_cycles() {
     let ev = HardwareEvent::CpuCycles;
     let mut workload = cpu_workload;
+
+    test_single(&Event::from(ev), &mut workload);
+}
+
+#[test]
+#[cfg(target_arch = "aarch64")]
+fn test_r11() {
+    let ev = unsafe { crate::RawEvent::new(0x11) };
+    let mut workload = cpu_workload;
+
+    test_single(&Event::from(ev), &mut workload);
+}
+
+#[test]
+#[cfg(target_arch = "aarch64")]
+fn test_r1b() {
+    let ev = unsafe { crate::RawEvent::new(0x1b) };
+    let mut workload = cpu_workload;
+
     test_single(&Event::from(ev), &mut workload);
 }
