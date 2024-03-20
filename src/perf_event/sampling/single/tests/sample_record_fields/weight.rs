@@ -29,7 +29,7 @@ fn gen_cfg(repr: WeightRepr) -> Config {
     extra_config.sample_record_fields.weight = Some(repr);
 
     let event = HardwareEvent::CpuCycles;
-    let scopes = [EventScope::User, EventScope::Host];
+    let scopes = EventScope::all();
     let overflow_by = OverflowBy::Period(1000);
     Config::extra_new(&Event::from(event), &scopes, &overflow_by, &extra_config)
 }

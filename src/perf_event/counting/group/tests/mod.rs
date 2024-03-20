@@ -35,7 +35,7 @@ fn gen_group() -> CounterGroup {
 }
 
 fn gen_cfg(ev: &Event) -> Config {
-    let scopes = [EventScope::User, EventScope::Host];
+    let scopes = EventScope::all();
     Config::new(ev, &scopes)
 }
 

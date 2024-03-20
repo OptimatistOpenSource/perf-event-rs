@@ -28,7 +28,7 @@ fn gen_cfg(sample_regs_intr: u64) -> Config {
     extra_config.sample_record_fields.abi_and_regs_intr = Some(sample_regs_intr);
 
     let event = HardwareEvent::CpuCycles;
-    let scopes = [EventScope::User, EventScope::Host];
+    let scopes = EventScope::all();
     let overflow_by = OverflowBy::Period(1000);
     Config::extra_new(&Event::from(event), &scopes, &overflow_by, &extra_config)
 }

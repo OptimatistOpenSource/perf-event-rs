@@ -38,7 +38,7 @@ fn gen_group() -> SamplerGroup {
 }
 
 fn gen_cfg(ev: &Event) -> Config {
-    let scopes = [EventScope::User, EventScope::Host];
+    let scopes = EventScope::all();
     let overflow_by = OverflowBy::Period(1000);
     Config::new(&ev, &scopes, &overflow_by)
 }

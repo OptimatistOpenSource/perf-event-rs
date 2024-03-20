@@ -29,7 +29,7 @@ where
 }
 
 fn gen_counter(ev: &Event) -> Counter {
-    let scopes = [EventScope::User, EventScope::Host];
+    let scopes = EventScope::all();
     let mut cfg = Config::new(ev, &scopes);
 
     Counter::new(&Process::Current, &Cpu::Any, &mut cfg).unwrap()
