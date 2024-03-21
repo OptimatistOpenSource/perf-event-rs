@@ -74,7 +74,7 @@ impl SamplerGroup {
 
     pub fn enable(self) -> io::Result<FixedSamplerGroup> {
         self.inner().enable()?;
-        FixedSamplerGroup::new(self.inner).wrap_ok()
+        self.into_fixed()
     }
 
     pub fn next_record(&self, guard: &SamplerGuard) -> Option<Record> {
@@ -83,5 +83,9 @@ impl SamplerGroup {
 
     pub fn stat(&mut self) -> io::Result<SamplerGroupStat> {
         self.inner_mut().stat()
+    }
+
+    pub fn into_fixed(self) -> io::Result<FixedSamplerGroup> {
+        FixedSamplerGroup::new(self.inner).wrap_ok()
     }
 }
