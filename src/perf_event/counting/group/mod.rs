@@ -75,7 +75,7 @@ impl CounterGroup {
 
         let event_id = self
             .inner_mut()
-            .add_member(self.cpu, self.pid, perf_event_attr)?;
+            .add_member(self.pid, self.cpu, perf_event_attr)?;
         CounterGuard::new(event_id, self.inner.clone()).wrap_ok()
     }
 
