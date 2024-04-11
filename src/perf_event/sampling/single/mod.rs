@@ -29,7 +29,7 @@ use crate::syscall::{ioctl_wrapped, perf_event_open_wrapped};
 use memmap2::{MmapMut, MmapOptions};
 use std::fs::File;
 use std::io;
-use std::os::fd::FromRawFd;
+use std::os::fd::{AsRawFd, FromRawFd};
 
 use crate::config::{Cpu, Error, Process};
 use crate::sampling::single::stat::sampler_stat;
@@ -144,5 +144,11 @@ impl Sampler {
 
     pub fn stat(&mut self) -> io::Result<SamplerStat> {
         sampler_stat(self)
+    }
+
+    /// Returns the underlying perf event fd for other uses.
+    /// For example attach a eBPF program to this event.
+    pub fn get_fd(&self) -> i32 {
+        self.file.as_raw_fd()
     }
 }
