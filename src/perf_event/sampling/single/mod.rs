@@ -148,7 +148,7 @@ impl Sampler {
 
     /// Returns the underlying perf event fd for other uses.
     /// For example attach a eBPF program to this event.
-    pub fn get_fd(&self) -> i32 {
+    pub fn get_raw_fd(&self) -> i32 {
         self.file.as_raw_fd()
     }
 }
