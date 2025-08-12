@@ -12,8 +12,9 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::consts::IOCTLS;
 use std::fs;
+
+use crate::consts::IOCTLS;
 
 /// Parse `LINUX_VERSION_CODE` of `linux/version.h` to (major, patch_level, sub_level)
 pub fn parse_linux_version_h(path: &str) -> (usize, usize, usize) {

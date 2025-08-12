@@ -15,9 +15,11 @@
 mod hardware;
 mod software;
 
-use crate::config::{Cpu, Process};
-use crate::counting::{Config, Counter};
-use crate::{Event, EventScope};
+use crate::{
+    config::{Cpu, Process},
+    counting::{Config, Counter},
+    Event, EventScope,
+};
 
 pub fn test_single<F>(ev: &Event, workload: &mut F)
 where

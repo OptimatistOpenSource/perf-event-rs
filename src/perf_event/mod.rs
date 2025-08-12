@@ -18,8 +18,9 @@ pub mod event;
 pub mod sampling;
 pub mod tracing;
 
-use crate::syscall::bindings::perf_event_attr;
 pub use event::*;
+
+use crate::syscall::bindings::perf_event_attr;
 
 pub type RawPerfEventAttr = perf_event_attr;
 
@@ -274,7 +275,6 @@ impl PerfEventAttr {
     /// (since Linux 4.6[Ref: man perf_event_open], feature selection from `linux-4.7`)
     /// This causes the ring buffer to be written from the end to the beginning.
     /// This is to support reading from overwritable ring buffer.
-    ///
     // The `write_backward` was first added to the Linux kernel in 4.7
     // the man documentation incorrectly says "since Linux 4.6"
     // See: https://github.com/torvalds/linux/commit/9ecda41acb971ebd07c8fb35faf24005c0baea12

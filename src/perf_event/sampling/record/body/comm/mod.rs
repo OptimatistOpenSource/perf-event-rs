@@ -14,8 +14,9 @@
 
 mod raw;
 
-use crate::sampling::record::sample_id::SampleId;
 use std::ffi::CString;
+
+use crate::sampling::record::sample_id::SampleId;
 
 #[derive(Debug, Clone)]
 pub struct Body {

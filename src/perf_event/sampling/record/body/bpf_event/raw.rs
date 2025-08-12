@@ -22,8 +22,7 @@ struct {
 };
 */
 
-use crate::sampling::record::sample_id::SampleId;
-use crate::syscall::bindings::BPF_TAG_SIZE;
+use crate::{sampling::record::sample_id::SampleId, syscall::bindings::BPF_TAG_SIZE};
 
 #[repr(C)]
 #[derive(Debug, Clone)]

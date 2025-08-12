@@ -15,10 +15,14 @@
 mod hardware;
 mod software;
 
-use crate::config::{Cpu, Process};
-use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Config, FixedSamplerGroup, OverflowBy, SamplerGroup, SamplerGuard};
-use crate::{Event, EventScope};
+use crate::{
+    config::{Cpu, Process},
+    sampling::{
+        record::{Record, RecordBody},
+        Config, FixedSamplerGroup, OverflowBy, SamplerGroup, SamplerGuard,
+    },
+    Event, EventScope,
+};
 
 pub fn test_group<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)
 where

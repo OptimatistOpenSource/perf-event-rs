@@ -12,12 +12,16 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::infra::{SizedExt, WrapBox, WrapOption};
-use crate::sampling::record::*;
-use crate::sampling::Sampler;
-use crate::syscall::bindings::*;
-use std::alloc::{alloc, dealloc, Layout};
-use std::slice;
+use std::{
+    alloc::{alloc, dealloc, Layout},
+    slice,
+};
+
+use crate::{
+    infra::{SizedExt, WrapBox, WrapOption},
+    sampling::{record::*, Sampler},
+    syscall::bindings::*,
+};
 
 #[inline]
 pub fn next_record(sampler: &mut Sampler) -> Option<Record> {

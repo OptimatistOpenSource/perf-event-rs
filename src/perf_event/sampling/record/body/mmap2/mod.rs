@@ -12,10 +12,11 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
+use std::ffi::CString;
+
 use crate::sampling::record::sample_id::SampleId;
 #[cfg(feature = "linux-5.12")]
 use crate::syscall::bindings::PERF_RECORD_MISC_MMAP_BUILD_ID;
-use std::ffi::CString;
 
 mod raw;
 

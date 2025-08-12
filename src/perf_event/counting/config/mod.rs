@@ -15,13 +15,11 @@
 mod extra_config;
 mod new;
 
-use crate::perf_event::PerfEventAttr;
-use std::ffi::CString;
-use std::fmt::Debug;
-use std::rc::Rc;
+use std::{ffi::CString, fmt::Debug, rc::Rc};
 
-use crate::{Event, EventScope};
 pub use extra_config::*;
+
+use crate::{perf_event::PerfEventAttr, Event, EventScope};
 
 #[derive(Debug, Clone)]
 pub struct Config {

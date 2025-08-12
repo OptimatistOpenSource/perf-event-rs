@@ -19,23 +19,28 @@ mod stat;
 #[cfg(test)]
 mod tests;
 
-use crate::config;
-use crate::infra::WrapResult;
-use crate::sampling::record::*;
-use crate::sampling::single::next_record::next_record;
-use crate::sampling::Config;
-use crate::syscall::bindings::*;
-use crate::syscall::{ioctl_wrapped, perf_event_open_wrapped};
-use memmap2::{MmapMut, MmapOptions};
-use std::fs::File;
-use std::io;
-use std::os::fd::{AsRawFd, FromRawFd};
+use std::{
+    fs::File,
+    io,
+    os::fd::{AsRawFd, FromRawFd},
+};
 
-use crate::config::{Cpu, Error, Process};
-use crate::sampling::single::stat::sampler_stat;
 pub use into_iter::*;
 pub use iter::*;
+use memmap2::{MmapMut, MmapOptions};
 pub use stat::SamplerStat;
+
+use crate::{
+    config,
+    config::{Cpu, Error, Process},
+    infra::WrapResult,
+    sampling::{
+        record::*,
+        single::{next_record::next_record, stat::sampler_stat},
+        Config,
+    },
+    syscall::{bindings::*, ioctl_wrapped, perf_event_open_wrapped},
+};
 
 pub struct Sampler {
     pub(crate) mmap: MmapMut,

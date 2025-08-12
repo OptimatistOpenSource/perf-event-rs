@@ -17,15 +17,13 @@ mod extra_record;
 mod new;
 mod sample_record_fields;
 
-use crate::perf_event::PerfEventAttr;
-use crate::{Event, EventScope};
-use std::ffi::CString;
-use std::fmt::Debug;
-use std::rc::Rc;
+use std::{ffi::CString, fmt::Debug, rc::Rc};
 
 pub use extra_config::*;
 pub use extra_record::*;
 pub use sample_record_fields::*;
+
+use crate::{perf_event::PerfEventAttr, Event, EventScope};
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub enum OverflowBy {

@@ -16,16 +16,20 @@ mod stat;
 #[cfg(test)]
 mod tests;
 
-use crate::config;
-use crate::config::{Cpu, Error, Process};
-use crate::counting::single::stat::counter_stat;
-use crate::counting::Config;
-use crate::syscall::bindings::*;
-use crate::syscall::{ioctl_wrapped, perf_event_open_wrapped};
+use std::{
+    fs::File,
+    io,
+    os::fd::{AsRawFd, FromRawFd},
+};
+
 pub use stat::CounterStat;
-use std::fs::File;
-use std::io;
-use std::os::fd::{AsRawFd, FromRawFd};
+
+use crate::{
+    config,
+    config::{Cpu, Error, Process},
+    counting::{single::stat::counter_stat, Config},
+    syscall::{bindings::*, ioctl_wrapped, perf_event_open_wrapped},
+};
 
 pub struct Counter {
     pub(crate) file: File,

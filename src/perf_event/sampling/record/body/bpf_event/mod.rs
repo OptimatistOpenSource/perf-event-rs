@@ -12,8 +12,7 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::sampling::record::sample_id::SampleId;
-use crate::syscall::bindings::BPF_TAG_SIZE;
+use crate::{sampling::record::sample_id::SampleId, syscall::bindings::BPF_TAG_SIZE};
 
 mod raw;
 

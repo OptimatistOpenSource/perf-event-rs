@@ -12,8 +12,10 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use std::alloc::{alloc, Layout};
-use std::ptr;
+use std::{
+    alloc::{alloc, Layout},
+    ptr,
+};
 
 pub trait WrapBox<T> {
     #[inline]

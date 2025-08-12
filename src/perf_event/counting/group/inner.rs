@@ -12,15 +12,20 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::counting::{inner_stat, Counter, CounterGroupStat};
-use crate::perf_event::PerfEventAttr;
-use crate::syscall::bindings::*;
-use crate::syscall::{ioctl_wrapped, perf_event_open_wrapped};
+use std::{
+    fs::File,
+    io,
+    io::ErrorKind,
+    os::fd::{AsRawFd, FromRawFd},
+};
+
 use libc::pid_t;
-use std::fs::File;
-use std::io;
-use std::io::ErrorKind;
-use std::os::fd::{AsRawFd, FromRawFd};
+
+use crate::{
+    counting::{inner_stat, Counter, CounterGroupStat},
+    perf_event::PerfEventAttr,
+    syscall::{bindings::*, ioctl_wrapped, perf_event_open_wrapped},
+};
 
 pub struct Inner {
     pub(crate) members: Vec<Counter>, // members[0] is the group leader, if it exists.

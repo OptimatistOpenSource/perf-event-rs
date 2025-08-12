@@ -12,12 +12,11 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::perf_event::event::Event;
-use std::num::ParseIntError;
-use std::ops::Not;
-use std::path::PathBuf;
-use std::{fs, io};
+use std::{fs, io, num::ParseIntError, ops::Not, path::PathBuf};
+
 use thiserror::Error;
+
+use crate::perf_event::event::Event;
 
 #[derive(Error, Debug)]
 pub enum Error {

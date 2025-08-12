@@ -15,28 +15,26 @@
 mod into_iter;
 mod iter;
 
-use crate::config::Error;
-#[cfg(feature = "linux-4.17")]
-use crate::infra::Vla;
-#[cfg(feature = "linux-4.17")]
-use crate::infra::WrapResult;
-use crate::sampling::record::Record;
-use crate::sampling::{Sampler, SamplerStat};
-use crate::syscall::bindings::*;
-use crate::syscall::{ioctl_wrapped, perf_event_open_wrapped};
-use memmap2::MmapOptions;
 #[cfg(feature = "linux-4.17")]
 use std::alloc::{alloc, Layout};
-use std::fs::File;
-use std::io;
-use std::os::fd::FromRawFd;
+use std::{fs::File, io, os::fd::FromRawFd};
 
-use crate::config::{Cpu, Process};
-use crate::tracing::Config;
 #[allow(unused_imports)]
 pub use into_iter::*;
 #[allow(unused_imports)]
 pub use iter::*;
+use memmap2::MmapOptions;
+
+#[cfg(feature = "linux-4.17")]
+use crate::infra::Vla;
+#[cfg(feature = "linux-4.17")]
+use crate::infra::WrapResult;
+use crate::{
+    config::{Cpu, Error, Process},
+    sampling::{record::Record, Sampler, SamplerStat},
+    syscall::{bindings::*, ioctl_wrapped, perf_event_open_wrapped},
+    tracing::Config,
+};
 
 pub struct Tracer {
     pub(crate) sampler: Sampler,

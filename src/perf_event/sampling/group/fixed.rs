@@ -12,12 +12,16 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::sampling::group::guard::SamplerGuard;
-use crate::sampling::group::inner::Inner;
-use crate::sampling::record::Record;
-use crate::sampling::SamplerGroupStat;
-use std::io;
-use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
+use std::{
+    io,
+    sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard},
+};
+
+use crate::sampling::{
+    group::{guard::SamplerGuard, inner::Inner},
+    record::Record,
+    SamplerGroupStat,
+};
 
 pub struct FixedSamplerGroup {
     inner: Arc<RwLock<Inner>>,
