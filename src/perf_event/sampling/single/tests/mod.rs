@@ -44,7 +44,7 @@ fn gen_cfg(ev: &Event) -> Config {
     let overflow_by = OverflowBy::Period(1000);
     let mut extra_config = ExtraConfig::default();
     extra_config.sample_record_fields.time = true;
-    Config::extra_new(&ev, &scopes, &overflow_by, &extra_config)
+    Config::extra_new(ev, &scopes, &overflow_by, &extra_config)
 }
 
 fn test_next_record<F>(ev: &Event, workload: &mut F)

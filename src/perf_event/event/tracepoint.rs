@@ -92,7 +92,7 @@ fn tracefs_path() -> Result<PathBuf, Error> {
         .lines()
         .find(|line| line.starts_with("tracefs"))
         .and_then(|line| line.split(' ').nth(1))
-        .ok_or_else(|| Error::FailedToFindTracefs)
+        .ok_or(Error::FailedToFindTracefs)
         .map(PathBuf::from)
 }
 
@@ -114,5 +114,5 @@ fn test_available_event_names() {
     let ev_names = TracepointEvent::available_event_names();
     dbg!(&ev_names);
     let ev_names = ev_names.unwrap();
-    assert!(ev_names.len() > 0);
+    assert!(!ev_names.is_empty());
 }

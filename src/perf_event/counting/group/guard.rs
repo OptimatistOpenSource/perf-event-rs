@@ -24,7 +24,7 @@ pub struct CounterGuard {
 }
 
 impl CounterGuard {
-    pub(crate) fn new(event_id: u64, inner: Arc<RwLock<Inner>>) -> Self {
+    pub(crate) const fn new(event_id: u64, inner: Arc<RwLock<Inner>>) -> Self {
         Self { event_id, inner }
     }
 

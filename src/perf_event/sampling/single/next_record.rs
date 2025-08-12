@@ -43,7 +43,7 @@ pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
             let mut buf = <[u8; 2]>::uninit();
             buf[0] = *(data_ptr.add((data_size - 1) as _) as *const u8);
             buf[1] = *(data_ptr as *const u8);
-            std::mem::transmute(buf)
+            std::mem::transmute::<[u8; 2], u16>(buf)
         },
         left => unsafe {
             let ptr = data_ptr.add((left - 2) as _) as *const u16;

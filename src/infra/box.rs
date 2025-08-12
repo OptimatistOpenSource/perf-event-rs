@@ -36,6 +36,6 @@ impl<T> BoxSliceExt for Box<[T]> {
         let layout = Layout::array::<u8>(len).unwrap();
         let ptr = unsafe { alloc(layout) };
         let slice = ptr::slice_from_raw_parts(ptr, len);
-        unsafe { Self::from_raw(std::mem::transmute(slice)) }
+        unsafe { Self::from_raw(std::mem::transmute::<*const [u8], *mut [T]>(slice)) }
     }
 }

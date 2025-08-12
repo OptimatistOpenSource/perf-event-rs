@@ -12,12 +12,15 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::config::{Cpu, Process};
-use crate::sampling::record::sample::WeightRepr;
-use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Config, ExtraConfig, OverflowBy, SampleRecordFields, Sampler};
-use crate::test::cpu_workload;
-use crate::{Event, EventScope, HardwareEvent};
+use crate::{
+    config::{Cpu, Process},
+    sampling::{
+        record::{sample::WeightRepr, Record, RecordBody},
+        Config, ExtraConfig, OverflowBy, SampleRecordFields, Sampler,
+    },
+    test::cpu_workload,
+    Event, EventScope, HardwareEvent,
+};
 
 fn gen_sampler(cfg: &Config) -> Sampler {
     let mmap_pages = 1 + 512;
@@ -33,37 +36,39 @@ fn gen_cfg(extra_config: ExtraConfig) -> Config {
 
 #[test]
 fn test() {
-    let mut extra_config = ExtraConfig::default();
-    extra_config.sample_record_fields = SampleRecordFields {
-        #[cfg(feature = "linux-3.12")]
-        sample_id: true,
-        ip: true,
-        pid_and_tid: true,
-        time: true,
-        addr: true,
-        id: true,
-        stream_id: true,
-        cpu: true,
-        period: true,
-        v: true,
-        ips: Some(1),
-        data_raw: true,
-        abi_and_regs_user: Some(1),
-        data_stack_user: Some(2_u16.pow(3)),
-        weight: Some(WeightRepr::Full),
-        data_src: true,
-        #[cfg(feature = "linux-3.13")]
-        transaction: true,
-        #[cfg(feature = "linux-3.19")]
-        abi_and_regs_intr: Some(1),
-        #[cfg(feature = "linux-4.14")]
-        phys_addr: true,
-        #[cfg(feature = "linux-5.7")]
-        cgroup: true,
-        #[cfg(feature = "linux-5.11")]
-        data_page_size: true,
-        #[cfg(feature = "linux-5.11")]
-        code_page_size: true,
+    let extra_config = ExtraConfig {
+        sample_record_fields: SampleRecordFields {
+            #[cfg(feature = "linux-3.12")]
+            sample_id: true,
+            ip: true,
+            pid_and_tid: true,
+            time: true,
+            addr: true,
+            id: true,
+            stream_id: true,
+            cpu: true,
+            period: true,
+            v: true,
+            ips: Some(1),
+            data_raw: true,
+            abi_and_regs_user: Some(1),
+            data_stack_user: Some(2_u16.pow(3)),
+            weight: Some(WeightRepr::Full),
+            data_src: true,
+            #[cfg(feature = "linux-3.13")]
+            transaction: true,
+            #[cfg(feature = "linux-3.19")]
+            abi_and_regs_intr: Some(1),
+            #[cfg(feature = "linux-4.14")]
+            phys_addr: true,
+            #[cfg(feature = "linux-5.7")]
+            cgroup: true,
+            #[cfg(feature = "linux-5.11")]
+            data_page_size: true,
+            #[cfg(feature = "linux-5.11")]
+            code_page_size: true,
+        },
+        ..Default::default()
     };
     let cfg = gen_cfg(extra_config);
     let mut sampler = gen_sampler(&cfg);
