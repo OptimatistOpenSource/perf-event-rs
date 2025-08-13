@@ -12,9 +12,9 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::debug_struct;
-use crate::syscall::bindings::perf_event_mmap_page;
 use std::fmt::{Debug, Formatter};
+
+use crate::{debug_struct, syscall::bindings::perf_event_mmap_page};
 
 impl Debug for perf_event_mmap_page {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

@@ -14,10 +14,9 @@
 
 mod new;
 
-use crate::perf_event::PerfEventAttr;
-use crate::{Event, EventScope};
-use std::ffi::CString;
-use std::rc::Rc;
+use std::{ffi::CString, rc::Rc};
+
+use crate::{perf_event::PerfEventAttr, Event, EventScope};
 
 pub type ExtraConfig = crate::sampling::ExtraConfig;
 

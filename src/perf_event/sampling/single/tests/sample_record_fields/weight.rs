@@ -12,12 +12,18 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::config::{Cpu, Process};
-use crate::sampling::record::sample::{Weight, WeightRepr};
-use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Config, ExtraConfig, OverflowBy, Sampler};
-use crate::test::cpu_workload;
-use crate::{Event, EventScope, HardwareEvent};
+use crate::{
+    config::{Cpu, Process},
+    sampling::{
+        record::{
+            sample::{Weight, WeightRepr},
+            Record, RecordBody,
+        },
+        Config, ExtraConfig, OverflowBy, Sampler,
+    },
+    test::cpu_workload,
+    Event, EventScope, HardwareEvent,
+};
 
 fn gen_sampler(cfg: &Config) -> Sampler {
     let mmap_pages = 1 + 512;

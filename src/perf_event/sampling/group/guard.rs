@@ -12,12 +12,15 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::infra::WrapResult;
-use crate::sampling::group::inner::Inner;
-use crate::sampling::record::Record;
-use crate::sampling::SamplerStat;
-use std::io;
-use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
+use std::{
+    io,
+    sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard},
+};
+
+use crate::{
+    infra::WrapResult,
+    sampling::{group::inner::Inner, record::Record, SamplerStat},
+};
 
 pub struct SamplerGuard {
     event_id: u64,
@@ -25,7 +28,7 @@ pub struct SamplerGuard {
 }
 
 impl SamplerGuard {
-    pub(crate) fn new(event_id: u64, inner: Arc<RwLock<Inner>>) -> Self {
+    pub(crate) const fn new(event_id: u64, inner: Arc<RwLock<Inner>>) -> Self {
         Self { event_id, inner }
     }
 

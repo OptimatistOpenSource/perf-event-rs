@@ -17,10 +17,12 @@ mod helpers;
 
 extern crate bindgen;
 
-use crate::consts::LINUX_FEATURE_VERSIONS;
-use crate::helpers::{bindgen, parse_linux_version_h};
-use std::env;
-use std::path::Path;
+use std::{env, path::Path};
+
+use crate::{
+    consts::LINUX_FEATURE_VERSIONS,
+    helpers::{bindgen, parse_linux_version_h},
+};
 
 fn main() {
     // Check target OS

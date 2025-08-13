@@ -15,10 +15,14 @@
 mod hardware;
 mod software;
 
-use crate::config::{Cpu, Process};
-use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Config, FixedSamplerGroup, OverflowBy, SamplerGroup, SamplerGuard};
-use crate::{Event, EventScope};
+use crate::{
+    config::{Cpu, Process},
+    sampling::{
+        record::{Record, RecordBody},
+        Config, FixedSamplerGroup, OverflowBy, SamplerGroup, SamplerGuard,
+    },
+    Event, EventScope,
+};
 
 pub fn test_group<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)
 where
@@ -40,7 +44,7 @@ fn gen_group() -> SamplerGroup {
 fn gen_cfg(ev: &Event) -> Config {
     let scopes = EventScope::all();
     let overflow_by = OverflowBy::Period(1000);
-    Config::new(&ev, &scopes, &overflow_by)
+    Config::new(ev, &scopes, &overflow_by)
 }
 
 fn test_next_record<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)
@@ -96,9 +100,9 @@ where
 
     fn consume_records(group: &mut FixedSamplerGroup, guard: &SamplerGuard) {
         let mut count = 0;
-        let mut next = group.next_record(&guard);
-        while let Some(_) = next {
-            next = group.next_record(&guard);
+        let mut next = group.next_record(guard);
+        while next.is_some() {
+            next = group.next_record(guard);
             count += 1;
         }
         assert!(count > 0);

@@ -12,9 +12,9 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::syscall::bindings::perf_event_attr;
-use crate::{debug_struct, debug_struct_fn};
 use std::fmt::{Debug, Formatter};
+
+use crate::{debug_struct, debug_struct_fn, syscall::bindings::perf_event_attr};
 
 impl Debug for perf_event_attr {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

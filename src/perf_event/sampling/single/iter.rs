@@ -12,8 +12,7 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::sampling::record::Record;
-use crate::sampling::Sampler;
+use crate::sampling::{record::Record, Sampler};
 
 impl Sampler {
     #[inline]

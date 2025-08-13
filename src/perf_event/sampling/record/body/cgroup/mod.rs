@@ -12,8 +12,9 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::sampling::record::sample_id::SampleId;
 use std::ffi::CString;
+
+use crate::sampling::record::sample_id::SampleId;
 
 mod raw;
 

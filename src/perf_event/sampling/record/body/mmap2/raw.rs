@@ -40,8 +40,10 @@ struct {
 };
 */
 
-use crate::infra::{ConstPtrExt, SliceExt, ZeroTerminated};
-use crate::sampling::record::sample_id::SampleId;
+use crate::{
+    infra::{ConstPtrExt, SliceExt, ZeroTerminated},
+    sampling::record::sample_id::SampleId,
+};
 
 #[repr(C)]
 #[derive(Copy, Clone)]

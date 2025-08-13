@@ -12,9 +12,9 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::sampling::config::sample_record_fields::SampleRecordFields;
-use crate::sampling::ExtraRecord;
-use crate::sampling::Wakeup::Events;
+use crate::sampling::{
+    config::sample_record_fields::SampleRecordFields, ExtraRecord, Wakeup::Events,
+};
 
 #[derive(Debug, Clone)]
 pub struct ExtraConfig {

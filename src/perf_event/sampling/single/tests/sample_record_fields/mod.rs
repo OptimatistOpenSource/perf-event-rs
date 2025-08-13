@@ -20,11 +20,15 @@ mod data_stack_user;
 mod ips;
 mod weight;
 
-use crate::config::{Cpu, Process};
-use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Config, ExtraConfig, OverflowBy, Sampler};
-use crate::test::cpu_workload;
-use crate::{Event, EventScope, HardwareEvent};
+use crate::{
+    config::{Cpu, Process},
+    sampling::{
+        record::{Record, RecordBody},
+        Config, ExtraConfig, OverflowBy, Sampler,
+    },
+    test::cpu_workload,
+    Event, EventScope, HardwareEvent,
+};
 
 fn gen_sampler(cfg: &Config) -> Sampler {
     let mmap_pages = 1 + 512;

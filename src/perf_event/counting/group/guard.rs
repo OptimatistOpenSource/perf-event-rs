@@ -12,11 +12,15 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::counting::group::inner::Inner;
-use crate::counting::CounterStat;
-use crate::infra::WrapResult;
-use std::io;
-use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
+use std::{
+    io,
+    sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard},
+};
+
+use crate::{
+    counting::{group::inner::Inner, CounterStat},
+    infra::WrapResult,
+};
 
 pub struct CounterGuard {
     event_id: u64,
@@ -24,7 +28,7 @@ pub struct CounterGuard {
 }
 
 impl CounterGuard {
-    pub(crate) fn new(event_id: u64, inner: Arc<RwLock<Inner>>) -> Self {
+    pub(crate) const fn new(event_id: u64, inner: Arc<RwLock<Inner>>) -> Self {
         Self { event_id, inner }
     }
 

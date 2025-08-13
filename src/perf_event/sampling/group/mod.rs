@@ -19,19 +19,22 @@ mod stat;
 #[cfg(test)]
 mod tests;
 
-use crate::infra::WrapResult;
-use crate::sampling::group::inner::Inner;
-use crate::sampling::record::Record;
-use crate::sampling::Config;
-use libc::pid_t;
-use std::io;
-use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
+use std::{
+    io,
+    sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard},
+};
 
-use crate::config;
-use crate::config::{Cpu, Error, Process};
 pub use fixed::*;
 pub use guard::*;
+use libc::pid_t;
 pub use stat::{MemberCount, SamplerGroupStat};
+
+use crate::{
+    config,
+    config::{Cpu, Error, Process},
+    infra::WrapResult,
+    sampling::{group::inner::Inner, record::Record, Config},
+};
 
 pub struct SamplerGroup {
     pid: pid_t,

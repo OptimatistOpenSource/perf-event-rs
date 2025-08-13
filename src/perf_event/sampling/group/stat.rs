@@ -12,12 +12,17 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::infra::{BoxSliceExt, WrapResult};
-use crate::sampling::group::inner::Inner;
-use crate::sampling::{ReadFormatHead, ReadFormatValue, SamplerGuard};
-use std::collections::HashMap;
-use std::io::{Error, ErrorKind, Read};
-use std::{io, slice};
+use std::{
+    collections::HashMap,
+    io,
+    io::{Error, ErrorKind, Read},
+    slice,
+};
+
+use crate::{
+    infra::{BoxSliceExt, WrapResult},
+    sampling::{group::inner::Inner, ReadFormatHead, ReadFormatValue, SamplerGuard},
+};
 
 #[derive(Debug, Clone)]
 pub struct SamplerGroupStat {

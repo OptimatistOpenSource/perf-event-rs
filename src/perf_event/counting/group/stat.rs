@@ -12,12 +12,17 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::counting::group::guard::CounterGuard;
-use crate::counting::group::inner::Inner;
-use crate::infra::{BoxSliceExt, WrapResult};
-use std::collections::HashMap;
-use std::io::{ErrorKind, Read};
-use std::{io, slice};
+use std::{
+    collections::HashMap,
+    io,
+    io::{ErrorKind, Read},
+    slice,
+};
+
+use crate::{
+    counting::group::{guard::CounterGuard, inner::Inner},
+    infra::{BoxSliceExt, WrapResult},
+};
 
 #[repr(C)]
 #[derive(Debug, Clone)]

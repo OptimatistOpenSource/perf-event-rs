@@ -12,19 +12,22 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::perf_event::PerfEventAttr;
-#[cfg(feature = "linux-4.1")]
-use crate::sampling::ClockId;
-use crate::sampling::{ExtraConfig, SampleIpSkid, Wakeup};
-use crate::syscall::bindings::*;
-use crate::tracing::config::Config;
-#[cfg(feature = "linux-4.17")]
-use crate::{DynamicPmuEvent, KprobeConfig, UprobeConfig};
-use crate::{Event, EventScope, RawPerfEventAttr};
+use std::{mem::size_of, ops::Not};
+
 #[cfg(feature = "linux-4.1")]
 use libc::{CLOCK_BOOTTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW, CLOCK_REALTIME, CLOCK_TAI};
-use std::mem::size_of;
-use std::ops::Not;
+
+#[cfg(feature = "linux-4.1")]
+use crate::sampling::ClockId;
+use crate::{
+    perf_event::PerfEventAttr,
+    sampling::{ExtraConfig, SampleIpSkid, Wakeup},
+    syscall::bindings::*,
+    tracing::config::Config,
+    Event, EventScope, RawPerfEventAttr,
+};
+#[cfg(feature = "linux-4.17")]
+use crate::{DynamicPmuEvent, KprobeConfig, UprobeConfig};
 
 #[inline]
 pub fn new<'t>(

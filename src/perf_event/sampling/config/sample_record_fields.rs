@@ -12,8 +12,7 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::sampling::record::sample::WeightRepr;
-use crate::syscall::bindings::*;
+use crate::{sampling::record::sample::WeightRepr, syscall::bindings::*};
 
 /// Select the fields contained in `sample::Body`
 #[derive(Debug, Clone, Default)]

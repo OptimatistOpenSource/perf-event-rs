@@ -20,10 +20,12 @@ struct {
 };
 */
 
-use crate::infra::SliceExt;
-use crate::sampling::record::sample_id::SampleId;
-use crate::sampling::{ReadFormatHead, ReadFormatValue};
 use std::slice;
+
+use crate::{
+    infra::SliceExt,
+    sampling::{record::sample_id::SampleId, ReadFormatHead, ReadFormatValue},
+};
 
 #[repr(C)]
 pub struct Sized {

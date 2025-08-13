@@ -23,9 +23,9 @@ struct sample_id {
 };
 */
 
+use std::{mem::size_of, ops::Not};
+
 use crate::syscall::bindings::*;
-use std::mem::size_of;
-use std::ops::Not;
 
 #[repr(C)]
 #[derive(Debug, Clone)]

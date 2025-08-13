@@ -22,9 +22,10 @@ struct {
 };
 */
 
-use crate::infra::{SliceExt, Vla};
-use crate::sampling::record::namespaces::Namespace;
-use crate::sampling::record::sample_id::SampleId;
+use crate::{
+    infra::{SliceExt, Vla},
+    sampling::record::{namespaces::Namespace, sample_id::SampleId},
+};
 
 #[repr(C)]
 pub struct Sized {

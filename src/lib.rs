@@ -13,8 +13,6 @@
 // see <https://www.gnu.org/licenses/>.
 
 #![cfg(target_os = "linux")]
-#![deny(warnings)]
-#![warn(clippy::all, clippy::nursery, clippy::cargo_common_metadata)]
 
 mod infra;
 mod perf_event;

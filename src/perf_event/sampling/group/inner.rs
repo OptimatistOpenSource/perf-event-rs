@@ -12,19 +12,22 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::perf_event::PerfEventAttr;
-use crate::sampling::group::stat::inner_stat;
-use crate::sampling::record::Record;
-use crate::sampling::{Sampler, SamplerGroupStat};
-use crate::syscall::bindings::*;
-use crate::syscall::{ioctl_wrapped, perf_event_open_wrapped};
+use std::{
+    collections::HashMap,
+    fs::File,
+    io,
+    io::ErrorKind,
+    os::fd::{AsRawFd, FromRawFd},
+};
+
 use libc::pid_t;
 use memmap2::MmapOptions;
-use std::collections::HashMap;
-use std::fs::File;
-use std::io;
-use std::io::ErrorKind;
-use std::os::fd::{AsRawFd, FromRawFd};
+
+use crate::{
+    perf_event::PerfEventAttr,
+    sampling::{group::stat::inner_stat, record::Record, Sampler, SamplerGroupStat},
+    syscall::{bindings::*, ioctl_wrapped, perf_event_open_wrapped},
+};
 
 pub struct Inner {
     leader_event_id: Option<u64>,

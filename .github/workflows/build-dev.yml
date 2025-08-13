@@ -6,7 +6,6 @@ on:
       - '*'
   pull_request_target:
     types:
-      - edited
       - opened
       - reopened
       - synchronize
@@ -28,18 +27,22 @@ jobs:
           - { pkg: linux-source-6.2.0 , alias: 6.2 , feature: linux-6.0 }
           - { pkg: linux-source-6.5.0 , alias: 6.5 , feature: linux-6.3 }
 
+    env:
+      SCCACHE_GHA_ENABLED: "true"
+      RUSTC_WRAPPER: "sccache"
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: actions-rs/toolchain@v2
         with:
           profile: minimal
           override: true
-          toolchain: 1.75.0
+          toolchain: 1.85
           components: rustfmt, clippy
 
       - name: Show environment information
@@ -51,13 +54,13 @@ jobs:
           rustc -V
           uname -a
 
-      - name: Setup Rust cache
-        uses: Swatinem/rust-cache@v2
+      - name: Setup build cache
+        uses: mozilla-actions/sccache-action@v0.0.9
         with:
-          prefix-key: ${{ matrix.target.alias }}
+          version: 'v0.10.0'
 
       - name: Cache APT packages
-        uses: awalsh128/cache-apt-pkgs-action@v1.3.1
+        uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: musl-tools ${{ matrix.linux-source.pkg }}
           version: 1.0

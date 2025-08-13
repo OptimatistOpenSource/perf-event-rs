@@ -16,10 +16,14 @@ mod hardware;
 mod sample_record_fields;
 mod software;
 
-use crate::config::{Cpu, Process};
-use crate::sampling::record::{Record, RecordBody};
-use crate::sampling::{Config, ExtraConfig, OverflowBy, Sampler};
-use crate::{Event, EventScope};
+use crate::{
+    config::{Cpu, Process},
+    sampling::{
+        record::{Record, RecordBody},
+        Config, ExtraConfig, OverflowBy, Sampler,
+    },
+    Event, EventScope,
+};
 
 pub fn test_single<F>(ev: &Event, workload: &mut F)
 where
@@ -44,7 +48,7 @@ fn gen_cfg(ev: &Event) -> Config {
     let overflow_by = OverflowBy::Period(1000);
     let mut extra_config = ExtraConfig::default();
     extra_config.sample_record_fields.time = true;
-    Config::extra_new(&ev, &scopes, &overflow_by, &extra_config)
+    Config::extra_new(ev, &scopes, &overflow_by, &extra_config)
 }
 
 fn test_next_record<F>(ev: &Event, workload: &mut F)

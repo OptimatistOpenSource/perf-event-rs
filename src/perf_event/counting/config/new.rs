@@ -12,13 +12,16 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::counting::{Config, ExtraConfig};
-use crate::perf_event::PerfEventAttr;
-use crate::syscall::bindings::*;
+use std::mem::size_of;
+
+use crate::{
+    counting::{Config, ExtraConfig},
+    perf_event::PerfEventAttr,
+    syscall::bindings::*,
+    Event, EventScope, RawPerfEventAttr,
+};
 #[cfg(feature = "linux-4.17")]
 use crate::{DynamicPmuEvent, KprobeConfig, UprobeConfig};
-use crate::{Event, EventScope, RawPerfEventAttr};
-use std::mem::size_of;
 
 #[inline]
 pub fn new<'t>(

@@ -17,11 +17,11 @@ mod data_src;
 mod raw;
 mod weight;
 
-use crate::sampling::SamplerGroupStat;
-use crate::syscall::bindings::*;
 pub use abi_and_regs::*;
 pub use data_src::*;
 pub use weight::*;
+
+use crate::{sampling::SamplerGroupStat, syscall::bindings::*};
 
 #[derive(Debug, Clone)]
 pub struct Body {

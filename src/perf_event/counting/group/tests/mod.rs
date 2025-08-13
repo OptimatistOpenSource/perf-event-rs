@@ -15,9 +15,11 @@
 mod hardware;
 mod software;
 
-use crate::config::{Cpu, Process};
-use crate::counting::{Config, CounterGroup};
-use crate::{Event, EventScope};
+use crate::{
+    config::{Cpu, Process},
+    counting::{Config, CounterGroup},
+    Event, EventScope,
+};
 
 /// rate = ev_1 / ev_2
 pub fn test_group<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)

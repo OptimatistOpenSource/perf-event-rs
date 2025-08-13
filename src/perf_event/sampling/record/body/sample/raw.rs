@@ -58,12 +58,13 @@ struct {
 };
 */
 
-use crate::infra::{SliceExt, Vla, WrapOption};
-use crate::sampling::{ReadFormatHead, ReadFormatValue};
-use crate::syscall::bindings::*;
-use std::mem::size_of;
-use std::ops::Not;
-use std::slice;
+use std::{mem::size_of, ops::Not, slice};
+
+use crate::{
+    infra::{SliceExt, Vla, WrapOption},
+    sampling::{ReadFormatHead, ReadFormatValue},
+    syscall::bindings::*,
+};
 
 pub(super) struct Raw {
     pub read_ptr: *const u8,

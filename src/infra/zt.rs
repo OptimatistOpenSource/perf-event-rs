@@ -12,11 +12,9 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
+use std::{marker::PhantomData, mem::size_of, ops::Not, slice};
+
 use crate::infra::SizedExt;
-use std::marker::PhantomData;
-use std::mem::size_of;
-use std::ops::Not;
-use std::slice;
 
 #[repr(C)]
 pub struct ZeroTerminated<T> {

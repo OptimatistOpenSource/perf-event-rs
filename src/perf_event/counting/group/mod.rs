@@ -19,22 +19,26 @@ mod stat;
 #[cfg(test)]
 mod tests;
 
-use crate::counting::Config;
-use crate::infra::WrapResult;
-use libc::pid_t;
-pub use stat::*;
-use std::io;
-use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
+use std::{
+    io,
+    sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard},
+};
 
-use crate::config;
-use crate::config::{Cpu, Process};
-use crate::counting::group::inner::Inner;
-use crate::syscall::bindings::*;
 pub use fixed::*;
 #[allow(unused_imports)]
 pub use guard::*;
+use libc::pid_t;
 #[allow(unused_imports)]
 pub use stat::CounterGroupStat;
+pub use stat::*;
+
+use crate::{
+    config,
+    config::{Cpu, Process},
+    counting::{group::inner::Inner, Config},
+    infra::WrapResult,
+    syscall::bindings::*,
+};
 
 pub struct CounterGroup {
     pid: pid_t,

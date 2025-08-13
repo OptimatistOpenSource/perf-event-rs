@@ -12,9 +12,7 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::counting::group::tests::test_group;
-use crate::test::mem_workload;
-use crate::{Event, SoftwareEvent};
+use crate::{counting::group::tests::test_group, test::mem_workload, Event, SoftwareEvent};
 
 #[test]
 fn test_page_fault_per_clock() {

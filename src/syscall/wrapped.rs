@@ -12,12 +12,9 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::syscall::bindings::perf_event_attr;
-use crate::syscall::{ioctl, perf_event_open};
-use std::ffi::c_int;
-use std::fs::File;
-use std::io;
-use std::os::fd::AsRawFd;
+use std::{ffi::c_int, fs::File, io, os::fd::AsRawFd};
+
+use crate::syscall::{bindings::perf_event_attr, ioctl, perf_event_open};
 
 pub fn ioctl_wrapped<A>(file: &File, request: impl Into<u64>, arg: Option<A>) -> io::Result<()> {
     let i32 = match arg {

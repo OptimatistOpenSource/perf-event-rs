@@ -12,9 +12,7 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::counting::single::tests::test_single;
-use crate::test::cpu_workload;
-use crate::{Event, HardwareEvent};
+use crate::{counting::single::tests::test_single, test::cpu_workload, Event, HardwareEvent};
 
 #[test]
 fn test_cpu_cycles() {
