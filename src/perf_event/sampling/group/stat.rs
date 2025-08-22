@@ -21,7 +21,10 @@ use std::{
 
 use crate::{
     infra::{BoxSliceExt, WrapResult},
-    sampling::{group::inner::Inner, ReadFormatHead, ReadFormatValue, SamplerGuard},
+    sampling::{
+        group::{guard::SamplerGuard, inner::Inner},
+        ReadFormatHead, ReadFormatValue,
+    },
 };
 
 #[derive(Debug, Clone)]

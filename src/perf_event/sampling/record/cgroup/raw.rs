@@ -12,23 +12,39 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-mod breakpoint;
-mod tracepoint;
-
-use crate::{
-    config::{Cpu, Process},
-    tracing::{Config, ExtraConfig, Tracer},
-    Event, EventScope,
+/*
+struct {
+  u64    id;
+  char   path[];
+  struct sample_id sample_id;
 };
+*/
 
-fn gen_tracer(cfg: &Config) -> Tracer {
-    let mmap_pages = 1 + 512;
-    Tracer::new(&Process::Current, &Cpu::Any, mmap_pages, cfg).unwrap()
+use crate::infra::{ConstPtrExt, SliceExt, ZeroTerminated};
+use crate::sampling::record::SampleId;
+
+pub struct Raw {
+    pub read_ptr: *const u8,
+    pub sample_type: u64,
 }
 
-pub fn gen_cfg(ev: &Event) -> Config {
-    let mut extra_config = ExtraConfig::default();
-    extra_config.sample_fields.addr = true;
-    let scopes = EventScope::all();
-    Config::extra_new(ev, &scopes, &extra_config)
+impl Raw {
+    pub unsafe fn id(&mut self) -> &u64 {
+        let ptr = self.read_ptr as *const u64;
+        self.read_ptr = ptr.add(1) as _;
+        &*ptr
+    }
+
+    pub unsafe fn path(&mut self) -> &[u8] {
+        let ptr = self.read_ptr;
+        let zt = ZeroTerminated::from_ptr(ptr);
+        let slice = zt.as_slice();
+        // Above [u8] will be rounded up to 64-bit in size in the kernel
+        self.read_ptr = slice.follow_mem_ptr().align_as_ptr::<u64>() as _;
+        slice
+    }
+
+    pub unsafe fn sample_id(&self) -> SampleId {
+        SampleId::from_ptr(self.read_ptr, self.sample_type)
+    }
 }

@@ -12,23 +12,26 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-mod breakpoint;
-mod tracepoint;
-
-use crate::{
-    config::{Cpu, Process},
-    tracing::{Config, ExtraConfig, Tracer},
-    Event, EventScope,
+/*
+struct {
+  u64    id;
+  u64    lost;
+  struct sample_id sample_id;
 };
+*/
 
-fn gen_tracer(cfg: &Config) -> Tracer {
-    let mmap_pages = 1 + 512;
-    Tracer::new(&Process::Current, &Cpu::Any, mmap_pages, cfg).unwrap()
+use crate::sampling::record::SampleId;
+
+#[repr(C)]
+#[derive(Debug, Clone)]
+pub struct Raw {
+    pub id: u64,
+    pub lost: u64,
 }
 
-pub fn gen_cfg(ev: &Event) -> Config {
-    let mut extra_config = ExtraConfig::default();
-    extra_config.sample_fields.addr = true;
-    let scopes = EventScope::all();
-    Config::extra_new(ev, &scopes, &extra_config)
+impl Raw {
+    pub unsafe fn sample_id(&self, sample_type: u64) -> SampleId {
+        let ptr = (self as *const Self).add(1) as _;
+        SampleId::from_ptr(ptr, sample_type)
+    }
 }

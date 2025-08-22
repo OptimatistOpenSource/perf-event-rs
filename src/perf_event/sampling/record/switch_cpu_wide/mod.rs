@@ -12,23 +12,32 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-mod breakpoint;
-mod tracepoint;
+use crate::sampling::record::{SampleId, SwitchFlags};
 
-use crate::{
-    config::{Cpu, Process},
-    tracing::{Config, ExtraConfig, Tracer},
-    Event, EventScope,
-};
+mod raw;
 
-fn gen_tracer(cfg: &Config) -> Tracer {
-    let mmap_pages = 1 + 512;
-    Tracer::new(&Process::Current, &Cpu::Any, mmap_pages, cfg).unwrap()
+#[derive(Debug, Clone)]
+pub struct SwitchCpuWideRecord {
+    pub flags: SwitchFlags,
+    pub next_prev_pid: u32,
+    pub next_prev_tid: u32,
+    pub sample_id: Option<SampleId>,
 }
 
-pub fn gen_cfg(ev: &Event) -> Config {
-    let mut extra_config = ExtraConfig::default();
-    extra_config.sample_fields.addr = true;
-    let scopes = EventScope::all();
-    Config::extra_new(ev, &scopes, &extra_config)
+impl SwitchCpuWideRecord {
+    pub(crate) unsafe fn from_ptr(
+        ptr: *const u8,
+        sample_type: u64,
+        sample_id_all: bool,
+        misc: u16,
+    ) -> Self {
+        let raw = &*(ptr as *const raw::Raw);
+
+        Self {
+            flags: SwitchFlags::new(misc),
+            next_prev_pid: raw.next_prev_pid,
+            next_prev_tid: raw.next_prev_tid,
+            sample_id: sample_id_all.then(|| raw.sample_id(sample_type)),
+        }
+    }
 }

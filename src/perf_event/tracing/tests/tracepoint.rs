@@ -1,4 +1,4 @@
-// Copyright (c) 2023-2024 Optimatist Technology Co., Ltd. All rights reserved.
+// Copyright (c) 2023-2025 Optimatist Technology Co., Ltd. All rights reserved.
 // DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 //
 // This file is part of perf-event-rs.
@@ -12,14 +12,11 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
+use crate::sampling::record::Record;
+use crate::test::{cpu_workload, read_file};
+use crate::tracing::tests::{gen_cfg, gen_tracer};
+use crate::{Event, TracepointEvent};
 use std::str::FromStr;
-
-use crate::{
-    sampling::record::{Record, RecordBody},
-    test::{cpu_workload, read_file},
-    tracing::tests::{gen_cfg, gen_tracer},
-    Event, TracepointEvent,
-};
 
 fn test<F>(ev: &Event, workload: &mut F)
 where
@@ -40,10 +37,10 @@ where
     tracer.disable().unwrap();
 
     let mut sample_count = 0;
-    for Record { body, .. } in tracer.iter() {
-        if let RecordBody::Sample(body) = body {
+    for record in tracer.iter() {
+        if let Record::Sample(sample_record) = record {
             sample_count += 1;
-            assert!(body.addr.is_some());
+            assert!(sample_record.addr.is_some());
         }
     }
     assert!(sample_count > 0);
