@@ -12,16 +12,16 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-mod extra_config;
-mod extra_record;
-mod new;
-mod sample_record_fields;
+mod builder;
+mod sample_fields;
+mod sampler_config;
+mod side_band_record;
 
 use std::{ffi::CString, fmt::Debug, rc::Rc};
 
-pub use extra_config::*;
-pub use extra_record::*;
-pub use sample_record_fields::*;
+pub use sample_fields::*;
+pub use sampler_config::*;
+pub use side_band_record::*;
 
 use crate::{perf_event::PerfEventAttr, Event, EventScope};
 
@@ -32,29 +32,29 @@ pub enum OverflowBy {
 }
 
 #[derive(Debug, Clone)]
-pub struct Config {
+pub struct EventConfig {
     // This will keep the ptr of `kprobe_func` or `uprobe_path` valid if present.
     #[allow(dead_code)]
     kprobe_func_or_uprobe_path: Option<Rc<CString>>,
     perf_event_attr: PerfEventAttr,
 }
 
-impl Config {
+impl EventConfig {
     pub fn new<'t>(
         event: &Event,
         scopes: impl IntoIterator<Item = &'t EventScope>,
         overflow_by: &OverflowBy,
     ) -> Self {
-        Self::extra_new(event, scopes, overflow_by, &Default::default())
+        Self::new_with_sampler_config(event, scopes, overflow_by, &Default::default())
     }
 
-    pub fn extra_new<'t>(
+    pub fn new_with_sampler_config<'t>(
         event: &Event,
         scopes: impl IntoIterator<Item = &'t EventScope>,
         overflow_by: &OverflowBy,
-        extra_config: &ExtraConfig,
+        sampler_config: &SamplerConfig,
     ) -> Self {
-        new::new(event, scopes, overflow_by, extra_config)
+        builder::build(event, scopes, overflow_by, sampler_config)
     }
 
     /// Construct from a `PerfEventAttr` struct.

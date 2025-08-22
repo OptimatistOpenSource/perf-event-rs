@@ -12,23 +12,36 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-mod breakpoint;
-mod tracepoint;
+use crate::sampling::record::{BasicFlags, SampleId};
+use crate::syscall::bindings::BPF_TAG_SIZE;
 
-use crate::{
-    config::{Cpu, Process},
-    tracing::{Config, ExtraConfig, Tracer},
-    Event, EventScope,
-};
+mod raw;
 
-fn gen_tracer(cfg: &Config) -> Tracer {
-    let mmap_pages = 1 + 512;
-    Tracer::new(&Process::Current, &Cpu::Any, mmap_pages, cfg).unwrap()
+#[derive(Debug, Clone)]
+pub struct BpfEventRecord {
+    pub basic_flags: BasicFlags,
+    pub r#type: u16,
+    pub flags: u16,
+    pub id: u32,
+    pub tag: [u8; BPF_TAG_SIZE as usize],
+    pub sample_id: Option<SampleId>,
 }
 
-pub fn gen_cfg(ev: &Event) -> Config {
-    let mut extra_config = ExtraConfig::default();
-    extra_config.sample_fields.addr = true;
-    let scopes = EventScope::all();
-    Config::extra_new(ev, &scopes, &extra_config)
+impl BpfEventRecord {
+    pub(crate) unsafe fn from_ptr(
+        ptr: *const u8,
+        sample_type: u64,
+        sample_id_all: bool,
+        misc: u16,
+    ) -> Self {
+        let raw = &*(ptr as *const raw::Raw);
+        Self {
+            basic_flags: BasicFlags::new(misc),
+            r#type: raw.r#type,
+            flags: raw.flags,
+            id: raw.id,
+            tag: raw.tag,
+            sample_id: sample_id_all.then(|| raw.sample_id(sample_type)),
+        }
+    }
 }

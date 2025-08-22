@@ -12,23 +12,39 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-mod breakpoint;
-mod tracepoint;
+mod raw;
 
-use crate::{
-    config::{Cpu, Process},
-    tracing::{Config, ExtraConfig, Tracer},
-    Event, EventScope,
-};
+use crate::sampling::record::{CommFlags, SampleId};
+use std::ffi::CString;
 
-fn gen_tracer(cfg: &Config) -> Tracer {
-    let mmap_pages = 1 + 512;
-    Tracer::new(&Process::Current, &Cpu::Any, mmap_pages, cfg).unwrap()
+#[derive(Debug, Clone)]
+pub struct CommRecord {
+    pub flags: CommFlags,
+    pub pid: u32,
+    pub tid: u32,
+    pub comm: CString,
+    pub sample_id: Option<SampleId>,
 }
 
-pub fn gen_cfg(ev: &Event) -> Config {
-    let mut extra_config = ExtraConfig::default();
-    extra_config.sample_fields.addr = true;
-    let scopes = EventScope::all();
-    Config::extra_new(ev, &scopes, &extra_config)
+impl CommRecord {
+    pub(crate) unsafe fn from_ptr(
+        ptr: *const u8,
+        sample_type: u64,
+        sample_id_all: bool,
+        misc: u16,
+    ) -> Self {
+        let mut raw = raw::Raw {
+            read_ptr: ptr,
+            sample_type,
+        };
+
+        let sized = raw.sized();
+        Self {
+            flags: CommFlags::new(misc),
+            pid: sized.pid,
+            tid: sized.tid,
+            comm: CString::from_vec_unchecked(raw.comm().to_vec()),
+            sample_id: sample_id_all.then(|| raw.sample_id()),
+        }
+    }
 }

@@ -19,28 +19,22 @@ mod stat;
 #[cfg(test)]
 mod tests;
 
-use std::{
-    fs::File,
-    io,
-    os::fd::{AsRawFd, FromRawFd},
-};
+use crate::config::{self, Cpu, Error, Process};
+use crate::infra::WrapResult;
+use crate::sampling::record::*;
+use crate::sampling::single::next_record::next_record;
+use crate::sampling::single::stat::sampler_stat;
+use crate::sampling::EventConfig;
+use crate::syscall::bindings::*;
+use crate::syscall::{ioctl_wrapped, perf_event_open_wrapped};
+use memmap2::{MmapMut, MmapOptions};
+use std::fs::File;
+use std::io;
+use std::os::fd::{AsRawFd, FromRawFd};
 
 pub use into_iter::*;
 pub use iter::*;
-use memmap2::{MmapMut, MmapOptions};
 pub use stat::SamplerStat;
-
-use crate::{
-    config,
-    config::{Cpu, Error, Process},
-    infra::WrapResult,
-    sampling::{
-        record::*,
-        single::{next_record::next_record, stat::sampler_stat},
-        Config,
-    },
-    syscall::{bindings::*, ioctl_wrapped, perf_event_open_wrapped},
-};
 
 pub struct Sampler {
     pub(crate) mmap: MmapMut,
@@ -71,7 +65,7 @@ impl Sampler {
         process: &Process,
         cpu: &Cpu,
         mmap_pages: usize,
-        cfg: &Config,
+        cfg: &EventConfig,
     ) -> config::Result<Self> {
         let (pid, cpu) = match (process.as_i32()?, cpu.as_i32()) {
             (-1, -1) => return Err(Error::InvalidProcessCpu),

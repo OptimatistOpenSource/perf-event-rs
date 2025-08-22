@@ -18,7 +18,7 @@ use std::{ffi::CString, rc::Rc};
 
 use crate::{perf_event::PerfEventAttr, Event, EventScope};
 
-pub type ExtraConfig = crate::sampling::ExtraConfig;
+pub type ExtraConfig = crate::sampling::SamplerConfig;
 
 #[derive(Debug, Clone)]
 pub struct Config {

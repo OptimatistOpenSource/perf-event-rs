@@ -1,4 +1,4 @@
-// Copyright (c) 2023-2024 Optimatist Technology Co., Ltd. All rights reserved.
+// Copyright (c) 2023-2025 Optimatist Technology Co., Ltd. All rights reserved.
 // DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 //
 // This file is part of perf-event-rs.
@@ -15,14 +15,12 @@
 mod hardware;
 mod software;
 
-use crate::{
-    config::{Cpu, Process},
-    sampling::{
-        record::{Record, RecordBody},
-        Config, FixedSamplerGroup, OverflowBy, SamplerGroup, SamplerGuard,
-    },
-    Event, EventScope,
-};
+use crate::config::{Cpu, Process};
+use crate::sampling::group::fixed::FixedSamplerGroup;
+use crate::sampling::group::guard::SamplerGuard;
+use crate::sampling::record::Record;
+use crate::sampling::{EventConfig, OverflowBy, SamplerGroup};
+use crate::{Event, EventScope};
 
 pub fn test_group<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)
 where
@@ -41,10 +39,10 @@ fn gen_group() -> SamplerGroup {
     SamplerGroup::new(&Process::Current, &Cpu::Any, mmap_pages).unwrap()
 }
 
-fn gen_cfg(ev: &Event) -> Config {
+fn gen_cfg(ev: &Event) -> EventConfig {
     let scopes = EventScope::all();
     let overflow_by = OverflowBy::Period(1000);
-    Config::new(ev, &scopes, &overflow_by)
+    EventConfig::new(&ev, &scopes, &overflow_by)
 }
 
 fn test_next_record<F>(ev_1: &Event, ev_2: &Event, workload: &mut F)
@@ -65,7 +63,7 @@ where
     let mut ev_1_sample_count = 0;
     let mut next = group.next_record(&ev_1_guard);
     while let Some(record) = next {
-        if let RecordBody::Sample(_) = record.body {
+        if let Record::Sample(_) = record {
             ev_1_sample_count += 1;
         }
         next = group.next_record(&ev_1_guard);
@@ -75,7 +73,7 @@ where
     let mut ev_2_sample_count = 0;
     let mut next = group.next_record(&ev_2_guard);
     while let Some(record) = next {
-        if let RecordBody::Sample(_) = record.body {
+        if let Record::Sample(_) = record {
             ev_2_sample_count += 1;
         }
         next = group.next_record(&ev_2_guard);
@@ -135,16 +133,16 @@ where
     group.disable().unwrap();
 
     let mut ev_1_sample_count = 0;
-    for Record { body, .. } in &mut ev_1_guard {
-        if let RecordBody::Sample(_) = body {
+    for record in &mut ev_1_guard {
+        if let Record::Sample(_) = record {
             ev_1_sample_count += 1;
         }
     }
     assert!(ev_1_sample_count > 0);
 
     let mut ev_2_sample_count = 0;
-    for Record { body, .. } in &mut ev_2_guard {
-        if let RecordBody::Sample(_) = body {
+    for record in &mut ev_2_guard {
+        if let Record::Sample(_) = record {
             ev_2_sample_count += 1;
         }
     }
@@ -168,8 +166,8 @@ where
 
     fn consume_records(guard: &mut SamplerGuard) {
         let mut count = 0;
-        for Record { body, .. } in guard {
-            if let RecordBody::Sample(_) = body {
+        for record in guard {
+            if let Record::Sample(_) = record {
                 count += 1;
             }
         }

@@ -1,4 +1,4 @@
-// Copyright (c) 2023-2024 Optimatist Technology Co., Ltd. All rights reserved.
+// Copyright (c) 2023-2025 Optimatist Technology Co., Ltd. All rights reserved.
 // DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 //
 // This file is part of perf-event-rs.
@@ -12,11 +12,9 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    sampling::record::{Record, RecordBody},
-    tracing::tests::{gen_cfg, gen_tracer},
-    BreakpointEvent, BreakpointLen, BreakpointType, Event,
-};
+use crate::sampling::record::Record;
+use crate::tracing::tests::{gen_cfg, gen_tracer};
+use crate::{BreakpointEvent, BreakpointLen, BreakpointType, Event};
 
 fn test<F>(ev: &Event, workload: &mut F, addr: u64)
 where
@@ -37,10 +35,10 @@ where
     tracer.disable().unwrap();
 
     let mut sample_count = 0;
-    for Record { body, .. } in tracer.iter() {
-        if let RecordBody::Sample(body) = body {
+    for record in tracer.iter() {
+        if let Record::Sample(sample_record) = record {
             sample_count += 1;
-            assert_eq!(body.addr.unwrap(), addr);
+            assert_eq!(sample_record.addr.unwrap(), addr);
         }
     }
     assert!(sample_count > 0);

@@ -12,26 +12,30 @@
 // You should have received a copy of the GNU Lesser General Public License along with Perf-event-rs. If not,
 // see <https://www.gnu.org/licenses/>.
 
-use std::{
-    alloc::{alloc, dealloc, Layout},
-    slice,
-};
-
-use crate::{
-    infra::{SizedExt, WrapBox, WrapOption},
-    sampling::{record::*, Sampler},
-    syscall::bindings::*,
-};
+use crate::infra::{SizedExt, WrapOption};
+use crate::sampling::record::*;
+use crate::sampling::Sampler;
+use crate::syscall::bindings::*;
+use std::alloc::{alloc, dealloc, Layout};
+use std::slice;
 
 #[inline]
 pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
     let metapage =
         unsafe { (sampler.mmap.as_mut_ptr() as *mut perf_event_mmap_page).as_mut() }.unwrap();
     let data_size = sampler.data_size;
-    let data_head = metapage.data_head % data_size;
-    let data_tail = metapage.data_tail;
 
-    if data_tail == data_head {
+    // Read data_head with volatile access and acquire semantics
+    let data_head = unsafe { std::ptr::read_volatile(&metapage.data_head) };
+    // Issue read memory barrier (rmb) after reading data_head
+    std::sync::atomic::fence(std::sync::atomic::Ordering::Acquire);
+
+    let data_tail = unsafe { std::ptr::read_volatile(&metapage.data_tail) };
+
+    // data_head continuously increases and doesn't wrap, so we need to manually wrap it
+    let data_head_wrapped = data_head % data_size;
+
+    if data_tail == data_head_wrapped {
         return None;
     }
 
@@ -83,177 +87,149 @@ pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
 
     let record_header =
         unsafe { (record_buf.as_ptr() as *const perf_event_header).as_ref() }.unwrap();
-    let record_body = unsafe {
+    let record = unsafe {
         let follow_mem_ptr = (record_header as *const perf_event_header).add(1) as *const _;
         match record_header.type_ {
-            PERF_RECORD_MMAP => {
-                let record = mmap::Body::from_ptr(follow_mem_ptr);
-                RecordBody::Mmap(record.wrap_box())
-            }
-            PERF_RECORD_LOST => {
-                let record = lost::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::Lost(record.wrap_box())
-            }
-            PERF_RECORD_COMM => {
-                let record = comm::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::Comm(record.wrap_box())
-            }
-            PERF_RECORD_EXIT => {
-                let record = exit::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::Exit(record.wrap_box())
-            }
-            PERF_RECORD_THROTTLE => {
-                let record = throttle::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::Throttle(record.wrap_box())
-            }
-            PERF_RECORD_UNTHROTTLE => {
-                let record = unthrottle::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::Unthrottle(record.wrap_box())
-            }
-            PERF_RECORD_FORK => {
-                let record = fork::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::Fork(record.wrap_box())
-            }
-            PERF_RECORD_READ => {
-                let record = read::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::Read(record.wrap_box())
-            }
-            PERF_RECORD_SAMPLE => {
-                let record = sample::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.regs_user_len,
-                    #[cfg(feature = "linux-3.19")]
-                    sampler.regs_intr_len,
-                );
-                RecordBody::Sample(record.wrap_box())
-            }
+            PERF_RECORD_MMAP => Record::Mmap(MmapRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
+            PERF_RECORD_LOST => Record::Lost(LostRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
+            PERF_RECORD_COMM => Record::Comm(CommRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
+            PERF_RECORD_EXIT => Record::Exit(ExitRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
+            PERF_RECORD_THROTTLE => Record::Throttle(ThrottleRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
+            PERF_RECORD_UNTHROTTLE => Record::Unthrottle(UnthrottleRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
+            PERF_RECORD_FORK => Record::Fork(ForkRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
+            PERF_RECORD_READ => Record::Read(ReadRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
+            PERF_RECORD_SAMPLE => Record::Sample(SampleRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.regs_user_len,
+                #[cfg(feature = "linux-3.19")]
+                sampler.regs_intr_len,
+                record_header.misc,
+            )),
             #[cfg(feature = "linux-3.12")]
-            PERF_RECORD_MMAP2 => {
-                let record = mmap2::Body::from_ptr(
-                    follow_mem_ptr,
-                    record_header.misc,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::Mmap2(record.wrap_box())
-            }
+            PERF_RECORD_MMAP2 => Record::Mmap2(Mmap2Record::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
             #[cfg(feature = "linux-4.1")]
-            PERF_RECORD_AUX => {
-                let record =
-                    aux::Body::from_ptr(follow_mem_ptr, sampler.sample_type, sampler.sample_id_all);
-                RecordBody::Aux(record.wrap_box())
-            }
+            PERF_RECORD_AUX => Record::Aux(AuxRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
             #[cfg(feature = "linux-4.1")]
-            PERF_RECORD_ITRACE_START => {
-                let ptr = follow_mem_ptr as *const intrace_start::Body;
-                RecordBody::ItraceStart(ptr.read().wrap_box())
-            }
+            PERF_RECORD_ITRACE_START => Record::ItraceStart(ItraceStartRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
             #[cfg(feature = "linux-4.2")]
-            PERF_RECORD_LOST_SAMPLES => {
-                let record = lost_samples::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::LostSamples(record.wrap_box())
-            }
+            PERF_RECORD_LOST_SAMPLES => Record::LostSamples(LostSamplesRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
             #[cfg(feature = "linux-4.3")]
-            PERF_RECORD_SWITCH => {
-                let record = switch::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::Switch(record.wrap_box())
-            }
+            PERF_RECORD_SWITCH => Record::Switch(SwitchRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
             #[cfg(feature = "linux-4.3")]
-            PERF_RECORD_SWITCH_CPU_WIDE => {
-                let record = switch_cpu_wide::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::SwitchCpuWide(record.wrap_box())
-            }
+            PERF_RECORD_SWITCH_CPU_WIDE => Record::SwitchCpuWide(SwitchCpuWideRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
             #[cfg(feature = "linux-4.12")]
-            PERF_RECORD_NAMESPACES => {
-                let record = namespaces::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::Namespaces(record.wrap_box())
-            }
+            PERF_RECORD_NAMESPACES => Record::Namespaces(NamespacesRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
             #[cfg(feature = "linux-5.1")]
-            PERF_RECORD_KSYMBOL => {
-                let record = ksymbol::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::Ksymbol(record.wrap_box())
-            }
+            PERF_RECORD_KSYMBOL => Record::Ksymbol(KsymbolRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
             #[cfg(feature = "linux-5.1")]
-            PERF_RECORD_BPF_EVENT => {
-                let record = bpf_event::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::BpfEvent(record.wrap_box())
-            }
+            PERF_RECORD_BPF_EVENT => Record::BpfEvent(BpfEventRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
             #[cfg(feature = "linux-5.7")]
-            PERF_RECORD_CGROUP => {
-                let record = cgroup::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::Cgroup(record.wrap_box())
-            }
+            PERF_RECORD_CGROUP => Record::Cgroup(CgroupRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
             #[cfg(feature = "linux-5.9")]
-            PERF_RECORD_TEXT_POKE => {
-                let record = text_poke::Body::from_ptr(
-                    follow_mem_ptr,
-                    sampler.sample_type,
-                    sampler.sample_id_all,
-                );
-                RecordBody::TextPoke(record.wrap_box())
-            }
+            PERF_RECORD_TEXT_POKE => Record::TextPoke(TextPokeRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
             #[cfg(feature = "linux-5.16")]
-            PERF_RECORD_AUX_OUTPUT_HW_ID => {
-                let ptr = follow_mem_ptr as *const aux_output_hw_id::Body;
-                RecordBody::AuxOutputHwId(ptr.read().wrap_box())
-            }
+            PERF_RECORD_AUX_OUTPUT_HW_ID => Record::AuxOutputHwId(AuxOutputHwIdRecord::from_ptr(
+                follow_mem_ptr,
+                sampler.sample_type,
+                sampler.sample_id_all,
+                record_header.misc,
+            )),
             _ => unreachable!(),
         }
     };
@@ -266,11 +242,11 @@ pub fn next_record(sampler: &mut Sampler) -> Option<Record> {
         }
     }
 
-    metapage.data_tail = (data_tail + record_len as u64) % data_size;
+    // Update data_tail with store release semantics to ensure the kernel sees the update
+    let new_data_tail = (data_tail + record_len as u64) % data_size;
+    // Issue write memory barrier (wmb) before writing data_tail
+    std::sync::atomic::fence(std::sync::atomic::Ordering::Release);
+    unsafe { std::ptr::write_volatile(&mut metapage.data_tail, new_data_tail) };
 
-    Record {
-        misc: record_header.misc,
-        body: record_body,
-    }
-    .wrap_some()
+    record.wrap_some()
 }

@@ -19,22 +19,17 @@ mod stat;
 #[cfg(test)]
 mod tests;
 
-use std::{
-    io,
-    sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard},
-};
-
-pub use fixed::*;
-pub use guard::*;
+use crate::config::{Cpu, Error, Process, Result};
+use crate::infra::WrapResult;
+use crate::sampling::group::fixed::FixedSamplerGroup;
+use crate::sampling::group::guard::SamplerGuard;
+use crate::sampling::group::inner::Inner;
+pub use crate::sampling::group::stat::SamplerGroupStat;
+use crate::sampling::record::Record;
+use crate::sampling::EventConfig;
 use libc::pid_t;
-pub use stat::{MemberCount, SamplerGroupStat};
-
-use crate::{
-    config,
-    config::{Cpu, Error, Process},
-    infra::WrapResult,
-    sampling::{group::inner::Inner, record::Record, Config},
-};
+use std::io;
+use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 pub struct SamplerGroup {
     pid: pid_t,
@@ -44,7 +39,7 @@ pub struct SamplerGroup {
 }
 
 impl SamplerGroup {
-    pub fn new(process: &Process, cpu: &Cpu, mmap_pages: usize) -> config::Result<Self> {
+    pub fn new(process: &Process, cpu: &Cpu, mmap_pages: usize) -> Result<Self> {
         let (pid, cpu) = match (process.as_i32()?, cpu.as_i32()) {
             (-1, -1) => return Err(Error::InvalidProcessCpu),
             (pid, cpu) => (pid, cpu),
@@ -68,7 +63,7 @@ impl SamplerGroup {
         self.inner.write().unwrap()
     }
 
-    pub fn add_member(&mut self, cfg: &Config) -> io::Result<SamplerGuard> {
+    pub fn add_member(&mut self, cfg: &EventConfig) -> io::Result<SamplerGuard> {
         let event_id =
             self.inner_mut()
                 .add_member(self.pid, self.cpu, self.mmap_pages, cfg.as_raw())?;
