@@ -150,4 +150,8 @@ impl Sampler {
     pub fn get_raw_fd(&self) -> i32 {
         self.file.as_raw_fd()
     }
+
+    pub fn raw_data(&self) -> Vec<u8> {
+        self.mmap.to_vec()
+    }
 }
