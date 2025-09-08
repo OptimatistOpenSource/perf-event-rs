@@ -77,6 +77,7 @@ impl Tracer {
             regs_user_len: perf_event_attr.sample_regs_user.count_ones() as _,
             #[cfg(feature = "linux-3.19")]
             regs_intr_len: perf_event_attr.sample_regs_intr.count_ones() as _,
+            perf_event_attr: perf_event_attr.0,
         };
 
         Ok(Self { sampler })

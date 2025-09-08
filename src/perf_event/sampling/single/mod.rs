@@ -31,8 +31,7 @@ use memmap2::{MmapMut, MmapOptions};
 pub use stat::SamplerStat;
 
 use crate::{
-    config,
-    config::{Cpu, Error, Process},
+    config::{self, Cpu, Error, Process},
     infra::WrapResult,
     sampling::{
         record::*,
@@ -40,6 +39,7 @@ use crate::{
         Config,
     },
     syscall::{bindings::*, ioctl_wrapped, perf_event_open_wrapped},
+    RawPerfEventAttr,
 };
 
 pub struct Sampler {
@@ -64,6 +64,8 @@ pub struct Sampler {
     pub(crate) regs_user_len: usize,
     #[cfg(feature = "linux-3.19")]
     pub(crate) regs_intr_len: usize,
+
+    pub(crate) perf_event_attr: RawPerfEventAttr,
 }
 
 impl Sampler {
@@ -102,6 +104,7 @@ impl Sampler {
             regs_user_len: perf_event_attr.sample_regs_user.count_ones() as _,
             #[cfg(feature = "linux-3.19")]
             regs_intr_len: perf_event_attr.sample_regs_intr.count_ones() as _,
+            perf_event_attr: perf_event_attr.0,
         }
         .wrap_ok()
     }
@@ -155,5 +158,9 @@ impl Sampler {
     /// For example attach a eBPF program to this event.
     pub fn get_raw_fd(&self) -> i32 {
         self.file.as_raw_fd()
+    }
+
+    pub fn perf_event_attr(&self) -> perf_event_attr {
+        self.perf_event_attr
     }
 }
